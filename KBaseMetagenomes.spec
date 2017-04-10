@@ -34,11 +34,13 @@ module KBaseMetagenomes {
     /*
         Data type for tracking binned contigs in an Assembly
         @metadata ws assembly_ref
+        @metadata ws total_len
         @metadata ws length(bins) as n_bins
     */
     typedef structure {
         assembly_ref assembly_ref;
         list<ContigBin> bins;
+        int total_len;
     } BinnedContigs;
 
 };
