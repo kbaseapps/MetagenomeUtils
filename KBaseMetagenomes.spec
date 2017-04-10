@@ -14,9 +14,21 @@ module KBaseMetagenomes {
         contig_id id;
     } Contig;
 
+    /*
+        bid (string) - ID of the bin
+        contigs      - The list of contigs mapped to this bin
+
+        gc (float)   - GC content of the contigs
+        len (int)    - cumulative length in bp of all the contigs in this bin
+        cov (float)  - optional coverage value
+        @optional cov
+    */
     typedef structure {
         bin_id bid;
         list<Contig> contigs;
+        float gc;
+        int len;
+        float cov;
     } ContigBin;
 
     /*
