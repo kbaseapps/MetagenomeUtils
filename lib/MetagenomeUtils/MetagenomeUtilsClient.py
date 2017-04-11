@@ -33,6 +33,34 @@ class MetagenomeUtils(object):
             trust_all_ssl_certificates=trust_all_ssl_certificates,
             auth_svc=auth_svc)
 
+    def file_to_binned_contigs(self, params, context=None):
+        """
+        file_to_binned_contigs: Generating BinnedContigs ojbect from files
+        input params:
+        file_directory: file directory containing compressed/unpacked contig file(s) to build BinnedContig object
+        assembly_ref: Metagenome assembly object reference
+        binned_contig_name: BinnedContig object name
+        workspace_name: the name/id of the workspace it gets saved to
+        return params:
+        binned_contig_obj_ref: generated result BinnedContig object reference
+        :param params: instance of type "FileToBinnedContigParams"
+           (file_directory: file directory containing compressed/unpacked
+           contig file(s) to build BinnedContig object assembly_ref:
+           Metagenome assembly object reference binned_contig_name:
+           BinnedContig object name workspace_name: the name/id of the
+           workspace it gets saved to) -> structure: parameter
+           "file_directory" of String, parameter "assembly_ref" of type
+           "obj_ref" (An X/Y/Z style reference), parameter
+           "binned_contig_name" of String, parameter "workspace_name" of
+           String
+        :returns: instance of type "FileToBinnedContigResult" -> structure:
+           parameter "binned_contig_obj_ref" of type "obj_ref" (An X/Y/Z
+           style reference)
+        """
+        return self._client.call_method(
+            'MetagenomeUtils.file_to_binned_contigs',
+            [params], self._service_ver, context)
+
     def status(self, context=None):
         return self._client.call_method('MetagenomeUtils.status',
                                         [], self._service_ver, context)
