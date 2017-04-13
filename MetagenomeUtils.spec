@@ -2,15 +2,6 @@
 A KBase module for interacting with Metagenomic data in KBase
 */
 module MetagenomeUtils {
-    
-
-    /*
-
-    TODO:
-        - Function for saving a BinnedContigs data object (file_to_binned_contigs?)
-        - Function for downloading BinnedContigs data (binned_contigs_to_file?)
-        - Other functions for BinnedContig manipulation, e.g. edit_bins, merge_bins ...
-    */
 
     /* 
       An X/Y/Z style reference
@@ -49,5 +40,28 @@ module MetagenomeUtils {
     */
     funcdef file_to_binned_contigs(FileToBinnedContigParams params)
         returns (FileToBinnedContigResult returnVal) authentication required;
+
+    /*
+      input_ref: BinnedContig object reference
+    */
+    typedef structure {
+      string input_ref;
+    } ExportParams;
+
+    typedef structure {
+      string shock_id;
+    } ExportOutput;
+
+    /*
+      binned_contigs_to_file: Convert BinnedContig object to fasta files and pack them to shock
+
+      required params:
+      input_ref: BinnedContig object reference
+
+      return params:
+      shock_id: saved packed file shock id
+    */
+    funcdef binned_contigs_to_file(ExportParams params)
+        returns (ExportOutput returnVal) authentication required;
 
 };

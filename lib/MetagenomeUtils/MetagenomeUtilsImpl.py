@@ -22,9 +22,9 @@ class MetagenomeUtils:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.0.1"
+    VERSION = "0.0.2"
     GIT_URL = "https://github.com/Tianhao-Gu/MetagenomeUtils.git"
-    GIT_COMMIT_HASH = "a8559529c21972e60e074d524a42c7937b7f25e0"
+    GIT_COMMIT_HASH = "3bc7bc212027a358e06feb6e6058593a25106d8a"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -81,6 +81,40 @@ class MetagenomeUtils:
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
             raise ValueError('Method file_to_binned_contigs return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
+    def binned_contigs_to_file(self, ctx, params):
+        """
+        binned_contigs_to_file: Convert BinnedContig object to fasta files and pack them to shock
+        required params:
+        input_ref: BinnedContig object reference
+        return params:
+        shock_id: saved packed file shock id
+        :param params: instance of type "ExportParams" (input_ref:
+           BinnedContig object reference) -> structure: parameter "input_ref"
+           of String
+        :returns: instance of type "ExportOutput" -> structure: parameter
+           "shock_id" of String
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN binned_contigs_to_file
+        print '--->\nRunning MetagenomeUtils.binned_contigs_to_file\nparams:'
+        print json.dumps(params, indent=1)
+
+        for key, value in params.iteritems():
+            if isinstance(value, basestring):
+                params[key] = value.strip()
+
+        binned_contig_downloader = MetagenomeFileUtils(self.config)
+        returnVal = binned_contig_downloader.binned_contigs_to_file(params)
+        #END binned_contigs_to_file
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method binned_contigs_to_file return value ' +
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]

@@ -187,6 +187,28 @@ public class MetagenomeUtilsClient {
         return res.get(0);
     }
 
+    /**
+     * <p>Original spec-file function name: binned_contigs_to_file</p>
+     * <pre>
+     * binned_contigs_to_file: Convert BinnedContig object to fasta files and pack them to shock
+     * required params:
+     * input_ref: BinnedContig object reference
+     * return params:
+     * shock_id: saved packed file shock id
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.metagenomeutils.ExportParams ExportParams}
+     * @return   parameter "returnVal" of type {@link us.kbase.metagenomeutils.ExportOutput ExportOutput}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public ExportOutput binnedContigsToFile(ExportParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<ExportOutput>> retType = new TypeReference<List<ExportOutput>>() {};
+        List<ExportOutput> res = caller.jsonrpcCall("MetagenomeUtils.binned_contigs_to_file", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
     public Map<String, Object> status(RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         TypeReference<List<Map<String, Object>>> retType = new TypeReference<List<Map<String, Object>>>() {};
