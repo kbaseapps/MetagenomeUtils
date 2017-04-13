@@ -325,9 +325,20 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
     def test_file_to_binned_contigs(self):
 
+        assembly_filename = '20x.fna'
+        assembly_fasta_file_path = os.path.join(self.scratch, assembly_filename)
+        shutil.copy(os.path.join("Data", assembly_filename), assembly_fasta_file_path)
+
+        assembly_params = {
+            'file': {'path': assembly_fasta_file_path},
+            'workspace_name': self.ws_info[1],
+            'assembly_name': 'MyAssembly'
+        }
+        assembly_ref = self.au.save_assembly_from_fasta(assembly_params)
+
         binned_contig_name = 'MyBinnedContig'
         params = {
-            'assembly_ref': self.assembly_ref,
+            'assembly_ref': assembly_ref,
             'file_directory': self.test_directory_path,
             'binned_contig_name': binned_contig_name,
             'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
@@ -345,14 +356,14 @@ class MetagenomeUtilsTest(unittest.TestCase):
         expect_binned_contig_info_list = ['assembly_ref', 'total_contig_len', 'n_bins']
         self.assertItemsEqual(binned_contig_info[-1], expect_binned_contig_info_list)
         self.assertEquals(int(binned_contig_info[-1].get('n_bins')), 3)
-        self.assertEquals(binned_contig_info[-1].get('assembly_ref'), self.assembly_ref)
+        self.assertEquals(binned_contig_info[-1].get('assembly_ref'), assembly_ref)
         self.assertEquals(int(binned_contig_info[-1].get('total_contig_len')), 8397583)
 
         binned_contig_data = binned_contig_object.get('data')
         epxect_binned_contig_keys = ['total_contig_len', 'assembly_ref', 'bins']
         self.assertItemsEqual(binned_contig_data.keys(), epxect_binned_contig_keys)
         self.assertEquals(binned_contig_data.get('total_contig_len'), 8397583)
-        self.assertEquals(binned_contig_data.get('assembly_ref'), self.assembly_ref)
+        self.assertEquals(binned_contig_data.get('assembly_ref'), assembly_ref)
 
         expect_bin_keys = ['contigs', 'bid', 'gc', 'sum_contig_len', 'cov', 'n_contigs']
         self.assertItemsEqual(binned_contig_data.get('bins')[0].keys(), expect_bin_keys)
@@ -401,5 +412,5 @@ class MetagenomeUtilsTest(unittest.TestCase):
             for filename in z.namelist():
                 data = z.read(filename)
                 with open(os.path.join(self.test_directory_path, filename), 'r') as origin_file:
-                    self.assertEqual(len(data.replace('\n', '')),
-                                     len(origin_file.read().replace('\n', '')))
+                    self.assertEqual(''.join(sorted(data.replace('\n', ''))),
+                                     ''.join(sorted(origin_file.read().replace('\n', ''))))
