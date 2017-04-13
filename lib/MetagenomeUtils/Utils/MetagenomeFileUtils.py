@@ -2,8 +2,13 @@ import time
 import json
 import os
 import re
+import sys
+import errno
+import uuid
+import zipfile
 
 from DataFileUtil.DataFileUtilClient import DataFileUtil
+from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 
 
 def log(message, prefix_newline=False):
@@ -25,6 +30,34 @@ class MetagenomeFileUtils:
         for p in ['assembly_ref', 'file_directory', 'binned_contig_name', 'workspace_name']:
             if p not in params:
                 raise ValueError('"{}" parameter is required, but missing'.format(p))
+
+    def _validate_binned_contigs_to_file_params(self, params):
+        """
+        _validate_binned_contigs_to_file_params:
+                validates params passed to binned_contigs_to_file method
+
+        """
+
+        log('Start validating binned_contigs_to_file params')
+
+        # check for required parameters
+        for p in ['input_ref']:
+            if p not in params:
+                raise ValueError('"{}" parameter is required, but missing'.format(p))
+
+    def _mkdir_p(self, path):
+        """
+        _mkdir_p: make directory for given path
+        """
+        if not path:
+            return
+        try:
+            os.makedirs(path)
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                pass
+            else:
+                raise
 
     def _get_bin_ids(self, file_directory):
         """
@@ -202,11 +235,71 @@ class MetagenomeFileUtils:
 
         return contig_bin
 
+    def _get_contig_file(self, assembly_ref):
+        """
+        _get_contig_file: get contif file from GenomeAssembly object
+        """
+
+        log('retrieving contig file from assembly: {}'.format(assembly_ref))
+        contig_file = self.au.get_assembly_as_fasta({'ref': assembly_ref}).get('path')
+
+        sys.stdout.flush()
+        contig_file = self.dfu.unpack_file({'file_path': contig_file})['file_path']
+
+        log('saved contig file to: {}'.format(contig_file))
+
+        return contig_file
+
+    def _get_contig_string(self, contig_id, assembly_contig_file):
+        """
+        _get_contig_string: find and return contig string from assembly contig file
+        """
+
+        processed_contig_string = False
+        found_contig = False
+        string_contig = ''
+        with open(os.path.join(assembly_contig_file), 'r') as file:
+            for line in file:
+                if processed_contig_string:
+                    break
+                elif found_contig and not line.startswith('>'):
+                    string_contig += line
+                elif found_contig and line.startswith('>'):
+                    processed_contig_string = True
+                elif contig_id == line[1:-1]:
+                    found_contig = True
+                    string_contig += line
+
+        return string_contig
+
+    def _pack_file_to_shock(self, result_files):
+        """
+        _pack_file_to_shock: pack files in result_files list and save in shock
+        """
+
+        log('start packing and uploading files:\n{}'.format('\n'.join(result_files)))
+
+        output_directory = os.path.join(self.scratch, 'packed_binned_contig_' + str(uuid.uuid4()))
+        self._mkdir_p(output_directory)
+        result_file = os.path.join(output_directory,
+                                   'packed_binned_contig_' + str(uuid.uuid4()) + '.zip')
+
+        with zipfile.ZipFile(result_file, 'w', zipfile.ZIP_DEFLATED, allowZip64=True) as zip_file:
+            for file in result_files:
+                zip_file.write(file, os.path.basename(file))
+
+        shock_id = self.dfu.file_to_shock({'file_path': result_file}).get('shock_id')
+
+        log('saved file to shock: {}'.format(shock_id))
+
+        return shock_id
+
     def __init__(self, config):
         self.callback_url = config['SDK_CALLBACK_URL']
         self.scratch = config['scratch']
         self.shock_url = config['shock-url']
         self.dfu = DataFileUtil(self.callback_url)
+        self.au = AssemblyUtil(self.callback_url)
 
     def file_to_binned_contigs(self, params):
         """
@@ -267,5 +360,51 @@ class MetagenomeFileUtils:
         binned_contig_obj_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
         returnVal = {'binned_contig_obj_ref': binned_contig_obj_ref}
         log('successfully saved BinnedContig object')
+
+        return returnVal
+
+    def binned_contigs_to_file(self, params):
+        """
+        binned_contigs_to_file: Convert BinnedContig object to fasta files and pack them to shock
+
+        input params:
+        input_ref: BinnedContig object reference
+
+        return params:
+        shock_id: saved packed file shock id
+        """
+
+        log('--->\nrunning MetagenomeFileUtils.binned_contigs_to_file\n' +
+            'params:\n{}'.format(json.dumps(params, indent=1)))
+
+        self._validate_binned_contigs_to_file_params(params)
+
+        binned_contig_object = self.dfu.get_objects(
+                                {'object_refs': [params.get('input_ref')]})['data'][0]
+
+        assembly_ref = binned_contig_object.get('data').get('assembly_ref')
+        assembly_contig_file = self._get_contig_file(assembly_ref)
+
+        bins = binned_contig_object.get('data').get('bins')
+
+        result_directory = os.path.join(self.scratch, 'binned_contig_files_' + str(uuid.uuid4()))
+        self._mkdir_p(result_directory)
+
+        result_files = []
+        for bin in bins:
+            bin_id = bin.get('bid')
+            log('processing bin: {}'.format(bin_id))
+            with open(os.path.join(result_directory, bin_id), 'w') as file:
+                contigs = bin.get('contigs')
+                for contig in contigs:
+                    contig_id = contig.get('id')
+                    contig_string = self._get_contig_string(contig_id, assembly_contig_file)
+                    file.write(contig_string)
+            result_files.append(os.path.join(result_directory, bin_id))
+            log('saved contig file to: {}'.format(result_files[-1]))
+
+        shock_id = self._pack_file_to_shock(result_files)
+
+        returnVal = {'shock_id': shock_id}
 
         return returnVal

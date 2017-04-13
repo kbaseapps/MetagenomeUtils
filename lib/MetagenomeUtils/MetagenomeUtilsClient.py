@@ -61,6 +61,23 @@ class MetagenomeUtils(object):
             'MetagenomeUtils.file_to_binned_contigs',
             [params], self._service_ver, context)
 
+    def binned_contigs_to_file(self, params, context=None):
+        """
+        binned_contigs_to_file: Convert BinnedContig object to fasta files and pack them to shock
+        required params:
+        input_ref: BinnedContig object reference
+        return params:
+        shock_id: saved packed file shock id
+        :param params: instance of type "ExportParams" (input_ref:
+           BinnedContig object reference) -> structure: parameter "input_ref"
+           of String
+        :returns: instance of type "ExportOutput" -> structure: parameter
+           "shock_id" of String
+        """
+        return self._client.call_method(
+            'MetagenomeUtils.binned_contigs_to_file',
+            [params], self._service_ver, context)
+
     def status(self, context=None):
         return self._client.call_method('MetagenomeUtils.status',
                                         [], self._service_ver, context)

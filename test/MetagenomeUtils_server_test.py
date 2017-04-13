@@ -5,6 +5,7 @@ import json  # noqa: F401
 import time
 import requests  # noqa: F401
 import shutil
+import zipfile
 
 from os import environ
 try:
@@ -79,9 +80,9 @@ class MetagenomeUtilsTest(unittest.TestCase):
                         os.path.join(cls.test_directory_path, item))
 
         # building Assembly
-        assembly_filename = 'small_bin_contig_file.fasta'
-        cls.assembly_fasta_file_path = os.path.join(cls.scratch, assembly_filename)
-        shutil.copy(os.path.join("Data", assembly_filename), cls.assembly_fasta_file_path)
+        cls.assembly_filename = 'small_bin_contig_file.fasta'
+        cls.assembly_fasta_file_path = os.path.join(cls.scratch, cls.assembly_filename)
+        shutil.copy(os.path.join("Data", cls.assembly_filename), cls.assembly_fasta_file_path)
 
         assembly_params = {
             'file': {'path': cls.assembly_fasta_file_path},
@@ -101,6 +102,14 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
     def getContext(self):
         return self.__class__.ctx
+
+    def test_bad_binned_contigs_to_file_params(self):
+        invalidate_input_params = {
+            'missing_input_ref': 'input_ref'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"input_ref" parameter is required, but missing'):
+            self.getImpl().binned_contigs_to_file(self.getContext(), invalidate_input_params)
 
     def test_bad_file_to_binned_contigs_params(self):
         invalidate_input_params = {
@@ -223,6 +232,55 @@ class MetagenomeUtilsTest(unittest.TestCase):
         expect_contig_bin_keys = ['gc', 'id', 'len']
         self.assertItemsEqual(contig_bin.get('contigs')[0].keys(), expect_contig_bin_keys)
 
+    def test_MetagenomeFileUtil_get_contig_file(self):
+        contig_file = self.binned_contig_builder._get_contig_file(self.assembly_ref)
+
+        with open(contig_file, 'r') as file:
+            contig_file_content = file.readlines()
+
+        with open(self.assembly_fasta_file_path, 'r') as file:
+            expect_contig_file_content = file.readlines()
+
+        self.assertItemsEqual(contig_file_content, expect_contig_file_content)
+
+    def test_MetagenomeFileUtil_get_contig_string(self):
+        target_contig_id = 'NODE_1_length_28553_cov_19.031240'
+        contig_string = self.binned_contig_builder._get_contig_string(target_contig_id,
+                                                                      self.assembly_fasta_file_path)
+
+        expect_contig_string = '>NODE_1_length_28553_cov_19.031240\n'
+        expect_contig_string += 'TCGGCGTCACAAAACTCGGAATCGTCGGACAGGAACAGTTCGCTGACGGTAAGTTATAAGGGAGACTCTC\n'
+        expect_contig_string += 'TCTTTAGGAATATTTGCTTAAAGAGAGAGCCACCTTGAGGGCAGGTTAAAGAAAAGCATATTTATTTTGT\n'
+
+        self.assertEquals(contig_string, expect_contig_string)
+
+        target_contig_id = 'NODE_9_length_4254_cov_19.036436'
+        contig_string = self.binned_contig_builder._get_contig_string(target_contig_id,
+                                                                      self.assembly_fasta_file_path)
+
+        expect_contig_string = '>NODE_9_length_4254_cov_19.036436\n'
+        expect_contig_string += 'ACAAAGTACAACCCTCACGTGCCACTCTCAGGGCTTAACTGACGACACGCCGTAATAGTATTTATTGGTT\n'
+        expect_contig_string += 'CACAGAAGGGTTGTACATCGGGTTAGATTATGAAAAAG\n'
+
+        self.assertEquals(contig_string, expect_contig_string)
+
+    def test_MetagenomeFileUtil_pack_file_to_shock(self):
+        result_files = [self.assembly_fasta_file_path, self.assembly_fasta_file_path]
+
+        shock_id = self.binned_contig_builder._pack_file_to_shock(result_files)
+
+        output_directory = os.path.join(self.scratch, 'test_pack_file_to_shock')
+        os.makedirs(output_directory)
+        shock_to_file_params = {
+            'shock_id': shock_id,
+            'file_path': output_directory
+        }
+        result_file = self.dfu.shock_to_file(shock_to_file_params).get('file_path')
+
+        expect_files = [self.assembly_filename, self.assembly_filename]
+        with zipfile.ZipFile(result_file) as z:
+            self.assertEqual(set(z.namelist()), set(expect_files))
+
     def test_file_to_binned_contigs(self):
 
         binned_contig_name = 'MyBinnedContig'
@@ -256,3 +314,49 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
         expect_bin_keys = ['contigs', 'bid', 'gc', 'sum_contig_len', 'cov']
         self.assertItemsEqual(binned_contig_data.get('bins')[0].keys(), expect_bin_keys)
+
+    def test_binned_contigs_to_file(self):
+
+        assembly_filename = '20x.fna'
+        assembly_fasta_file_path = os.path.join(self.scratch, assembly_filename)
+        shutil.copy(os.path.join("Data", assembly_filename), assembly_fasta_file_path)
+
+        assembly_params = {
+            'file': {'path': assembly_fasta_file_path},
+            'workspace_name': self.ws_info[1],
+            'assembly_name': 'MyAssembly'
+        }
+        assembly_ref = self.au.save_assembly_from_fasta(assembly_params)
+
+        binned_contig_name = 'MyBinnedContig'
+        params = {
+            'assembly_ref': assembly_ref,
+            'file_directory': self.test_directory_path,
+            'binned_contig_name': binned_contig_name,
+            'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
+        }
+
+        resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
+        binned_contig_obj_ref = resultVal.get('binned_contig_obj_ref')
+
+        params = {
+            'input_ref': binned_contig_obj_ref
+        }
+        resultVal = self.getImpl().binned_contigs_to_file(self.getContext(), params)[0]
+        self.assertTrue('shock_id' in resultVal)
+
+        output_directory = os.path.join(self.scratch, 'test_binned_contigs_to_file')
+        os.makedirs(output_directory)
+        shock_to_file_params = {
+            'shock_id': resultVal.get('shock_id'),
+            'file_path': output_directory
+        }
+        result_file = self.dfu.shock_to_file(shock_to_file_params).get('file_path')
+
+        expect_files = ['out_header.001.fasta', 'out_header.002.fasta', 'out_header.003.fasta']
+        with zipfile.ZipFile(result_file) as z:
+            self.assertEqual(set(z.namelist()), set(expect_files))
+            for filename in z.namelist():
+                data = z.read(filename)
+                with open(os.path.join(self.test_directory_path, filename), 'r') as origin_file:
+                    self.assertEqual(data.replace('\n', ''), origin_file.read().replace('\n', ''))
