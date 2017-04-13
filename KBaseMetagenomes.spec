@@ -17,7 +17,6 @@ module KBaseMetagenomes {
         @optional cov
     */
     typedef structure {
-        contig_id id;
         float gc;
         int len;
         float cov;
@@ -25,7 +24,7 @@ module KBaseMetagenomes {
 
     /*
         bid (string) - ID of the bin
-        contigs      - The list of contigs mapped to this bin
+        contigs      - A map from contig_id to information on the contig
 
         gc (float)           - total GC content of the contigs (ie, concatenate all
                                the contigs and compute the GC content)
@@ -36,7 +35,8 @@ module KBaseMetagenomes {
     */
     typedef structure {
         bin_id bid;
-        list<Contig> contigs;
+        mapping<contig_id, Contig> contigs;
+        int n_contigs;
         float gc;
         int sum_contig_len;
         float cov;
