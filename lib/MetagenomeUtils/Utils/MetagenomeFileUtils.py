@@ -6,6 +6,7 @@ import sys
 import errno
 import uuid
 import zipfile
+from Bio import SeqIO
 
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
@@ -99,13 +100,13 @@ class MetagenomeFileUtils:
             line_list = line.split('\t')
             if line_list[0] == bin_id:
                 if len(line_list) == 5:
-                    gc = float(line_list[4])
+                    gc = round(float(line_list[4])/100, 5)
                     sum_contig_len = int(line_list[3])
-                    cov = float(line_list[2].partition('%')[0])
+                    cov = round(float(line_list[2].partition('%')[0])/100, 5)
                 elif len(line_list) == 4:
-                    gc = float(line_list[3])
+                    gc = round(float(line_list[3])/100, 5)
                     sum_contig_len = int(line_list[2])
-                    cov = float(line_list[1].partition('%')[0])
+                    cov = round(float(line_list[1].partition('%')[0])/100, 5)
 
         return gc, sum_contig_len, cov
 
@@ -155,51 +156,54 @@ class MetagenomeFileUtils:
                                                                    gc, sum_contig_len, cov, bin_id))
         return gc, sum_contig_len, cov
 
-    def _generate_string_contigs(self, bin_id, file_directory):
+    def _generate_contigs(self, file_name, file_directory, assembly_ref):
         """
-        _generate_string_contigs: break contig_bin file into contig strings for each contig
+        _generate_contigs: generate contigs from assembly object
 
-        NOTE: This method is very specific to MaxBin2 app result.
-        """
-        log('generating contigs string list for bin: {}'.format(bin_id))
-        string_contigs = []
-
-        with open(os.path.join(file_directory, bin_id), 'r') as file:
-            string_contig = ''
-            lins = file.readlines()
-            for line in lins:
-                if line.startswith('>'):
-                    string_contigs.append(string_contig)
-                    string_contig = ''
-                    string_contig += line
-                else:
-                    string_contig += line
-            string_contigs.append(string_contig)
-
-        return string_contigs[1:]
-
-    def _generate_contig_summary(self, string_contig):
-        """
-        _generate_contig_summary: calculate contig summary info
+        file_name: file name of fasta file
+        file_directory: fasta file directory
+        assembly_ref: associated assembly object reference
         """
 
-        contig_len = 0
-        contig_gc_len = 0
-        for line in string_contig.split('\n'):
-            if line:
-                if line.startswith('>'):
-                    contig_id = line.partition('\n')[0].partition('>')[-1]
-                else:
-                    sequence_line = line.partition('\n')[0].upper()
-                    contig_len += len(sequence_line)
-                    contig_gc_len += sequence_line.count('G')
-                    contig_gc_len += sequence_line.count('C')
+        log('start generating contig objects for file: {}'.format(file_name))
 
-        contig_gc = round(float(contig_gc_len)/float(contig_len), 2)
+        assembly = self.dfu.get_objects({'object_refs': [assembly_ref]})['data'][0]
+        assembly_contigs = assembly.get('data').get('contigs')
 
-        return contig_id, contig_gc, contig_len
+        contigs = {}
+        for record in SeqIO.parse(os.path.join(file_directory, file_name), "fasta"):
 
-    def _generate_contig_bin(self, bin_id, file_directory):
+            contig_id = record.id
+            contig = assembly_contigs.get(contig_id)
+
+            if contig:
+                # using assembly object data
+                contig_gc = contig.get('gc_content')
+                sequence_length = contig.get('length')
+            else:
+                log('cannot find contig [{}] from assembly.'.format(contig_id))
+                log('computing contig info')
+
+                sequence = str(record.seq).upper()
+                sequence_length = len(sequence)
+
+                contig_gc_len = 0
+                contig_gc_len += sequence.count('G')
+                contig_gc_len += sequence.count('C')
+
+                contig_gc = round(float(contig_gc_len) / float(sequence_length), 5)
+
+            contig = {
+                'gc': contig_gc,
+                'len': sequence_length
+            }
+            contigs[contig_id] = contig
+
+        log('complete generating contig objects for file: {}'.format(file_name))
+
+        return contigs
+
+    def _generate_contig_bin(self, bin_id, file_directory, assembly_ref):
         """
         _generate_contig_bin: gerneate ContigBin structure
         """
@@ -209,23 +213,12 @@ class MetagenomeFileUtils:
         gc, sum_contig_len, cov = self._generate_contig_bin_summary(bin_id, file_directory)
 
         # generate Contig info
-        contigs = []
-        string_contigs = self._generate_string_contigs(bin_id, file_directory)
-
-        log('start generating contig objects for bin: {}'.format(bin_id))
-        for string_contig in string_contigs:
-            contig_id, contig_gc, contig_len = self._generate_contig_summary(string_contig)
-            contig = {
-                'id': contig_id,
-                'gc': contig_gc,
-                'len': contig_len
-            }
-            contigs.append(contig)
-        log('complete generating contig objects for bin: {}'.format(bin_id))
+        contigs = self._generate_contigs(bin_id, file_directory, assembly_ref)
 
         contig_bin = {
             'bid': bin_id,
             'contigs': contigs,
+            'n_contigs': len(contigs),
             'gc': gc,
             'sum_contig_len': sum_contig_len,
             'cov': cov
@@ -255,20 +248,18 @@ class MetagenomeFileUtils:
         _get_contig_string: find and return contig string from assembly contig file
         """
 
-        processed_contig_string = False
-        found_contig = False
-        string_contig = ''
-        with open(os.path.join(assembly_contig_file), 'r') as file:
-            for line in file:
-                if processed_contig_string:
-                    break
-                elif found_contig and not line.startswith('>'):
-                    string_contig += line
-                elif found_contig and line.startswith('>'):
-                    processed_contig_string = True
-                elif contig_id == line[1:-1]:
-                    found_contig = True
-                    string_contig += line
+        parsed_assembly = SeqIO.to_dict(SeqIO.parse(assembly_contig_file, "fasta"))
+
+        contig_record = parsed_assembly.get(contig_id)
+
+        if contig_record:
+            string_contig = ''
+            string_contig += '>{}\n'.format(contig_id)
+            string_contig += str(contig_record.seq).upper()
+            string_contig += '\n'
+        else:
+            raise ValueError('Cannot find contig [{}] from file [{}].'.format(contig_id,
+                                                                              assembly_contig_file))
 
         return string_contig
 
@@ -322,20 +313,21 @@ class MetagenomeFileUtils:
         self._validate_file_to_binned_contigs_params(params)
 
         file_directory = params.get('file_directory')
+        assembly_ref = params.get('assembly_ref')
 
         log('starting generating BinnedContig object')
         bin_ids = self._get_bin_ids(file_directory)
 
-        total_contig_len = self._get_total_contig_len(file_directory)
-
         bins = []
         for bin_id in bin_ids:
-            contig_bin = self._generate_contig_bin(bin_id, file_directory)
+            contig_bin = self._generate_contig_bin(bin_id, file_directory, assembly_ref)
             bins.append(contig_bin)
         log('finished generating BinnedContig object')
 
+        total_contig_len = self._get_total_contig_len(file_directory)
+
         binned_contigs = {
-            'assembly_ref': params.get('assembly_ref'),
+            'assembly_ref': assembly_ref,
             'bins': bins,
             'total_contig_len': total_contig_len
         }
@@ -396,8 +388,7 @@ class MetagenomeFileUtils:
             log('processing bin: {}'.format(bin_id))
             with open(os.path.join(result_directory, bin_id), 'w') as file:
                 contigs = bin.get('contigs')
-                for contig in contigs:
-                    contig_id = contig.get('id')
+                for contig_id in contigs.keys():
                     contig_string = self._get_contig_string(contig_id, assembly_contig_file)
                     file.write(contig_string)
             result_files.append(os.path.join(result_directory, bin_id))
