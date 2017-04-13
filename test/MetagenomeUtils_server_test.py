@@ -401,4 +401,5 @@ class MetagenomeUtilsTest(unittest.TestCase):
             for filename in z.namelist():
                 data = z.read(filename)
                 with open(os.path.join(self.test_directory_path, filename), 'r') as origin_file:
-                    self.assertEqual(data.replace('\n', ''), origin_file.read().replace('\n', ''))
+                    self.assertEqual(len(data.replace('\n', '')),
+                                     len(origin_file.read().replace('\n', '')))
