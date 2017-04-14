@@ -68,7 +68,7 @@
         "contigs_to_add",
         "contigs_to_remove"
       ],
-      "optional": true,
+      "optional": false,
       "allow_multiple": true,
       "with_border": false
     }
