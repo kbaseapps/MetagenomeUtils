@@ -1,0 +1,104 @@
+{
+  "ver": "1.0.0",
+  "authors": [ ],
+  "contact": "help@kbase.us",
+  "visible": true,
+  "categories": ["active","assembly","communities"],
+  "widgets": {
+    "input": null,
+    "output": "no-display"
+  },
+  "parameters": [
+    {
+      "id": "binned_contig_ref",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [""],
+      "field_type": "text",
+      "text_options": {
+        "valid_ws_types": ["KBaseMetagenomes.BinnedContigs"],
+        "is_output_name": false
+      }
+    },
+    {
+      "id": "bin_id",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [""],
+      "field_type": "text"
+    },
+    {
+      "id": "contigs_to_remove",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": true,
+      "default_values": [
+        ""
+      ],
+      "field_type": "text"
+    },
+    {
+      "id": "contigs_to_add",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": true,
+      "default_values": [""],
+      "field_type": "text"
+    },
+    {
+      "id": "output_binned_contig_name",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [""],
+      "field_type": "text",
+      "text_options": {
+        "valid_ws_types": ["KBaseMetagenomes.BinnedContigs"],
+        "is_output_name": true
+      }
+    }
+  ],
+  "parameter-groups": [
+    {
+      "id": "bin_edits",
+      "parameters": [
+        "bin_id",
+        "contigs_to_add",
+        "contigs_to_remove"
+      ],
+      "optional": true,
+      "allow_multiple": true,
+      "with_border": false
+    }
+  ],
+  "behavior": {
+    "service-mapping": {
+      "url": "",
+      "name": "MetagenomeUtils",
+      "method": "edit",
+      "input_mapping": [
+        {
+          "narrative_system_variable": "workspace",
+          "target_property": "workspace"
+        },
+        {
+          "input_parameter": "binned_contig_ref",
+          "target_property": "binned_contig_ref"
+        },
+        {
+          "input_parameter": "bin_edits",
+          "target_property": "bin_edits"
+        },
+        {
+          "input_parameter": "output_binned_contig_name",
+          "target_property": "output_binned_contig_name"
+        }
+      ],
+      "output_mapping": [
+      ]
+    }
+  },
+  "job_id_output_field": "docker"
+}

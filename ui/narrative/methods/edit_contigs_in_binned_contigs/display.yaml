@@ -1,0 +1,54 @@
+#
+# define display information
+#
+name: Modify Bins in BinnedContigs
+tooltip: Add or remove specific bins by ID in BinnedContigs data
+screenshots: []
+
+icon: null
+
+#
+# define a set of similar methods that might be useful to the user
+#
+suggestions:
+	apps:
+		related:
+			[]
+		next:
+			[]
+	methods:
+		related:
+			[]
+		next:
+			[]
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    binned_contig_ref :
+        ui-name : Binned Contigs
+        short-hint : the binned contig data to edit
+    bin_id:
+        ui-name : Bin ID
+        short-hint : Enter the ID of the bin to modify
+    contigs_to_remove:
+        ui-name : Contig to Remove
+        short-hint : Enter the ID of the contig to remove from this bin
+    contigs_to_add:
+        ui-name :  Contig to Add
+        short-hint : Enter the ID of the contig to add to this bin
+    output_binned_contig_name :
+        ui-name : Output BinnedContigs Name
+        short-hint : select a name for the output contigs object
+
+
+parameter-groups :
+    bin_edits :
+        ui-name : Modifications to Bins
+        short-hint : Select contigs to add or remove to each bin
+            
+
+description : |
+    <p>Basic tool for editing the contigs in bins in BinnedContig data.</p>
+

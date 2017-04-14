@@ -1,0 +1,77 @@
+{
+  "ver": "1.0.0",
+  "authors": [ ],
+  "contact": "help@kbase.us",
+  "visible": true,
+  "categories": ["active","assembly","communities"],
+  "widgets": {
+    "input": null,
+    "output": "no-display"
+  },
+  "parameters": [
+    {
+      "id": "binned_contig_ref",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [""],
+      "field_type": "text",
+      "text_options": {
+        "valid_ws_types": ["KBaseMetagenomes.BinnedContigs"],
+        "is_output_name": false
+      }
+    },
+    {
+      "id": "bin_id",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [""],
+      "field_type": "text"
+    },
+    {
+      "id": "output_assembly_name",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [""],
+      "field_type": "text",
+      "text_options": {
+        "valid_ws_types": ["KBaseGenomeAnnotations.Assembly"],
+        "is_output_name": true
+      }
+    }
+  ],
+  "parameter-groups": [
+    {
+      "id": "extracted_assemblies",
+      "parameters": [
+        "bin_id",
+        "output_assembly_name"
+      ],
+      "optional": true,
+      "allow_multiple": true,
+      "with_border": false
+    }
+  ],
+  "behavior": {
+    "service-mapping": {
+      "url": "",
+      "name": "MetagenomeUtils",
+      "method": "edit",
+      "input_mapping": [
+        {
+          "narrative_system_variable": "workspace",
+          "target_property": "workspace"
+        },
+        {
+          "input_parameter": "extracted_assemblies",
+          "target_property": "extracted_assemblies"
+        }
+      ],
+      "output_mapping": [
+      ]
+    }
+  },
+  "job_id_output_field": "docker"
+}
