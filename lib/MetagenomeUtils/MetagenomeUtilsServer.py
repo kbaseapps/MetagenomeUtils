@@ -341,6 +341,10 @@ class Application(object):
                              name='MetagenomeUtils.binned_contigs_to_file',
                              types=[dict])
         self.method_authentication['MetagenomeUtils.binned_contigs_to_file'] = 'required'  # noqa
+        self.rpc_service.add(impl_MetagenomeUtils.extract_binned_contigs_as_assembly,
+                             name='MetagenomeUtils.extract_binned_contigs_as_assembly',
+                             types=[dict])
+        self.method_authentication['MetagenomeUtils.extract_binned_contigs_as_assembly'] = 'required'  # noqa
         self.rpc_service.add(impl_MetagenomeUtils.status,
                              name='MetagenomeUtils.status',
                              types=[dict])
