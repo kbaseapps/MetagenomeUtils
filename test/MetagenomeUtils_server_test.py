@@ -550,7 +550,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         }
         with self.assertRaisesRegexp(
                     ValueError,
-                    'bin_id \[nonexisting_bin_id\] cannot be found in BinnedContig [{}]'.format(
+                    'bin_id \[nonexisting_bin_id\] cannot be found in BinnedContig \[{}\]'.format(
                                                                             binned_contig_obj_ref)):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
