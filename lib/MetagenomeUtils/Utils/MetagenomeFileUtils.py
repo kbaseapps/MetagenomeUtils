@@ -329,9 +329,8 @@ class MetagenomeFileUtils:
 
         report_params = {
               'message': upload_message,
-              'summary_window_height': 166.0,
               'workspace_name': params.get('workspace_name'),
-              'report_object_name': 'kb_maxbin_report_' + uuid_string}
+              'report_object_name': 'MetagenomeUtils_report_' + uuid_string}
 
         kbase_report_client = KBaseReport(self.callback_url)
         output = kbase_report_client.create_extended_report(report_params)
@@ -500,14 +499,14 @@ class MetagenomeFileUtils:
                 output_assembly_name = extracted_assembly.get('output_assembly_name').strip()
                 for bin_file in bin_files:
                     if os.path.basename(bin_file) == bin_id:
-                        log('starting generating assembly from {}'.bin_id)
+                        log('starting generating assembly from {}'.format(bin_id))
                         assembly_params = {
                             'file': {'path': bin_file},
                             'workspace_name': params.get('workspace_name'),
                             'assembly_name': output_assembly_name
                         }
                         assembly_ref = self.au.save_assembly_from_fasta(assembly_params)
-                        log('finished generating assembly from {}'.bin_id)
+                        log('finished generating assembly from {}'.format(bin_id))
                         generated_assembly_ref_list.append(assembly_ref)
 
         reportVal = self._generate_report(generated_assembly_ref_list, params)

@@ -519,15 +519,17 @@ class MetagenomeUtilsTest(unittest.TestCase):
         resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
         binned_contig_obj_ref = resultVal.get('binned_contig_obj_ref')
 
-        bin_id = 'out_header.002.fasta'
-        output_assembly_name = 'MyAssembly'
-
         params = {
             'binned_contig_obj_ref': binned_contig_obj_ref,
-            'extracted_assemblies': [{
-                'bin_id': bin_id,
-                'output_assembly_name': output_assembly_name
-            }],
+            'extracted_assemblies': [
+                {
+                    'bin_id': 'out_header.001.fasta',
+                    'output_assembly_name': 'MyAssembly_1'
+                },
+                {
+                    'bin_id': 'out_header.002.fasta',
+                    'output_assembly_name': 'MyAssembl_2'
+                }],
             'workspace_name': self.getWsName()
         }
 
@@ -541,7 +543,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'binned_contig_obj_ref': binned_contig_obj_ref,
             'extracted_assemblies': [{
                 'bin_id': 'nonexisting_bin_id',
-                'output_assembly_name': output_assembly_name
+                'output_assembly_name': 'MyAssembly'
             }],
             'workspace_name': self.getWsName()
         }
@@ -549,4 +551,5 @@ class MetagenomeUtilsTest(unittest.TestCase):
                     ValueError,
                     'bin_id \[nonexisting_bin_id\] cannot be found in BinnedContig [{}]'.format(
                                                                             binned_contig_obj_ref)):
-            self.getImpl().file_to_binned_contigs(self.getContext(), invalidate_input_params)
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
