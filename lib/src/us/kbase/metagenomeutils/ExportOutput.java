@@ -2,7 +2,6 @@
 package us.kbase.metagenomeutils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -16,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: ExportOutput</p>
  * <pre>
  * shock_id: saved packed file shock id
- * bin_file_list: a list of bin file path
+ * bin_file_directory: directory that contains all bin files
  * </pre>
  * 
  */
@@ -24,59 +23,59 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "shock_id",
-    "bin_file_list"
+    "bin_file_directory"
 })
 public class ExportOutput {
 
     @JsonProperty("shock_id")
-    private java.lang.String shockId;
-    @JsonProperty("bin_file_list")
-    private List<String> binFileList;
-    private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
+    private String shockId;
+    @JsonProperty("bin_file_directory")
+    private String binFileDirectory;
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("shock_id")
-    public java.lang.String getShockId() {
+    public String getShockId() {
         return shockId;
     }
 
     @JsonProperty("shock_id")
-    public void setShockId(java.lang.String shockId) {
+    public void setShockId(String shockId) {
         this.shockId = shockId;
     }
 
-    public ExportOutput withShockId(java.lang.String shockId) {
+    public ExportOutput withShockId(String shockId) {
         this.shockId = shockId;
         return this;
     }
 
-    @JsonProperty("bin_file_list")
-    public List<String> getBinFileList() {
-        return binFileList;
+    @JsonProperty("bin_file_directory")
+    public String getBinFileDirectory() {
+        return binFileDirectory;
     }
 
-    @JsonProperty("bin_file_list")
-    public void setBinFileList(List<String> binFileList) {
-        this.binFileList = binFileList;
+    @JsonProperty("bin_file_directory")
+    public void setBinFileDirectory(String binFileDirectory) {
+        this.binFileDirectory = binFileDirectory;
     }
 
-    public ExportOutput withBinFileList(List<String> binFileList) {
-        this.binFileList = binFileList;
+    public ExportOutput withBinFileDirectory(String binFileDirectory) {
+        this.binFileDirectory = binFileDirectory;
         return this;
     }
 
     @JsonAnyGetter
-    public Map<java.lang.String, Object> getAdditionalProperties() {
+    public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     @JsonAnySetter
-    public void setAdditionalProperties(java.lang.String name, Object value) {
+    public void setAdditionalProperties(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
 
     @Override
-    public java.lang.String toString() {
-        return ((((((("ExportOutput"+" [shockId=")+ shockId)+", binFileList=")+ binFileList)+", additionalProperties=")+ additionalProperties)+"]");
+    public String toString() {
+        return ((((((("ExportOutput"+" [shockId=")+ shockId)+", binFileDirectory=")+ binFileDirectory)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

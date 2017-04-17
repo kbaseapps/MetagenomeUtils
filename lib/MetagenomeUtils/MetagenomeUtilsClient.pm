@@ -230,11 +230,11 @@ $params is a MetagenomeUtils.ExportParams
 $returnVal is a MetagenomeUtils.ExportOutput
 ExportParams is a reference to a hash where the following keys are defined:
 	input_ref has a value which is a string
-	not_save_to_shock has a value which is a MetagenomeUtils.boolean
+	save_to_shock has a value which is a MetagenomeUtils.boolean
 boolean is an int
 ExportOutput is a reference to a hash where the following keys are defined:
 	shock_id has a value which is a string
-	bin_file_list has a value which is a reference to a list where each element is a string
+	bin_file_directory has a value which is a string
 
 </pre>
 
@@ -246,11 +246,11 @@ $params is a MetagenomeUtils.ExportParams
 $returnVal is a MetagenomeUtils.ExportOutput
 ExportParams is a reference to a hash where the following keys are defined:
 	input_ref has a value which is a string
-	not_save_to_shock has a value which is a MetagenomeUtils.boolean
+	save_to_shock has a value which is a MetagenomeUtils.boolean
 boolean is an int
 ExportOutput is a reference to a hash where the following keys are defined:
 	shock_id has a value which is a string
-	bin_file_list has a value which is a reference to a list where each element is a string
+	bin_file_directory has a value which is a string
 
 
 =end text
@@ -263,11 +263,11 @@ required params:
 input_ref: BinnedContig object reference
 
 optional params:
-not_save_to_shock: not saving result bin files to shock
+save_to_shock: saving result bin files to shock. default to True
 
 return params:
-shock_id: saved packed file shock id (None if not_save_to_shock is set)
-bin_file_list: a list of bin file path
+shock_id: saved packed file shock id (None if save_to_shock is set to False)
+bin_file_directory: directory that contains all bin files
 
 =back
 
@@ -672,7 +672,7 @@ binned_contig_obj_ref has a value which is a MetagenomeUtils.obj_ref
 input_ref: BinnedContig object reference
 
 optional params:
-not_save_to_shock: not saving result bin files to shock
+save_to_shock: saving result bin files to shock. default to True
 
 
 =item Definition
@@ -682,7 +682,7 @@ not_save_to_shock: not saving result bin files to shock
 <pre>
 a reference to a hash where the following keys are defined:
 input_ref has a value which is a string
-not_save_to_shock has a value which is a MetagenomeUtils.boolean
+save_to_shock has a value which is a MetagenomeUtils.boolean
 
 </pre>
 
@@ -692,7 +692,7 @@ not_save_to_shock has a value which is a MetagenomeUtils.boolean
 
 a reference to a hash where the following keys are defined:
 input_ref has a value which is a string
-not_save_to_shock has a value which is a MetagenomeUtils.boolean
+save_to_shock has a value which is a MetagenomeUtils.boolean
 
 
 =end text
@@ -710,7 +710,7 @@ not_save_to_shock has a value which is a MetagenomeUtils.boolean
 =item Description
 
 shock_id: saved packed file shock id
-bin_file_list: a list of bin file path
+bin_file_directory: directory that contains all bin files
 
 
 =item Definition
@@ -720,7 +720,7 @@ bin_file_list: a list of bin file path
 <pre>
 a reference to a hash where the following keys are defined:
 shock_id has a value which is a string
-bin_file_list has a value which is a reference to a list where each element is a string
+bin_file_directory has a value which is a string
 
 </pre>
 
@@ -730,7 +730,7 @@ bin_file_list has a value which is a reference to a list where each element is a
 
 a reference to a hash where the following keys are defined:
 shock_id has a value which is a string
-bin_file_list has a value which is a reference to a list where each element is a string
+bin_file_directory has a value which is a string
 
 
 =end text

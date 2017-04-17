@@ -194,10 +194,10 @@ public class MetagenomeUtilsClient {
      * required params:
      * input_ref: BinnedContig object reference
      * optional params:
-     * not_save_to_shock: not saving result bin files to shock
+     * save_to_shock: saving result bin files to shock. default to True
      * return params:
-     * shock_id: saved packed file shock id (None if not_save_to_shock is set)
-     * bin_file_list: a list of bin file path
+     * shock_id: saved packed file shock id (None if save_to_shock is set to False)
+     * bin_file_directory: directory that contains all bin files
      * </pre>
      * @param   params   instance of type {@link us.kbase.metagenomeutils.ExportParams ExportParams}
      * @return   parameter "returnVal" of type {@link us.kbase.metagenomeutils.ExportOutput ExportOutput}

@@ -50,20 +50,20 @@ module MetagenomeUtils {
       input_ref: BinnedContig object reference
 
       optional params:
-      not_save_to_shock: not saving result bin files to shock
+      save_to_shock: saving result bin files to shock. default to True
     */
     typedef structure {
       string input_ref;
-      boolean not_save_to_shock;
+      boolean save_to_shock;
     } ExportParams;
 
     /*
       shock_id: saved packed file shock id
-      bin_file_list: a list of bin file path
+      bin_file_directory: directory that contains all bin files
     */
     typedef structure {
       string shock_id;
-      list <string> bin_file_list;
+      string bin_file_directory;
     } ExportOutput;
 
     /*
@@ -73,11 +73,11 @@ module MetagenomeUtils {
       input_ref: BinnedContig object reference
 
       optional params:
-      not_save_to_shock: not saving result bin files to shock
+      save_to_shock: saving result bin files to shock. default to True
 
       return params:
-      shock_id: saved packed file shock id (None if not_save_to_shock is set)
-      bin_file_list: a list of bin file path
+      shock_id: saved packed file shock id (None if save_to_shock is set to False)
+      bin_file_directory: directory that contains all bin files
     */
     funcdef binned_contigs_to_file(ExportParams params)
         returns (ExportOutput returnVal) authentication required;

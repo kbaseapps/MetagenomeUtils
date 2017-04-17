@@ -417,11 +417,11 @@ class MetagenomeFileUtils:
         input_ref: BinnedContig object reference
 
         optional params:
-        not_save_to_shock: not saving result bin files to shock
+        save_to_shock: saving result bin files to shock. default to True
 
         return params:
         shock_id: saved packed file shock id
-        bin_file_list: a list of bin file path
+        bin_file_directory: directory that contains all bin files
         """
 
         log('--->\nrunning MetagenomeFileUtils.binned_contigs_to_file\n' +
@@ -452,12 +452,12 @@ class MetagenomeFileUtils:
             result_files.append(os.path.join(result_directory, bin_id))
             log('saved contig file to: {}'.format(result_files[-1]))
 
-        if params.get('not_save_to_shock'):
-            shock_id = None
-        else:
+        if params.get('save_to_shock') or params.get('save_to_shock') is None:
             shock_id = self._pack_file_to_shock(result_files)
+        else:
+            shock_id = None
 
-        returnVal = {'shock_id': shock_id, 'bin_file_list': result_files}
+        returnVal = {'shock_id': shock_id, 'bin_file_directory': result_directory}
 
         return returnVal
 
@@ -484,8 +484,11 @@ class MetagenomeFileUtils:
         self._validate_extract_binned_contigs_as_assembly_params(params)
 
         binned_contig_obj_ref = params.get('binned_contig_obj_ref')
-        bin_files = self.binned_contigs_to_file({'input_ref': binned_contig_obj_ref,
-                                                 'not_save_to_shock': True}).get('bin_file_list')
+        bin_file_directory = self.binned_contigs_to_file({
+                                            'input_ref': binned_contig_obj_ref,
+                                            'save_to_shock': False}).get('bin_file_directory')
+
+        bin_files = os.listdir(bin_file_directory)
 
         extracted_assemblies = params.get('extracted_assemblies')
         generated_assembly_ref_list = []

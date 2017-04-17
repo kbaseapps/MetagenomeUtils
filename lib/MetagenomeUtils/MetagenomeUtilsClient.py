@@ -67,19 +67,19 @@ class MetagenomeUtils(object):
         required params:
         input_ref: BinnedContig object reference
         optional params:
-        not_save_to_shock: not saving result bin files to shock
+        save_to_shock: saving result bin files to shock. default to True
         return params:
-        shock_id: saved packed file shock id (None if not_save_to_shock is set)
-        bin_file_list: a list of bin file path
+        shock_id: saved packed file shock id (None if save_to_shock is set to False)
+        bin_file_directory: directory that contains all bin files
         :param params: instance of type "ExportParams" (input_ref:
-           BinnedContig object reference optional params: not_save_to_shock:
-           not saving result bin files to shock) -> structure: parameter
-           "input_ref" of String, parameter "not_save_to_shock" of type
+           BinnedContig object reference optional params: save_to_shock:
+           saving result bin files to shock. default to True) -> structure:
+           parameter "input_ref" of String, parameter "save_to_shock" of type
            "boolean" (A boolean - 0 for false, 1 for true. @range (0, 1))
         :returns: instance of type "ExportOutput" (shock_id: saved packed
-           file shock id bin_file_list: a list of bin file path) ->
-           structure: parameter "shock_id" of String, parameter
-           "bin_file_list" of list of String
+           file shock id bin_file_directory: directory that contains all bin
+           files) -> structure: parameter "shock_id" of String, parameter
+           "bin_file_directory" of String
         """
         return self._client.call_method(
             'MetagenomeUtils.binned_contigs_to_file',

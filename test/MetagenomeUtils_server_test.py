@@ -477,7 +477,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
                     self.assertEqual(''.join(sorted(data.replace('\n', ''))),
                                      ''.join(sorted(origin_file.read().replace('\n', ''))))
 
-    def test_binned_contigs_to_file_not_save_to_shock(self):
+    def test_binned_contigs_to_file_save_to_shock(self):
 
         binned_contig_name = 'MyBinnedContig'
         params = {
@@ -492,19 +492,20 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
         params = {
             'input_ref': binned_contig_obj_ref,
-            'not_save_to_shock': True
+            'save_to_shock': False
         }
         resultVal = self.getImpl().binned_contigs_to_file(self.getContext(), params)[0]
         self.assertTrue('shock_id' in resultVal)
-        self.assertTrue('bin_file_list' in resultVal)
+        self.assertTrue('bin_file_directory' in resultVal)
 
         self.assertIsNone(resultVal.get('shock_id'))
 
-        bin_file_list = resultVal.get('bin_file_list')
-        self.assertEqual(len(bin_file_list), 3)
+        bin_file_directory = resultVal.get('bin_file_directory')
+        bin_files = os.listdir(bin_file_directory)
+        self.assertEqual(len(bin_files), 3)
 
         expect_files = ['out_header.001.fasta', 'out_header.002.fasta', 'out_header.003.fasta']
-        self.assertItemsEqual(map(os.path.basename, bin_file_list), expect_files)
+        self.assertItemsEqual(map(os.path.basename, bin_files), expect_files)
 
     def test_extract_binned_contigs_as_assembly(self):
 

@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <pre>
  * input_ref: BinnedContig object reference
  * optional params:
- * not_save_to_shock: not saving result bin files to shock
+ * save_to_shock: saving result bin files to shock. default to True
  * </pre>
  * 
  */
@@ -24,14 +24,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "input_ref",
-    "not_save_to_shock"
+    "save_to_shock"
 })
 public class ExportParams {
 
     @JsonProperty("input_ref")
     private String inputRef;
-    @JsonProperty("not_save_to_shock")
-    private Long notSaveToShock;
+    @JsonProperty("save_to_shock")
+    private Long saveToShock;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("input_ref")
@@ -49,18 +49,18 @@ public class ExportParams {
         return this;
     }
 
-    @JsonProperty("not_save_to_shock")
-    public Long getNotSaveToShock() {
-        return notSaveToShock;
+    @JsonProperty("save_to_shock")
+    public Long getSaveToShock() {
+        return saveToShock;
     }
 
-    @JsonProperty("not_save_to_shock")
-    public void setNotSaveToShock(Long notSaveToShock) {
-        this.notSaveToShock = notSaveToShock;
+    @JsonProperty("save_to_shock")
+    public void setSaveToShock(Long saveToShock) {
+        this.saveToShock = saveToShock;
     }
 
-    public ExportParams withNotSaveToShock(Long notSaveToShock) {
-        this.notSaveToShock = notSaveToShock;
+    public ExportParams withSaveToShock(Long saveToShock) {
+        this.saveToShock = saveToShock;
         return this;
     }
 
@@ -76,7 +76,7 @@ public class ExportParams {
 
     @Override
     public String toString() {
-        return ((((((("ExportParams"+" [inputRef=")+ inputRef)+", notSaveToShock=")+ notSaveToShock)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((("ExportParams"+" [inputRef=")+ inputRef)+", saveToShock=")+ saveToShock)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
