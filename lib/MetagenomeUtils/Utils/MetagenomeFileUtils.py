@@ -504,7 +504,7 @@ class MetagenomeFileUtils:
                     if os.path.basename(bin_file) == bin_id:
                         log('starting generating assembly from {}'.format(bin_id))
                         assembly_params = {
-                            'file': {'path': bin_file},
+                            'file': {'path': os.path.join(bin_file_directory, bin_file)},
                             'workspace_name': params.get('workspace_name'),
                             'assembly_name': output_assembly_name
                         }
