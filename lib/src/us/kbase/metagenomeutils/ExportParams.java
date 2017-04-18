@@ -15,18 +15,23 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: ExportParams</p>
  * <pre>
  * input_ref: BinnedContig object reference
+ * optional params:
+ * save_to_shock: saving result bin files to shock. default to True
  * </pre>
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "input_ref"
+    "input_ref",
+    "save_to_shock"
 })
 public class ExportParams {
 
     @JsonProperty("input_ref")
     private String inputRef;
+    @JsonProperty("save_to_shock")
+    private Long saveToShock;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("input_ref")
@@ -44,6 +49,21 @@ public class ExportParams {
         return this;
     }
 
+    @JsonProperty("save_to_shock")
+    public Long getSaveToShock() {
+        return saveToShock;
+    }
+
+    @JsonProperty("save_to_shock")
+    public void setSaveToShock(Long saveToShock) {
+        this.saveToShock = saveToShock;
+    }
+
+    public ExportParams withSaveToShock(Long saveToShock) {
+        this.saveToShock = saveToShock;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -56,7 +76,7 @@ public class ExportParams {
 
     @Override
     public String toString() {
-        return ((((("ExportParams"+" [inputRef=")+ inputRef)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((("ExportParams"+" [inputRef=")+ inputRef)+", saveToShock=")+ saveToShock)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

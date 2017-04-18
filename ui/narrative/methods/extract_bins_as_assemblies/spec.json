@@ -10,7 +10,7 @@
   },
   "parameters": [
     {
-      "id": "binned_contig_ref",
+      "id": "binned_contig_obj_ref",
       "optional": false,
       "advanced": false,
       "allow_multiple": false,
@@ -37,7 +37,7 @@
       "default_values": [""],
       "field_type": "text",
       "text_options": {
-        "valid_ws_types": ["KBaseGenomeAnnotations.Assembly"],
+        "valid_ws_types": [""],
         "is_output_name": true
       }
     }
@@ -58,11 +58,15 @@
     "service-mapping": {
       "url": "",
       "name": "MetagenomeUtils",
-      "method": "edit",
+      "method": "extract_binned_contigs_as_assembly",
       "input_mapping": [
         {
           "narrative_system_variable": "workspace",
-          "target_property": "workspace"
+          "target_property": "workspace_name"
+        },
+        {
+          "input_parameter": "binned_contig_obj_ref",
+          "target_property": "binned_contig_obj_ref"
         },
         {
           "input_parameter": "extracted_assemblies",
@@ -70,6 +74,26 @@
         }
       ],
       "output_mapping": [
+        {
+            "narrative_system_variable": "workspace",
+            "target_property": "wsName"
+        },
+        {
+            "service_method_output_path": [0,"assembly_ref_list"],
+            "target_property": "assembly_ref_list"
+        },
+        {
+            "service_method_output_path": [0, "report_name"],
+            "target_property": "report_name"
+        },
+        {
+            "service_method_output_path": [0, "report_ref"],
+            "target_property": "report_ref"
+        },
+        {
+            "constant_value": "16",
+            "target_property": "report_window_line_height"
+        }
       ]
     }
   },

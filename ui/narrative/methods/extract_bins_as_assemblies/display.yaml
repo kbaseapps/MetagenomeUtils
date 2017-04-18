@@ -26,7 +26,7 @@ suggestions:
 # Configure the display and description of parameters
 #
 parameters :
-    binned_contig_ref :
+    binned_contig_obj_ref :
         ui-name : Binned Contigs
         short-hint : the binned contig data to edit
     bin_id:

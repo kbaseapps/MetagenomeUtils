@@ -79,7 +79,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             shutil.copy(os.path.join("Data", "MaxBin_Result_Sample", item),
                         os.path.join(cls.test_directory_path, item))
 
-        # building Assembly
+        # building small Assembly
         cls.assembly_filename = 'small_bin_contig_file.fasta'
         cls.assembly_fasta_file_path = os.path.join(cls.scratch, cls.assembly_filename)
         shutil.copy(os.path.join("Data", cls.assembly_filename), cls.assembly_fasta_file_path)
@@ -90,6 +90,18 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'assembly_name': 'MyAssembly'
         }
         cls.assembly_ref = cls.au.save_assembly_from_fasta(assembly_params)
+
+        # building real Assembly
+        large_assembly_filename = '20x.fna'
+        large_assembly_fasta_file_path = os.path.join(cls.scratch, large_assembly_filename)
+        shutil.copy(os.path.join("Data", large_assembly_filename), large_assembly_fasta_file_path)
+
+        large_assembly_params = {
+            'file': {'path': large_assembly_fasta_file_path},
+            'workspace_name': cls.ws_info[1],
+            'assembly_name': 'MyAssembly'
+        }
+        cls.large_assembly_ref = cls.au.save_assembly_from_fasta(large_assembly_params)
 
     def getWsClient(self):
         return self.__class__.wsClient
@@ -102,6 +114,89 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
     def getContext(self):
         return self.__class__.ctx
+
+    def test_bad_extract_binned_contigs_as_assembly_params(self):
+        invalidate_input_params = {
+            'missing_binned_contig_obj_ref': 'binned_contig_obj_ref',
+            'extracted_assemblies': [{
+                'bin_id': 'bin_id',
+                'output_assembly_name': 'output_assembly_name'
+            }],
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"binned_contig_obj_ref" parameter is required, but missing'):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
+
+        invalidate_input_params = {
+            'binned_contig_obj_ref': 'binned_contig_obj_ref',
+            'missing_extracted_assemblies': [{
+                'bin_id': 'bin_id',
+                'output_assembly_name': 'output_assembly_name'
+            }],
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"extracted_assemblies" parameter is required, but missing'):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
+        invalidate_input_params = {
+            'binned_contig_obj_ref': 'binned_contig_obj_ref',
+            'extracted_assemblies': [{
+                'bin_id': 'bin_id',
+                'output_assembly_name': 'output_assembly_name'
+            }],
+            'missing_workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"workspace_name" parameter is required, but missing'):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
+        invalidate_input_params = {
+            'binned_contig_obj_ref': 'binned_contig_obj_ref',
+            'extracted_assemblies': 'not a list',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, 'extracted_assemblies is not type list as required'):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
+        invalidate_input_params = {
+            'binned_contig_obj_ref': 'binned_contig_obj_ref',
+            'extracted_assemblies': ['not a dict'],
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, 'item \[not a dict\] is not type dict as required'):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
+
+        invalidate_input_params = {
+            'binned_contig_obj_ref': 'binned_contig_obj_ref',
+            'extracted_assemblies': [{
+                'missing_bin_id': 'bin_id',
+                'output_assembly_name': 'output_assembly_name'
+            }],
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"bin_id" key is required, but missing'):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
+
+        invalidate_input_params = {
+            'binned_contig_obj_ref': 'binned_contig_obj_ref',
+            'extracted_assemblies': [{
+                'bin_id': 'bin_id',
+                'missing_output_assembly_name': 'output_assembly_name'
+            }],
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"output_assembly_name" key is required, but missing'):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
 
     def test_bad_binned_contigs_to_file_params(self):
         invalidate_input_params = {
@@ -242,20 +337,9 @@ class MetagenomeUtilsTest(unittest.TestCase):
         bin_id = 'out_header.003.fasta'
         file_directory = self.test_directory_path
 
-        assembly_filename = '20x.fna'
-        assembly_fasta_file_path = os.path.join(self.scratch, assembly_filename)
-        shutil.copy(os.path.join("Data", assembly_filename), assembly_fasta_file_path)
-
-        assembly_params = {
-            'file': {'path': assembly_fasta_file_path},
-            'workspace_name': self.ws_info[1],
-            'assembly_name': 'MyAssembly'
-        }
-        assembly_ref = self.au.save_assembly_from_fasta(assembly_params)
-
         contig_bin = self.binned_contig_builder._generate_contig_bin(bin_id,
                                                                      file_directory,
-                                                                     assembly_ref)
+                                                                     self.large_assembly_ref)
 
         expect_bin_keys = ['contigs', 'bid', 'gc', 'sum_contig_len', 'cov', 'n_contigs']
         self.assertItemsEqual(contig_bin.keys(), expect_bin_keys)
@@ -325,20 +409,9 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
     def test_file_to_binned_contigs(self):
 
-        assembly_filename = '20x.fna'
-        assembly_fasta_file_path = os.path.join(self.scratch, assembly_filename)
-        shutil.copy(os.path.join("Data", assembly_filename), assembly_fasta_file_path)
-
-        assembly_params = {
-            'file': {'path': assembly_fasta_file_path},
-            'workspace_name': self.ws_info[1],
-            'assembly_name': 'MyAssembly'
-        }
-        assembly_ref = self.au.save_assembly_from_fasta(assembly_params)
-
         binned_contig_name = 'MyBinnedContig'
         params = {
-            'assembly_ref': assembly_ref,
+            'assembly_ref': self.large_assembly_ref,
             'file_directory': self.test_directory_path,
             'binned_contig_name': binned_contig_name,
             'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
@@ -356,34 +429,23 @@ class MetagenomeUtilsTest(unittest.TestCase):
         expect_binned_contig_info_list = ['assembly_ref', 'total_contig_len', 'n_bins']
         self.assertItemsEqual(binned_contig_info[-1], expect_binned_contig_info_list)
         self.assertEquals(int(binned_contig_info[-1].get('n_bins')), 3)
-        self.assertEquals(binned_contig_info[-1].get('assembly_ref'), assembly_ref)
+        self.assertEquals(binned_contig_info[-1].get('assembly_ref'), self.large_assembly_ref)
         self.assertEquals(int(binned_contig_info[-1].get('total_contig_len')), 8397583)
 
         binned_contig_data = binned_contig_object.get('data')
         epxect_binned_contig_keys = ['total_contig_len', 'assembly_ref', 'bins']
         self.assertItemsEqual(binned_contig_data.keys(), epxect_binned_contig_keys)
         self.assertEquals(binned_contig_data.get('total_contig_len'), 8397583)
-        self.assertEquals(binned_contig_data.get('assembly_ref'), assembly_ref)
+        self.assertEquals(binned_contig_data.get('assembly_ref'), self.large_assembly_ref)
 
         expect_bin_keys = ['contigs', 'bid', 'gc', 'sum_contig_len', 'cov', 'n_contigs']
         self.assertItemsEqual(binned_contig_data.get('bins')[0].keys(), expect_bin_keys)
 
     def test_binned_contigs_to_file(self):
 
-        assembly_filename = '20x.fna'
-        assembly_fasta_file_path = os.path.join(self.scratch, assembly_filename)
-        shutil.copy(os.path.join("Data", assembly_filename), assembly_fasta_file_path)
-
-        assembly_params = {
-            'file': {'path': assembly_fasta_file_path},
-            'workspace_name': self.ws_info[1],
-            'assembly_name': 'MyAssembly'
-        }
-        assembly_ref = self.au.save_assembly_from_fasta(assembly_params)
-
         binned_contig_name = 'MyBinnedContig'
         params = {
-            'assembly_ref': assembly_ref,
+            'assembly_ref': self.large_assembly_ref,
             'file_directory': self.test_directory_path,
             'binned_contig_name': binned_contig_name,
             'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
@@ -414,3 +476,81 @@ class MetagenomeUtilsTest(unittest.TestCase):
                 with open(os.path.join(self.test_directory_path, filename), 'r') as origin_file:
                     self.assertEqual(''.join(sorted(data.replace('\n', ''))),
                                      ''.join(sorted(origin_file.read().replace('\n', ''))))
+
+    def test_binned_contigs_to_file_save_to_shock(self):
+
+        binned_contig_name = 'MyBinnedContig'
+        params = {
+            'assembly_ref': self.large_assembly_ref,
+            'file_directory': self.test_directory_path,
+            'binned_contig_name': binned_contig_name,
+            'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
+        }
+
+        resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
+        binned_contig_obj_ref = resultVal.get('binned_contig_obj_ref')
+
+        params = {
+            'input_ref': binned_contig_obj_ref,
+            'save_to_shock': False
+        }
+        resultVal = self.getImpl().binned_contigs_to_file(self.getContext(), params)[0]
+        self.assertTrue('shock_id' in resultVal)
+        self.assertTrue('bin_file_directory' in resultVal)
+
+        self.assertIsNone(resultVal.get('shock_id'))
+
+        bin_file_directory = resultVal.get('bin_file_directory')
+        bin_files = os.listdir(bin_file_directory)
+        self.assertEqual(len(bin_files), 3)
+
+        expect_files = ['out_header.001.fasta', 'out_header.002.fasta', 'out_header.003.fasta']
+        self.assertItemsEqual(map(os.path.basename, bin_files), expect_files)
+
+    def test_extract_binned_contigs_as_assembly(self):
+
+        binned_contig_name = 'MyBinnedContig'
+        params = {
+            'assembly_ref': self.large_assembly_ref,
+            'file_directory': self.test_directory_path,
+            'binned_contig_name': binned_contig_name,
+            'workspace_name': self.getWsName()
+        }
+
+        resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
+        binned_contig_obj_ref = resultVal.get('binned_contig_obj_ref')
+
+        params = {
+            'binned_contig_obj_ref': binned_contig_obj_ref,
+            'extracted_assemblies': [
+                {
+                    'bin_id': 'out_header.001.fasta',
+                    'output_assembly_name': 'MyAssembly_1'
+                },
+                {
+                    'bin_id': 'out_header.002.fasta',
+                    'output_assembly_name': 'MyAssembl_2'
+                }],
+            'workspace_name': self.getWsName()
+        }
+
+        resultVal = self.getImpl().extract_binned_contigs_as_assembly(self.getContext(), params)[0]
+
+        self.assertTrue('assembly_ref_list' in resultVal)
+        self.assertTrue('report_name' in resultVal)
+        self.assertTrue('report_ref' in resultVal)
+
+        invalidate_input_params = {
+            'binned_contig_obj_ref': binned_contig_obj_ref,
+            'extracted_assemblies': [{
+                'bin_id': 'nonexisting_bin_id',
+                'output_assembly_name': 'MyAssembly'
+            }],
+            'workspace_name': self.getWsName()
+        }
+        with self.assertRaisesRegexp(
+                    ValueError,
+                    'bin_id \[nonexisting_bin_id\] cannot be found in BinnedContig \[{}\]'.format(
+                                                                            binned_contig_obj_ref)):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
