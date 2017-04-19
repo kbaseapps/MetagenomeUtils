@@ -115,6 +115,63 @@ class MetagenomeUtilsTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
+    def test_bad_remove_bins_from_binned_contig_params(self):
+        invalidate_input_params = {
+            'missing_old_binned_contig_ref': 'old_binned_contig_ref',
+            'bins_to_remove': ['bin_id1', 'bin_id2'],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"old_binned_contig_ref" parameter is required, but missing'):
+            self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                          invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'missing_bins_to_remove': ['bin_id1', 'bin_id2'],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"bins_to_remove" parameter is required, but missing'):
+            self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                          invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bins_to_remove': ['bin_id1', 'bin_id2'],
+            'missing_output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"output_binned_contig_name" parameter is required, but missing'):
+            self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                          invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bins_to_remove': ['bin_id1', 'bin_id2'],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'missing_workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"workspace_name" parameter is required, but missing'):
+            self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                          invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bins_to_remove': 'not a list',
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError,
+                    "expecting a list for bins_to_remove param, but getting a \[\<type 'str'\>\]"):
+            self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                          invalidate_input_params)
+
     def test_bad_extract_binned_contigs_as_assembly_params(self):
         invalidate_input_params = {
             'missing_binned_contig_obj_ref': 'binned_contig_obj_ref',
@@ -554,3 +611,109 @@ class MetagenomeUtilsTest(unittest.TestCase):
                                                                             binned_contig_obj_ref)):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
+
+    def test_remove_bins_from_binned_contig_single_bin(self):
+
+        binned_contig_name = 'MyBinnedContig'
+        params = {
+            'assembly_ref': self.large_assembly_ref,
+            'file_directory': self.test_directory_path,
+            'binned_contig_name': binned_contig_name,
+            'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
+        }
+
+        resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
+        old_binned_contig_ref = resultVal.get('binned_contig_obj_ref')
+
+        output_binned_contig_name = 'MyNewBinnedContig'
+        remove_bins_params = {
+            'old_binned_contig_ref': old_binned_contig_ref,
+            'bins_to_remove': ['out_header.002.fasta'],
+            'output_binned_contig_name': output_binned_contig_name,
+            'workspace_name': self.getWsName()
+        }
+
+        resultVal = self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                                  remove_bins_params)[0]
+
+        self.assertTrue('new_binned_contig_ref' in resultVal)
+        self.assertTrue('report_name' in resultVal)
+        self.assertTrue('report_ref' in resultVal)
+
+        binned_contig_object = self.dfu.get_objects(
+                {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
+
+        binned_contig_info = binned_contig_object.get('info')
+
+        self.assertEquals(binned_contig_info[1], output_binned_contig_name)
+        expect_binned_contig_info_list = ['assembly_ref', 'total_contig_len', 'n_bins']
+        self.assertItemsEqual(binned_contig_info[-1], expect_binned_contig_info_list)
+        self.assertEquals(int(binned_contig_info[-1].get('n_bins')), 2)
+        self.assertEquals(binned_contig_info[-1].get('assembly_ref'), self.large_assembly_ref)
+        self.assertEquals(int(binned_contig_info[-1].get('total_contig_len')), 5127090)
+
+        binned_contig_data = binned_contig_object.get('data')
+        epxect_binned_contig_keys = ['total_contig_len', 'assembly_ref', 'bins']
+        self.assertItemsEqual(binned_contig_data.keys(), epxect_binned_contig_keys)
+        self.assertEquals(binned_contig_data.get('total_contig_len'), 5127090)
+        self.assertEquals(binned_contig_data.get('assembly_ref'), self.large_assembly_ref)
+
+        bins = binned_contig_data.get('bins')
+        bin_ids = []
+        for bin in bins:
+            bin_ids.append(bin.get('bid'))
+        expect_bin_ids = ['out_header.001.fasta', 'out_header.003.fasta']
+        self.assertItemsEqual(bin_ids, expect_bin_ids)
+
+    def test_remove_bins_from_binned_contig_multiple_bins(self):
+
+        binned_contig_name = 'MyBinnedContig'
+        params = {
+            'assembly_ref': self.large_assembly_ref,
+            'file_directory': self.test_directory_path,
+            'binned_contig_name': binned_contig_name,
+            'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
+        }
+
+        resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
+        old_binned_contig_ref = resultVal.get('binned_contig_obj_ref')
+
+        output_binned_contig_name = 'MyNewBinnedContig'
+        remove_bins_params = {
+            'old_binned_contig_ref': old_binned_contig_ref,
+            'bins_to_remove': ['out_header.001.fasta', 'out_header.003.fasta'],
+            'output_binned_contig_name': output_binned_contig_name,
+            'workspace_name': self.getWsName()
+        }
+
+        resultVal = self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                                  remove_bins_params)[0]
+
+        self.assertTrue('new_binned_contig_ref' in resultVal)
+        self.assertTrue('report_name' in resultVal)
+        self.assertTrue('report_ref' in resultVal)
+
+        binned_contig_object = self.dfu.get_objects(
+                {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
+
+        binned_contig_info = binned_contig_object.get('info')
+
+        self.assertEquals(binned_contig_info[1], output_binned_contig_name)
+        expect_binned_contig_info_list = ['assembly_ref', 'total_contig_len', 'n_bins']
+        self.assertItemsEqual(binned_contig_info[-1], expect_binned_contig_info_list)
+        self.assertEquals(int(binned_contig_info[-1].get('n_bins')), 1)
+        self.assertEquals(binned_contig_info[-1].get('assembly_ref'), self.large_assembly_ref)
+        self.assertEquals(int(binned_contig_info[-1].get('total_contig_len')), 3270493)
+
+        binned_contig_data = binned_contig_object.get('data')
+        epxect_binned_contig_keys = ['total_contig_len', 'assembly_ref', 'bins']
+        self.assertItemsEqual(binned_contig_data.keys(), epxect_binned_contig_keys)
+        self.assertEquals(binned_contig_data.get('total_contig_len'), 3270493)
+        self.assertEquals(binned_contig_data.get('assembly_ref'), self.large_assembly_ref)
+
+        bins = binned_contig_data.get('bins')
+        bin_ids = []
+        for bin in bins:
+            bin_ids.append(bin.get('bid'))
+        expect_bin_ids = ['out_header.002.fasta']
+        self.assertItemsEqual(bin_ids, expect_bin_ids)
