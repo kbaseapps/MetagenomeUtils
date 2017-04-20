@@ -3,7 +3,7 @@
   "authors": [ ],
   "contact": "help@kbase.us",
   "visible": true,
-  "categories": ["active","assembly","communities"],
+  "categories": ["inactive","assembly","communities"],
   "widgets": {
     "input": null,
     "output": "no-display"
