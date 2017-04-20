@@ -20,6 +20,37 @@ def log(message, prefix_newline=False):
 
 class MetagenomeFileUtils:
 
+    def _validate_merge_bins_from_binned_contig_params(self, params):
+        """
+        _validate_merge_bins_from_binned_contig_params:
+                validates params passed to merge_bins_from_binned_contig method
+
+        """
+        log('Start validating merge_bins_from_binned_contig params')
+
+        # check for required parameters
+        for p in ['old_binned_contig_ref', 'bin_merges',
+                  'output_binned_contig_name', 'workspace_name']:
+            if p not in params:
+                raise ValueError('"{}" parameter is required, but missing'.format(p))
+
+        bin_merges = params.get('bin_merges')
+
+        if not isinstance(bin_merges, list):
+            raise ValueError('expecting a list for bin_merges param, but getting a [{}]'.format(
+                                                                            type(bin_merges)))
+
+        for bin_merge in bin_merges:
+            for p in ['new_bin_id', 'bin_to_merge']:
+                if p not in bin_merge:
+                    raise ValueError('"{}" key is required in bin_merges, but missing'.format(p))
+
+            bin_to_merge = bin_merge.get('bin_to_merge')
+
+            if not isinstance(bin_to_merge, list):
+                raise ValueError('expecting a list for bin_to_merge, but getting a [{}]'.format(
+                                                                            type(bin_to_merge)))
+
     def _validate_remove_bins_from_binned_contig_params(self, params):
         """
         _validate_remove_bins_from_binned_contig_params:
@@ -357,6 +388,109 @@ class MetagenomeFileUtils:
 
         return report_output
 
+    def _generate_report_message(self, new_binned_contig_ref):
+        """
+        _generate_report_message: generate a report message for BinnedContig object
+        """
+
+        report_message = ''
+
+        binned_contig = self.dfu.get_objects({'object_refs': [new_binned_contig_ref]})['data'][0]
+        binned_contig_info = binned_contig.get('info')
+        binned_contig_name = binned_contig_info[1]
+        report_message += 'Generated BinnedContig: {} [reference {}]\n'.format(
+                                                                        binned_contig_name,
+                                                                        new_binned_contig_ref)
+
+        binned_contig_count = 0
+        total_bins = binned_contig.get('data').get('bins')
+        total_bins_count = len(total_bins)
+        bin_ids = []
+        for bin in total_bins:
+            binned_contig_count += len(bin.get('contigs'))
+            bin_ids.append(bin.get('bid'))
+
+        report_message += '--------------------------\nSummary:\n\n'
+        report_message += 'Binned contigs: {}\n'.format(binned_contig_count)
+        report_message += 'Total size of bins: {}\n'.format(total_bins_count)
+        report_message += 'Bin IDs:\n{}\n'.format('\n'.join(bin_ids))
+
+        return report_message
+
+    def _merge_bins(self, new_bin_id, bin_objects_to_merge):
+        """
+        _merge_bins: merge a list of bins into new_bin_id
+
+        """
+        total_contigs = {}
+        total_gc_count = 0
+        total_sum_contig_len = 0
+        total_cov_len = 0
+
+        for bin in bin_objects_to_merge:
+            total_contigs.update(bin.get('contigs'))
+            sum_contig_len = bin.get('sum_contig_len')
+            total_sum_contig_len += sum_contig_len
+            total_gc_count += round(sum_contig_len * bin.get('gc'), 5)
+            total_cov_len += round(sum_contig_len * bin.get('cov'), 5)
+
+        contig_bin = {
+            'bid': new_bin_id,
+            'contigs': total_contigs,
+            'n_contigs': len(total_contigs),
+            'gc': round(float(total_gc_count)/total_sum_contig_len, 5),
+            'sum_contig_len': total_sum_contig_len,
+            'cov': round(float(total_cov_len)/total_sum_contig_len, 5)
+        }
+
+        return contig_bin
+
+    def _save_binned_contig(self, binned_contigs, workspace_name, binned_contig_name):
+        """
+        _build_binned_contig: save BinnedContig object
+        """
+
+        workspace_name = workspace_name
+        if isinstance(workspace_name, int) or workspace_name.isdigit():
+            workspace_id = workspace_name
+        else:
+            workspace_id = self.dfu.ws_name_to_id(workspace_name)
+
+        object_type = 'KBaseMetagenomes.BinnedContigs'
+        save_object_params = {
+            'id': workspace_id,
+            'objects': [{
+                            'type': object_type,
+                            'data': binned_contigs,
+                            'name': binned_contig_name
+                        }]
+        }
+
+        dfu_oi = self.dfu.save_objects(save_object_params)[0]
+        new_binned_contig_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
+
+        return new_binned_contig_ref
+
+    def _check_bin_merges(self, bin_merges):
+        """
+        _check_bin_merges: checking bin_merges
+        """
+        bin_id_list = map(lambda item: item.get('bin_to_merge'), bin_merges)
+        bin_ids = []
+        map(lambda item: map(lambda bin_id: bin_ids.append(bin_id), item), bin_id_list)
+
+        for bin_id in bin_id_list:
+            if len(bin_id) <= 1:
+                raise ValueError("Please provide at least two bin_ids to merge")
+            for id in bin_id:
+                if bin_ids.count(id) > 1:
+                    raise ValueError("Same bin [{}] appears in muliple merges".format(id))
+
+        new_bin_id_list = map(lambda item: item.get('new_bin_id'), bin_merges)
+        for new_bin_id in new_bin_id_list:
+            if new_bin_id_list.count(new_bin_id) > 1:
+                raise ValueError("Same new Bin ID [{}] appears in muliple merges".format(id))
+
     def __init__(self, config):
         self.callback_url = config['SDK_CALLBACK_URL']
         self.scratch = config['scratch']
@@ -404,24 +538,10 @@ class MetagenomeFileUtils:
             'total_contig_len': total_contig_len
         }
 
-        workspace_name = params.get('workspace_name')
-        if isinstance(workspace_name, int) or workspace_name.isdigit():
-            workspace_id = workspace_name
-        else:
-            workspace_id = self.dfu.ws_name_to_id(workspace_name)
+        binned_contig_obj_ref = self._save_binned_contig(binned_contigs,
+                                                         params.get('workspace_name'),
+                                                         params.get('binned_contig_name'))
 
-        object_type = 'KBaseMetagenomes.BinnedContigs'
-        save_object_params = {
-            'id': workspace_id,
-            'objects': [{
-                            'type': object_type,
-                            'data': binned_contigs,
-                            'name': params.get('binned_contig_name')
-                        }]
-        }
-
-        dfu_oi = self.dfu.save_objects(save_object_params)[0]
-        binned_contig_obj_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
         returnVal = {'binned_contig_obj_ref': binned_contig_obj_ref}
         log('successfully saved BinnedContig object')
 
@@ -552,8 +672,6 @@ class MetagenomeFileUtils:
 
         return params:
         new_binned_contig_ref: newly created BinnedContig object referece
-        report_name: report name generated by KBaseReport
-        report_ref: report reference generated by KBaseReport
         """
 
         log('--->\nrunning MetagenomeFileUtils.remove_bins_from_binned_contig\n' +
@@ -570,13 +688,12 @@ class MetagenomeFileUtils:
         old_bins = binned_contig_object.get('data').get('bins')
         bins_to_remove = params.get('bins_to_remove')
 
-        for bin in old_bins:
+        for bin in list(old_bins):
             bin_id = bin.get('bid')
             if bin_id in bins_to_remove:
                 log('removing bin_id: {}'.format(bin_id))
                 old_bins.remove(bin)
-                sum_contig_len = bin.get('sum_contig_len')
-                total_contig_len -= int(sum_contig_len)
+                total_contig_len -= int(bin.get('sum_contig_len'))
                 log('removed bin_id: {} from BinnedContig object'.format(bin_id))
 
         binned_contigs = {
@@ -585,28 +702,125 @@ class MetagenomeFileUtils:
             'total_contig_len': total_contig_len
         }
 
-        workspace_name = params.get('workspace_name')
-        if isinstance(workspace_name, int) or workspace_name.isdigit():
-            workspace_id = workspace_name
-        else:
-            workspace_id = self.dfu.ws_name_to_id(workspace_name)
+        new_binned_contig_ref = self._save_binned_contig(binned_contigs,
+                                                         params.get('workspace_name'),
+                                                         params.get('output_binned_contig_name'))
 
-        object_type = 'KBaseMetagenomes.BinnedContigs'
-        save_object_params = {
-            'id': workspace_id,
-            'objects': [{
-                            'type': object_type,
-                            'data': binned_contigs,
-                            'name': params.get('output_binned_contig_name')
-                        }]
-        }
-
-        dfu_oi = self.dfu.save_objects(save_object_params)[0]
-        new_binned_contig_ref = str(dfu_oi[6]) + '/' + str(dfu_oi[0]) + '/' + str(dfu_oi[4])
         returnVal = {'new_binned_contig_ref': new_binned_contig_ref}
         log('successfully saved BinnedContig object')
 
-        report_message = 'Generated BinnedContig Reference: {}'.format(new_binned_contig_ref)
+        return returnVal
+
+    def merge_bins_from_binned_contig(self, params):
+        """
+        merge_bins_from_binned_contig: merge a list of bins from BinnedContig object
+
+        input params:
+        old_binned_contig_ref: Original BinnedContig object reference
+        bin_merges: a list of bin merges dicts
+            new_bin_id: newly created bin id
+            bin_to_merge: list of bins to merge
+        output_binned_contig_name: Name for the output BinnedContigs object
+        workspace_name: the name of the workspace new object gets saved to
+
+        return params:
+        new_binned_contig_ref: newly created BinnedContig object referece
+        """
+
+        log('--->\nrunning MetagenomeFileUtils.merge_bins_from_binned_contig\n' +
+            'params:\n{}'.format(json.dumps(params, indent=1)))
+
+        self._validate_merge_bins_from_binned_contig_params(params)
+
+        bin_merges = params.get('bin_merges')
+        self._check_bin_merges(bin_merges)
+
+        binned_contig_object = self.dfu.get_objects(
+                            {'object_refs': [params.get('old_binned_contig_ref')]})['data'][0]
+
+        assembly_ref = binned_contig_object.get('data').get('assembly_ref')
+        total_contig_len = int(binned_contig_object.get('data').get('total_contig_len'))
+
+        bins = binned_contig_object.get('data').get('bins')
+        old_bin_ids = map(lambda item: item.get('bid'), bins)
+
+        for bin_merge in bin_merges:
+            new_bin_id = bin_merge.get('new_bin_id')
+            bin_id_to_merge = bin_merge.get('bin_to_merge')
+            if set(bin_id_to_merge) <= set(old_bin_ids):
+                bin_objects_to_merge = []
+                for bin in list(bins):
+                    bin_id = bin.get('bid')
+                    if bin_id in bin_id_to_merge:
+                        bin_objects_to_merge.append(bin)
+                        log('removing bin_id: {}'.format(bin_id))
+                        bins.remove(bin)
+                        total_contig_len -= int(bin.get('sum_contig_len'))
+                        log('removed bin_id: {} from BinnedContig object'.format(bin_id))
+                new_bin = self._merge_bins(new_bin_id, bin_objects_to_merge)
+                log('appending bin_id: {}'.format(new_bin_id))
+                bins.append(new_bin)
+                total_contig_len += int(new_bin.get('sum_contig_len'))
+                log('appended bin_id: {} to BinnedContig object'.format(new_bin_id))
+            else:
+                bad_bin_ids = list(set(bin_id_to_merge) - set(old_bin_ids))
+                raise ValueError('bin_id: [{}] is not listed in BinnedContig object'.format(
+                                                                            ', '.join(bad_bin_ids)))
+
+        binned_contigs = {
+            'assembly_ref': assembly_ref,
+            'bins': bins,
+            'total_contig_len': total_contig_len
+        }
+
+        new_binned_contig_ref = self._save_binned_contig(binned_contigs,
+                                                         params.get('workspace_name'),
+                                                         params.get('output_binned_contig_name'))
+
+        returnVal = {'new_binned_contig_ref': new_binned_contig_ref}
+        log('successfully saved BinnedContig object')
+
+        return returnVal
+
+    def edit_bins_from_binned_contig(self, params):
+        """
+        edit_bins_from_binned_contig: merge/remove a list of bins from BinnedContig object
+                                    a wrapper method of:
+                                    merge_bins_from_binned_contig
+                                    remove_bins_from_binned_contig
+
+
+        input params:
+        old_binned_contig_ref: Original BinnedContig object reference
+        bins_to_remove: a list of bin ids to be removed
+        bin_merges: a list of bin merges dicts
+            new_bin_id: newly created bin id
+            bin_to_merge: list of bins to merge
+        output_binned_contig_name: Name for the output BinnedContigs object
+        workspace_name: the name of the workspace new object gets saved to
+
+        return params:
+        new_binned_contig_ref: newly created BinnedContig object referece
+        report_name: report name generated by KBaseReport
+        report_ref: report reference generated by KBaseReport
+        """
+
+        log('--->\nrunning MetagenomeFileUtils.edit_bins_from_binned_contig\n' +
+            'params:\n{}'.format(json.dumps(params, indent=1)))
+
+        input_params = params
+        if params.get('bins_to_remove'):
+            new_binned_contig_ref = self.remove_bins_from_binned_contig(input_params).get(
+                                                                        'new_binned_contig_ref')
+            input_params['old_binned_contig_ref'] = new_binned_contig_ref
+
+        if params.get('bin_merges'):
+            new_binned_contig_ref = self.merge_bins_from_binned_contig(input_params).get(
+                                                                        'new_binned_contig_ref')
+
+        returnVal = {'new_binned_contig_ref': new_binned_contig_ref}
+
+        report_message = self._generate_report_message(new_binned_contig_ref)
         reportVal = self._generate_report(report_message, params)
         returnVal.update(reportVal)
 
