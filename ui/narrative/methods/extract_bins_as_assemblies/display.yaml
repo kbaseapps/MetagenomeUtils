@@ -30,10 +30,10 @@ parameters :
         ui-name : Binned Contigs
         short-hint : the binned contig data to edit
     bin_id:
-        ui-name : Bin ID
-        short-hint : Enter the ID of the bin to extract
+        ui-name : Bin Name
+        short-hint : Enter the name of the bin to extract
     output_assembly_name:
-        ui-name : Assembly Name
+        ui-name : New Assembly Name
         short-hint : provide a name for the new Assembly
 
 
