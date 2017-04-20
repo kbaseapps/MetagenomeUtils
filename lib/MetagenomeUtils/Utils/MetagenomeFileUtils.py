@@ -431,8 +431,8 @@ class MetagenomeFileUtils:
             total_contigs.update(bin.get('contigs'))
             sum_contig_len = bin.get('sum_contig_len')
             total_sum_contig_len += sum_contig_len
-            total_gc_count += round(sum_contig_len * bin.get('gc'), 5)
-            total_cov_len += round(sum_contig_len * bin.get('cov'), 5)
+            total_gc_count += sum_contig_len * bin.get('gc')
+            total_cov_len += sum_contig_len * bin.get('cov')
 
         contig_bin = {
             'bid': new_bin_id,
