@@ -345,6 +345,18 @@ class Application(object):
                              name='MetagenomeUtils.extract_binned_contigs_as_assembly',
                              types=[dict])
         self.method_authentication['MetagenomeUtils.extract_binned_contigs_as_assembly'] = 'required'  # noqa
+        self.rpc_service.add(impl_MetagenomeUtils.remove_bins_from_binned_contig,
+                             name='MetagenomeUtils.remove_bins_from_binned_contig',
+                             types=[dict])
+        self.method_authentication['MetagenomeUtils.remove_bins_from_binned_contig'] = 'required'  # noqa
+        self.rpc_service.add(impl_MetagenomeUtils.merge_bins_from_binned_contig,
+                             name='MetagenomeUtils.merge_bins_from_binned_contig',
+                             types=[dict])
+        self.method_authentication['MetagenomeUtils.merge_bins_from_binned_contig'] = 'required'  # noqa
+        self.rpc_service.add(impl_MetagenomeUtils.edit_bins_from_binned_contig,
+                             name='MetagenomeUtils.edit_bins_from_binned_contig',
+                             types=[dict])
+        self.method_authentication['MetagenomeUtils.edit_bins_from_binned_contig'] = 'required'  # noqa
         self.rpc_service.add(impl_MetagenomeUtils.status,
                              name='MetagenomeUtils.status',
                              types=[dict])

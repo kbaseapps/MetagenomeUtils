@@ -115,6 +115,161 @@ class MetagenomeUtilsTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
+    def test_bad_merge_bins_from_binned_contig_params(self):
+        invalidate_input_params = {
+            'missing_old_binned_contig_ref': 'old_binned_contig_ref',
+            'bin_merges': [{'new_bin_id': 'new_bin_id',
+                            'bin_to_merge': ['bin_id_1', 'bin_id_2']}],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"old_binned_contig_ref" parameter is required, but missing'):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'missing_bin_merges': [{'new_bin_id': 'new_bin_id',
+                                    'bin_to_merge': ['bin_id_1', 'bin_id_2']}],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"bin_merges" parameter is required, but missing'):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bin_merges': [{'new_bin_id': 'new_bin_id',
+                            'bin_to_merge': ['bin_id_1', 'bin_id_2']}],
+            'missing_output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"output_binned_contig_name" parameter is required, but missing'):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bin_merges': [{'new_bin_id': 'new_bin_id',
+                            'bin_to_merge': ['bin_id_1', 'bin_id_2']}],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'missing_workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"workspace_name" parameter is required, but missing'):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bin_merges': 'not a list',
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError,
+                    "expecting a list for bin_merges param, but getting a \[\<type 'str'\>\]"):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bin_merges': [{'missing_new_bin_id': 'new_bin_id',
+                            'bin_to_merge': ['bin_id_1', 'bin_id_2']}],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"new_bin_id" key is required in bin_merges, but missing'):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bin_merges': [{'new_bin_id': 'new_bin_id',
+                            'missing_bin_to_merge': ['bin_id_1', 'bin_id_2']}],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"bin_to_merge" key is required in bin_merges, but missing'):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bin_merges': [{'new_bin_id': 'new_bin_id',
+                            'bin_to_merge': 'not a list'}],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError,
+                    "expecting a list for bin_to_merge, but getting a \[\<type 'str'\>\]"):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         invalidate_input_params)
+
+    def test_bad_remove_bins_from_binned_contig_params(self):
+        invalidate_input_params = {
+            'missing_old_binned_contig_ref': 'old_binned_contig_ref',
+            'bins_to_remove': ['bin_id1', 'bin_id2'],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"old_binned_contig_ref" parameter is required, but missing'):
+            self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                          invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'missing_bins_to_remove': ['bin_id1', 'bin_id2'],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"bins_to_remove" parameter is required, but missing'):
+            self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                          invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bins_to_remove': ['bin_id1', 'bin_id2'],
+            'missing_output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"output_binned_contig_name" parameter is required, but missing'):
+            self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                          invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bins_to_remove': ['bin_id1', 'bin_id2'],
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'missing_workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"workspace_name" parameter is required, but missing'):
+            self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                          invalidate_input_params)
+
+        invalidate_input_params = {
+            'old_binned_contig_ref': 'old_binned_contig_ref',
+            'bins_to_remove': 'not a list',
+            'output_binned_contig_name': 'output_binned_contig_name',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError,
+                    "expecting a list for bins_to_remove param, but getting a \[\<type 'str'\>\]"):
+            self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                          invalidate_input_params)
+
     def test_bad_extract_binned_contigs_as_assembly_params(self):
         invalidate_input_params = {
             'missing_binned_contig_obj_ref': 'binned_contig_obj_ref',
@@ -407,6 +562,71 @@ class MetagenomeUtilsTest(unittest.TestCase):
         with zipfile.ZipFile(result_file) as z:
             self.assertEqual(set(z.namelist()), set(expect_files))
 
+    def test_MetagenomeFileUtil_merge_bins(self):
+        new_bin_id = 'MyNewBin_ID'
+        bin_objects_to_merge = []
+
+        bin_object_1_to_merge = {
+            'bid': 'Bin_1',
+            'contigs': {
+                'contig_1': {
+                    'gc': 0.5,
+                    'len': 10
+                },
+                'contig_2': {
+                    'gc': 0.5,
+                    'len': 2
+                }
+            },
+            'n_contigs': 2,
+            'gc': 0.5,
+            'sum_contig_len': 12,
+            'cov': 0.8
+        }
+
+        bin_object_2_to_merge = {
+            'bid': 'Bin_1',
+            'contigs': {
+                'contig_3': {
+                    'gc': 0.5,
+                    'len': 6
+                }
+            },
+            'n_contigs': 1,
+            'gc': 0.5,
+            'sum_contig_len': 6,
+            'cov': 0.5
+        }
+
+        bin_objects_to_merge.append(bin_object_1_to_merge)
+        bin_objects_to_merge.append(bin_object_2_to_merge)
+
+        new_contig_bin = self.binned_contig_builder._merge_bins(new_bin_id, bin_objects_to_merge)
+
+        expect_new_contig_bin = {
+            'bid': new_bin_id,
+            'contigs': {
+                'contig_1': {
+                    'gc': 0.5,
+                    'len': 10
+                },
+                'contig_2': {
+                    'gc': 0.5,
+                    'len': 2
+                },
+                'contig_3': {
+                    'gc': 0.5,
+                    'len': 6
+                }
+            },
+            'n_contigs': 3,
+            'gc': 0.5,
+            'sum_contig_len': 18,
+            'cov': 0.7
+        }
+
+        self.assertDictEqual(expect_new_contig_bin, new_contig_bin)
+
     def test_file_to_binned_contigs(self):
 
         binned_contig_name = 'MyBinnedContig'
@@ -554,3 +774,278 @@ class MetagenomeUtilsTest(unittest.TestCase):
                                                                             binned_contig_obj_ref)):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
+
+    def test_remove_bins_from_binned_contig_single_bin(self):
+
+        binned_contig_name = 'MyBinnedContig'
+        params = {
+            'assembly_ref': self.large_assembly_ref,
+            'file_directory': self.test_directory_path,
+            'binned_contig_name': binned_contig_name,
+            'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
+        }
+
+        resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
+        old_binned_contig_ref = resultVal.get('binned_contig_obj_ref')
+
+        output_binned_contig_name = 'MyNewBinnedContig'
+        remove_bins_params = {
+            'old_binned_contig_ref': old_binned_contig_ref,
+            'bins_to_remove': ['out_header.002.fasta'],
+            'output_binned_contig_name': output_binned_contig_name,
+            'workspace_name': self.getWsName()
+        }
+
+        resultVal = self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                                  remove_bins_params)[0]
+
+        self.assertTrue('new_binned_contig_ref' in resultVal)
+
+        binned_contig_object = self.dfu.get_objects(
+                {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
+
+        binned_contig_info = binned_contig_object.get('info')
+
+        self.assertEquals(binned_contig_info[1], output_binned_contig_name)
+        expect_binned_contig_info_list = ['assembly_ref', 'total_contig_len', 'n_bins']
+        self.assertItemsEqual(binned_contig_info[-1], expect_binned_contig_info_list)
+        self.assertEquals(int(binned_contig_info[-1].get('n_bins')), 2)
+        self.assertEquals(binned_contig_info[-1].get('assembly_ref'), self.large_assembly_ref)
+        self.assertEquals(int(binned_contig_info[-1].get('total_contig_len')), 5127090)
+
+        binned_contig_data = binned_contig_object.get('data')
+        epxect_binned_contig_keys = ['total_contig_len', 'assembly_ref', 'bins']
+        self.assertItemsEqual(binned_contig_data.keys(), epxect_binned_contig_keys)
+        self.assertEquals(binned_contig_data.get('total_contig_len'), 5127090)
+        self.assertEquals(binned_contig_data.get('assembly_ref'), self.large_assembly_ref)
+
+        bins = binned_contig_data.get('bins')
+        bin_ids = map(lambda item: item.get('bid'), bins)
+        expect_bin_ids = ['out_header.001.fasta', 'out_header.003.fasta']
+        self.assertItemsEqual(bin_ids, expect_bin_ids)
+
+    def test_remove_bins_from_binned_contig_multiple_bins(self):
+
+        binned_contig_name = 'MyBinnedContig'
+        params = {
+            'assembly_ref': self.large_assembly_ref,
+            'file_directory': self.test_directory_path,
+            'binned_contig_name': binned_contig_name,
+            'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
+        }
+
+        resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
+        old_binned_contig_ref = resultVal.get('binned_contig_obj_ref')
+
+        output_binned_contig_name = 'MyNewBinnedContig'
+        remove_bins_params = {
+            'old_binned_contig_ref': old_binned_contig_ref,
+            'bins_to_remove': ['out_header.001.fasta', 'out_header.003.fasta'],
+            'output_binned_contig_name': output_binned_contig_name,
+            'workspace_name': self.getWsName()
+        }
+
+        resultVal = self.getImpl().remove_bins_from_binned_contig(self.getContext(),
+                                                                  remove_bins_params)[0]
+
+        self.assertTrue('new_binned_contig_ref' in resultVal)
+
+        binned_contig_object = self.dfu.get_objects(
+                {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
+
+        binned_contig_info = binned_contig_object.get('info')
+
+        self.assertEquals(binned_contig_info[1], output_binned_contig_name)
+        expect_binned_contig_info_list = ['assembly_ref', 'total_contig_len', 'n_bins']
+        self.assertItemsEqual(binned_contig_info[-1], expect_binned_contig_info_list)
+        self.assertEquals(int(binned_contig_info[-1].get('n_bins')), 1)
+        self.assertEquals(binned_contig_info[-1].get('assembly_ref'), self.large_assembly_ref)
+        self.assertEquals(int(binned_contig_info[-1].get('total_contig_len')), 3270493)
+
+        binned_contig_data = binned_contig_object.get('data')
+        epxect_binned_contig_keys = ['total_contig_len', 'assembly_ref', 'bins']
+        self.assertItemsEqual(binned_contig_data.keys(), epxect_binned_contig_keys)
+        self.assertEquals(binned_contig_data.get('total_contig_len'), 3270493)
+        self.assertEquals(binned_contig_data.get('assembly_ref'), self.large_assembly_ref)
+
+        bins = binned_contig_data.get('bins')
+        bin_ids = map(lambda item: item.get('bid'), bins)
+        expect_bin_ids = ['out_header.002.fasta']
+        self.assertItemsEqual(bin_ids, expect_bin_ids)
+
+    def test_merge_bins_from_binned_contig(self):
+
+        binned_contig_name = 'MyBinnedContig'
+        params = {
+            'assembly_ref': self.large_assembly_ref,
+            'file_directory': self.test_directory_path,
+            'binned_contig_name': binned_contig_name,
+            'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
+        }
+
+        resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
+        old_binned_contig_ref = resultVal.get('binned_contig_obj_ref')
+
+        output_binned_contig_name = 'MyNewBinnedContig'
+
+        merge_bins_params = {
+            'old_binned_contig_ref': old_binned_contig_ref,
+            'bin_merges': [{
+                'new_bin_id': 'out_header.004.fasta',
+                'bin_to_merge': ['nonexisting_bin_id', 'out_header.003.fasta']
+            }],
+            'output_binned_contig_name': output_binned_contig_name,
+            'workspace_name': self.getWsName()
+        }
+        with self.assertRaisesRegexp(
+                    ValueError,
+                    "bin_id: \[nonexisting_bin_id\] is not listed in BinnedContig object"):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         merge_bins_params)
+
+        merge_bins_params = {
+            'old_binned_contig_ref': old_binned_contig_ref,
+            'bin_merges': [{
+                'new_bin_id': 'out_header.004.fasta',
+                'bin_to_merge': ['out_header.003.fasta']
+            }],
+            'output_binned_contig_name': output_binned_contig_name,
+            'workspace_name': self.getWsName()
+        }
+        with self.assertRaisesRegexp(
+                    ValueError,
+                    "Please provide at least two bin_ids to merge"):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         merge_bins_params)
+
+        merge_bins_params = {
+            'old_binned_contig_ref': old_binned_contig_ref,
+            'bin_merges': [
+                {
+                    'new_bin_id': 'out_header.004.fasta',
+                    'bin_to_merge': ['out_header.002.fasta', 'out_header.003.fasta']},
+                {
+                    'new_bin_id': 'out_header.005.fasta',
+                    'bin_to_merge': ['out_header.001.fasta', 'out_header.003.fasta']
+                }],
+            'output_binned_contig_name': output_binned_contig_name,
+            'workspace_name': self.getWsName()
+        }
+        with self.assertRaisesRegexp(
+                    ValueError,
+                    "Same bin \[out_header.003.fasta\] appears in muliple merges"):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         merge_bins_params)
+
+        merge_bins_params = {
+            'old_binned_contig_ref': old_binned_contig_ref,
+            'bin_merges': [
+                {
+                    'new_bin_id': 'out_header.004.fasta',
+                    'bin_to_merge': ['out_header.002.fasta', 'out_header.003.fasta']},
+                {
+                    'new_bin_id': 'out_header.004.fasta',
+                    'bin_to_merge': ['out_header.001.fasta', 'out_header.004.fasta']
+                }],
+            'output_binned_contig_name': output_binned_contig_name,
+            'workspace_name': self.getWsName()
+        }
+        with self.assertRaisesRegexp(
+                    ValueError,
+                    "Same new Bin ID \[out_header.004.fasta\] appears in muliple merges"):
+            self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                         merge_bins_params)
+
+        merge_bins_params = {
+            'old_binned_contig_ref': old_binned_contig_ref,
+            'bin_merges': [{
+                'new_bin_id': 'out_header.004.fasta',
+                'bin_to_merge': ['out_header.002.fasta', 'out_header.003.fasta']
+            }],
+            'output_binned_contig_name': output_binned_contig_name,
+            'workspace_name': self.getWsName()
+        }
+
+        resultVal = self.getImpl().merge_bins_from_binned_contig(self.getContext(),
+                                                                 merge_bins_params)[0]
+
+        self.assertTrue('new_binned_contig_ref' in resultVal)
+
+        binned_contig_object = self.dfu.get_objects(
+                {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
+
+        binned_contig_info = binned_contig_object.get('info')
+
+        self.assertEquals(binned_contig_info[1], output_binned_contig_name)
+        expect_binned_contig_info_list = ['assembly_ref', 'total_contig_len', 'n_bins']
+        self.assertItemsEqual(binned_contig_info[-1], expect_binned_contig_info_list)
+        self.assertEquals(int(binned_contig_info[-1].get('n_bins')), 2)
+        self.assertEquals(binned_contig_info[-1].get('assembly_ref'), self.large_assembly_ref)
+        self.assertEquals(int(binned_contig_info[-1].get('total_contig_len')), 8397583)
+
+        binned_contig_data = binned_contig_object.get('data')
+        epxect_binned_contig_keys = ['total_contig_len', 'assembly_ref', 'bins']
+        self.assertItemsEqual(binned_contig_data.keys(), epxect_binned_contig_keys)
+        self.assertEquals(binned_contig_data.get('total_contig_len'), 8397583)
+        self.assertEquals(binned_contig_data.get('assembly_ref'), self.large_assembly_ref)
+
+        bins = binned_contig_data.get('bins')
+        bin_ids = map(lambda item: item.get('bid'), bins)
+        expect_bin_ids = ['out_header.001.fasta', 'out_header.004.fasta']
+        self.assertItemsEqual(bin_ids, expect_bin_ids)
+
+    def test_edit_bins_from_binned_contig(self):
+
+        binned_contig_name = 'MyBinnedContig'
+        params = {
+            'assembly_ref': self.large_assembly_ref,
+            'file_directory': self.test_directory_path,
+            'binned_contig_name': binned_contig_name,
+            'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
+        }
+
+        resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
+        old_binned_contig_ref = resultVal.get('binned_contig_obj_ref')
+
+        output_binned_contig_name = 'MyNewBinnedContig'
+
+        edit_bins_params = {
+            'old_binned_contig_ref': old_binned_contig_ref,
+            'bins_to_remove': ['out_header.001.fasta'],
+            'bin_merges': [{
+                'new_bin_id': 'out_header.004.fasta',
+                'bin_to_merge': ['out_header.002.fasta', 'out_header.003.fasta']
+            }],
+            'output_binned_contig_name': output_binned_contig_name,
+            'workspace_name': self.getWsName()
+        }
+
+        resultVal = self.getImpl().edit_bins_from_binned_contig(self.getContext(),
+                                                                edit_bins_params)[0]
+
+        self.assertTrue('new_binned_contig_ref' in resultVal)
+        self.assertTrue('report_name' in resultVal)
+        self.assertTrue('report_ref' in resultVal)
+
+        binned_contig_object = self.dfu.get_objects(
+                {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
+
+        binned_contig_info = binned_contig_object.get('info')
+
+        self.assertEquals(binned_contig_info[1], output_binned_contig_name)
+        expect_binned_contig_info_list = ['assembly_ref', 'total_contig_len', 'n_bins']
+        self.assertItemsEqual(binned_contig_info[-1], expect_binned_contig_info_list)
+        self.assertEquals(int(binned_contig_info[-1].get('n_bins')), 1)
+        self.assertEquals(binned_contig_info[-1].get('assembly_ref'), self.large_assembly_ref)
+        self.assertEquals(int(binned_contig_info[-1].get('total_contig_len')), 5722681)
+
+        binned_contig_data = binned_contig_object.get('data')
+        epxect_binned_contig_keys = ['total_contig_len', 'assembly_ref', 'bins']
+        self.assertItemsEqual(binned_contig_data.keys(), epxect_binned_contig_keys)
+        self.assertEquals(binned_contig_data.get('total_contig_len'), 5722681)
+        self.assertEquals(binned_contig_data.get('assembly_ref'), self.large_assembly_ref)
+
+        bins = binned_contig_data.get('bins')
+        bin_ids = map(lambda item: item.get('bid'), bins)
+        expect_bin_ids = ['out_header.004.fasta']
+        self.assertItemsEqual(bin_ids, expect_bin_ids)
