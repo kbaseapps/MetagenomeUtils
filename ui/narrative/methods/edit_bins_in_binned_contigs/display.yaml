@@ -2,7 +2,7 @@
 # define display information
 #
 name: Modify Bins in BinnedContigs
-tooltip: Add or remove specific bins by ID in BinnedContigs data
+tooltip: Add or remove specific bins by name in BinnedContigs data
 screenshots: []
 
 icon: null
@@ -31,14 +31,14 @@ parameters :
         short-hint : the binned contig data to edit
     bins_to_remove:
         ui-name : Bin to Removes
-        short-hint : Enter the bin ID of a bin to remove
+        short-hint : Enter the bin name of a bin to remove
 
     new_bin_id:
-        ui-name : New Bin ID
-        short-hint : Enter a new ID for this merged bin
+        ui-name : New Bin Name
+        short-hint : Enter a new name for this merged bin
     bin_to_merge:
         ui-name : Bin to Merge
-        short-hint : Enter the ID of a bin to add
+        short-hint : Enter the name of a bin to add
 
     output_binned_contig_name :
         ui-name : Output BinnedContigs Name
