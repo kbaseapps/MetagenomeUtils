@@ -220,7 +220,7 @@ public class MetagenomeUtilsClient {
      * binned_contig_obj_ref: BinnedContig object reference
      * extracted_assemblies: a list of:
      *       bin_id: target bin id to be extracted
-     *       output_assembly_name: output assembly object name
+     *       assembly_suffix: suffix appended to assembly object name
      * workspace_name: the name of the workspace it gets saved to
      * return params:
      * assembly_ref_list: list of generated result Assembly object reference

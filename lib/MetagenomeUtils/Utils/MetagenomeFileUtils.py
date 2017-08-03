@@ -123,7 +123,7 @@ class MetagenomeFileUtils:
         for item in extracted_assemblies:
             if not isinstance(item, dict):
                 raise ValueError('item [{}] is not type dict as required'.format(item))
-            for p in ['bin_id', 'output_assembly_name']:
+            for p in ['bin_id', 'assembly_suffix']:
                 if p not in item:
                     raise ValueError('"{}" key is required, but missing'.format(p))
 
@@ -401,8 +401,8 @@ class MetagenomeFileUtils:
         binned_contig = self.dfu.get_objects({'object_refs': [new_binned_contig_ref]})['data'][0]
         binned_contig_info = binned_contig.get('info')
         binned_contig_name = binned_contig_info[1]
-        report_message += 'Generated BinnedContig: {} [reference {}]\n'.format(binned_contig_name,
-                                                                               new_binned_contig_ref)
+        report_message += 'Generated BinnedContig: {} [{}]\n'.format(binned_contig_name,
+                                                                     new_binned_contig_ref)
 
         binned_contig_count = 0
         total_bins = binned_contig.get('data').get('bins')
@@ -440,9 +440,9 @@ class MetagenomeFileUtils:
             'bid': new_bin_id,
             'contigs': total_contigs,
             'n_contigs': len(total_contigs),
-            'gc': round(float(total_gc_count)/total_sum_contig_len, 5),
+            'gc': round(float(total_gc_count) / total_sum_contig_len, 5),
             'sum_contig_len': total_sum_contig_len,
-            'cov': round(float(total_cov_len)/total_sum_contig_len, 5)
+            'cov': round(float(total_cov_len) / total_sum_contig_len, 5)
         }
 
         return contig_bin
@@ -461,11 +461,9 @@ class MetagenomeFileUtils:
         object_type = 'KBaseMetagenomes.BinnedContigs'
         save_object_params = {
             'id': workspace_id,
-            'objects': [{
-                            'type': object_type,
-                            'data': binned_contigs,
-                            'name': binned_contig_name
-                        }]
+            'objects': [{'type': object_type,
+                         'data': binned_contigs,
+                         'name': binned_contig_name}]
         }
 
         dfu_oi = self.dfu.save_objects(save_object_params)[0]
@@ -629,7 +627,7 @@ class MetagenomeFileUtils:
         binned_contig_obj_ref: BinnedContig object reference
         extracted_assemblies: a list of:
             bin_id: target bin id to be extracted
-            output_assembly_name: output assembly object name
+            assembly_suffix: suffix appended to assembly object name
         workspace_name: the name of the workspace it gets saved to
 
         return params:
@@ -665,7 +663,9 @@ class MetagenomeFileUtils:
                 error_msg += '[{}]'.format(binned_contig_obj_ref)
                 raise ValueError(error_msg)
             else:
-                output_assembly_name = extracted_assembly.get('output_assembly_name').strip()
+                assembly_suffix = extracted_assembly.get('assembly_suffix').strip()
+                output_assembly_name = bin_id + assembly_suffix
+                log('saving assembly: {}'.format(output_assembly_name))
                 for bin_file in bin_files:
                     if os.path.basename(bin_file) == bin_id:
                         log('starting generating assembly from {}'.format(bin_id))

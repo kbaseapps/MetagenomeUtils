@@ -86,13 +86,11 @@ module MetagenomeUtils {
       binned_contig_obj_ref: BinnedContig object reference
       extracted_assemblies: a list of:
             bin_id: target bin id to be extracted
-            output_assembly_name: output assembly object name
+            assembly_suffix: suffix appended to assembly object name
       workspace_name: the name of the workspace it gets saved to
     */
     typedef structure {
       obj_ref binned_contig_obj_ref;
-      string bin_id;
-      string output_assembly_name;
       list<mapping<string, string>> extracted_assemblies;
       string workspace_name;
     } ExtractBinAsAssemblyParams;
@@ -115,7 +113,7 @@ module MetagenomeUtils {
       binned_contig_obj_ref: BinnedContig object reference
       extracted_assemblies: a list of:
             bin_id: target bin id to be extracted
-            output_assembly_name: output assembly object name
+            assembly_suffix: suffix appended to assembly object name
       workspace_name: the name of the workspace it gets saved to
 
       return params:

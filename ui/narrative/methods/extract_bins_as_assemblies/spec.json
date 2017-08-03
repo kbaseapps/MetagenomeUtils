@@ -40,11 +40,11 @@
       }
     },
     {
-      "id": "output_assembly_name",
+      "id": "assembly_suffix",
       "optional": false,
       "advanced": false,
       "allow_multiple": false,
-      "default_values": [""],
+      "default_values": ["_assembly"],
       "field_type": "text",
       "text_options": {}
     }
@@ -54,7 +54,7 @@
       "id": "extracted_assemblies",
       "parameters": [
         "bin_id",
-        "output_assembly_name"
+        "assembly_suffix"
       ],
       "optional": true,
       "allow_multiple": true,
