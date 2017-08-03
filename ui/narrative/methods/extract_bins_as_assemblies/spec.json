@@ -32,8 +32,7 @@
         "subdata_selection": {
           "parameter_id" : "binned_contig_obj_ref",
           "subdata_included" : ["bins/[*]/bid"],
-          "path_to_subdata": ["bins"],
-          "selection_id": "bid"
+          "path_to_subdata": ["bins"]
         },
         "multiselection":false,
         "show_src_obj":false,
