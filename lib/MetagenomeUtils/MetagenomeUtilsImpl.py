@@ -22,9 +22,9 @@ class MetagenomeUtils:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.0.5"
+    VERSION = "1.0.0"
     GIT_URL = "https://github.com/Tianhao-Gu/MetagenomeUtils.git"
-    GIT_COMMIT_HASH = "fed1aefa706da96ce3f719b96be94f1b2883719f"
+    GIT_COMMIT_HASH = "959625beac810965f072a652e576000c5055ed1d"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER

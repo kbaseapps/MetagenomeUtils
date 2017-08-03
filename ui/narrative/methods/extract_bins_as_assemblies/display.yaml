@@ -1,11 +1,11 @@
 #
 # define display information
 #
-name: Extract Bins as Assemblies from BinnedContigs
+name: Extract Bins as Assemblies from BinnedContigs - v1.0.0
 tooltip: Extract a bin as an Assembly from a BinnedContig dataset
 screenshots: []
 
-icon: null
+icon: binutil-green.png
 
 #
 # define a set of similar methods that might be useful to the user
