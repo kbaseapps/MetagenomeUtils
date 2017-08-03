@@ -644,7 +644,7 @@ class MetagenomeFileUtils:
         extracted_assemblies = params.get('extracted_assemblies')
         bin_id_list = []
         for extracted_assembly in extracted_assemblies:
-            bin_id = extracted_assembly.get('bin_id').strip()
+            bin_id = extracted_assembly.get('bin_id')[0].strip()
             bin_id_list.append(bin_id)
 
         binned_contig_obj_ref = params.get('binned_contig_obj_ref')
@@ -657,7 +657,7 @@ class MetagenomeFileUtils:
         extracted_assemblies = params.get('extracted_assemblies')
         generated_assembly_ref_list = []
         for extracted_assembly in extracted_assemblies:
-            bin_id = extracted_assembly.get('bin_id').strip()
+            bin_id = extracted_assembly.get('bin_id')[0].strip()
             if bin_id not in map(os.path.basename, bin_files):
                 error_msg = 'bin_id [{}] cannot be found in BinnedContig '.format(bin_id)
                 error_msg += '[{}]'.format(binned_contig_obj_ref)

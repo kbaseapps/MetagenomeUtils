@@ -749,11 +749,11 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'binned_contig_obj_ref': binned_contig_obj_ref,
             'extracted_assemblies': [
                 {
-                    'bin_id': 'out_header.001.fasta',
+                    'bin_id': ['out_header.001.fasta'],
                     'assembly_suffix': '_assembly'
                 },
                 {
-                    'bin_id': 'out_header.002.fasta',
+                    'bin_id': ['out_header.002.fasta'],
                     'assembly_suffix': '_assembly'
                 }],
             'workspace_name': self.getWsName()
