@@ -336,8 +336,6 @@ $params is a MetagenomeUtils.ExtractBinAsAssemblyParams
 $returnVal is a MetagenomeUtils.ExtractBinAsAssemblyResult
 ExtractBinAsAssemblyParams is a reference to a hash where the following keys are defined:
 	binned_contig_obj_ref has a value which is a MetagenomeUtils.obj_ref
-	bin_id has a value which is a string
-	output_assembly_name has a value which is a string
 	extracted_assemblies has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
 	workspace_name has a value which is a string
 obj_ref is a string
@@ -356,8 +354,6 @@ $params is a MetagenomeUtils.ExtractBinAsAssemblyParams
 $returnVal is a MetagenomeUtils.ExtractBinAsAssemblyResult
 ExtractBinAsAssemblyParams is a reference to a hash where the following keys are defined:
 	binned_contig_obj_ref has a value which is a MetagenomeUtils.obj_ref
-	bin_id has a value which is a string
-	output_assembly_name has a value which is a string
 	extracted_assemblies has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
 	workspace_name has a value which is a string
 obj_ref is a string
@@ -377,7 +373,7 @@ input params:
 binned_contig_obj_ref: BinnedContig object reference
 extracted_assemblies: a list of:
       bin_id: target bin id to be extracted
-      output_assembly_name: output assembly object name
+      assembly_suffix: suffix appended to assembly object name
 workspace_name: the name of the workspace it gets saved to
 
 return params:
@@ -1088,7 +1084,7 @@ bin_file_directory has a value which is a string
 binned_contig_obj_ref: BinnedContig object reference
 extracted_assemblies: a list of:
       bin_id: target bin id to be extracted
-      output_assembly_name: output assembly object name
+      assembly_suffix: suffix appended to assembly object name
 workspace_name: the name of the workspace it gets saved to
 
 
@@ -1099,8 +1095,6 @@ workspace_name: the name of the workspace it gets saved to
 <pre>
 a reference to a hash where the following keys are defined:
 binned_contig_obj_ref has a value which is a MetagenomeUtils.obj_ref
-bin_id has a value which is a string
-output_assembly_name has a value which is a string
 extracted_assemblies has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
 workspace_name has a value which is a string
 
@@ -1112,8 +1106,6 @@ workspace_name has a value which is a string
 
 a reference to a hash where the following keys are defined:
 binned_contig_obj_ref has a value which is a MetagenomeUtils.obj_ref
-bin_id has a value which is a string
-output_assembly_name has a value which is a string
 extracted_assemblies has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
 workspace_name has a value which is a string
 

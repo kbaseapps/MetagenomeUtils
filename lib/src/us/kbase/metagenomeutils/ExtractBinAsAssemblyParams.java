@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * binned_contig_obj_ref: BinnedContig object reference
  * extracted_assemblies: a list of:
  *       bin_id: target bin id to be extracted
- *       output_assembly_name: output assembly object name
+ *       assembly_suffix: suffix appended to assembly object name
  * workspace_name: the name of the workspace it gets saved to
  * </pre>
  * 
@@ -27,8 +27,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "binned_contig_obj_ref",
-    "bin_id",
-    "output_assembly_name",
     "extracted_assemblies",
     "workspace_name"
 })
@@ -36,10 +34,6 @@ public class ExtractBinAsAssemblyParams {
 
     @JsonProperty("binned_contig_obj_ref")
     private java.lang.String binnedContigObjRef;
-    @JsonProperty("bin_id")
-    private java.lang.String binId;
-    @JsonProperty("output_assembly_name")
-    private java.lang.String outputAssemblyName;
     @JsonProperty("extracted_assemblies")
     private List<Map<String, String>> extractedAssemblies;
     @JsonProperty("workspace_name")
@@ -58,36 +52,6 @@ public class ExtractBinAsAssemblyParams {
 
     public ExtractBinAsAssemblyParams withBinnedContigObjRef(java.lang.String binnedContigObjRef) {
         this.binnedContigObjRef = binnedContigObjRef;
-        return this;
-    }
-
-    @JsonProperty("bin_id")
-    public java.lang.String getBinId() {
-        return binId;
-    }
-
-    @JsonProperty("bin_id")
-    public void setBinId(java.lang.String binId) {
-        this.binId = binId;
-    }
-
-    public ExtractBinAsAssemblyParams withBinId(java.lang.String binId) {
-        this.binId = binId;
-        return this;
-    }
-
-    @JsonProperty("output_assembly_name")
-    public java.lang.String getOutputAssemblyName() {
-        return outputAssemblyName;
-    }
-
-    @JsonProperty("output_assembly_name")
-    public void setOutputAssemblyName(java.lang.String outputAssemblyName) {
-        this.outputAssemblyName = outputAssemblyName;
-    }
-
-    public ExtractBinAsAssemblyParams withOutputAssemblyName(java.lang.String outputAssemblyName) {
-        this.outputAssemblyName = outputAssemblyName;
         return this;
     }
 
@@ -133,7 +97,7 @@ public class ExtractBinAsAssemblyParams {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((("ExtractBinAsAssemblyParams"+" [binnedContigObjRef=")+ binnedContigObjRef)+", binId=")+ binId)+", outputAssemblyName=")+ outputAssemblyName)+", extractedAssemblies=")+ extractedAssemblies)+", workspaceName=")+ workspaceName)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((("ExtractBinAsAssemblyParams"+" [binnedContigObjRef=")+ binnedContigObjRef)+", extractedAssemblies=")+ extractedAssemblies)+", workspaceName=")+ workspaceName)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

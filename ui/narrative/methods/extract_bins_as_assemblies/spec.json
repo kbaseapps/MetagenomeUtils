@@ -1,6 +1,6 @@
 {
   "ver": "1.0.0",
-  "authors": [ ],
+  "authors": ["tgu2"],
   "contact": "help@kbase.us",
   "visible": true,
   "categories": ["active","assembly","communities"],
@@ -22,19 +22,29 @@
       }
     },
     {
-      "id": "bin_id",
-      "optional": false,
-      "advanced": false,
-      "allow_multiple": false,
-      "default_values": [""],
-      "field_type": "text"
+      "id" : "bin_id",
+      "optional" : false,
+      "advanced" : false,
+      "allow_multiple" : false,
+      "default_values" : [ "" ],
+      "field_type" : "textsubdata",
+      "textsubdata_options" : {
+        "subdata_selection": {
+          "parameter_id" : "binned_contig_obj_ref",
+          "subdata_included" : ["bins/bid"],
+          "path_to_subdata": ["bins","bid"]
+        },
+        "multiselection":false,
+        "show_src_obj":false,
+        "allow_custom":false
+      }
     },
     {
-      "id": "output_assembly_name",
+      "id": "assembly_suffix",
       "optional": false,
       "advanced": false,
       "allow_multiple": false,
-      "default_values": [""],
+      "default_values": ["_assembly"],
       "field_type": "text",
       "text_options": {}
     }
@@ -44,7 +54,7 @@
       "id": "extracted_assemblies",
       "parameters": [
         "bin_id",
-        "output_assembly_name"
+        "assembly_suffix"
       ],
       "optional": true,
       "allow_multiple": true,
