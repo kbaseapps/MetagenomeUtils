@@ -838,11 +838,11 @@ class MetagenomeFileUtils:
         log('--->\nrunning MetagenomeFileUtils.edit_bins_from_binned_contig\n' +
             'params:\n{}'.format(json.dumps(params, indent=1)))
 
-        input_params = params
+        input_params = params.copy()
         if params.get('bins_to_remove'):
-            bins_to_remove = params.get('bins_to_remove')
+            bins_to_remove = input_params.get('bins_to_remove')
             if isinstance(bins_to_remove, str):
-                params['bins_to_remove'] = bins_to_remove.split(',')
+                input_params['bins_to_remove'] = bins_to_remove.split(',')
             new_binned_contig_ref = self.remove_bins_from_binned_contig(input_params).get(
                                                                         'new_binned_contig_ref')
             input_params['old_binned_contig_ref'] = new_binned_contig_ref
