@@ -7,6 +7,7 @@ import errno
 import uuid
 import zipfile
 from Bio import SeqIO
+from six import string_types
 
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
@@ -841,7 +842,7 @@ class MetagenomeFileUtils:
         input_params = params.copy()
         if params.get('bins_to_remove'):
             bins_to_remove = input_params.get('bins_to_remove')
-            if isinstance(bins_to_remove, str):
+            if isinstance(bins_to_remove, string_types):
                 input_params['bins_to_remove'] = bins_to_remove.split(',')
             new_binned_contig_ref = self.remove_bins_from_binned_contig(input_params).get(
                                                                         'new_binned_contig_ref')
