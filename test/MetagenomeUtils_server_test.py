@@ -768,7 +768,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         invalidate_input_params = {
             'binned_contig_obj_ref': binned_contig_obj_ref,
             'extracted_assemblies': [{
-                'bin_id': 'nonexisting_bin_id',
+                'bin_id': ['nonexisting_bin_id'],
                 'assembly_suffix': '_assembly'
             }],
             'workspace_name': self.getWsName()

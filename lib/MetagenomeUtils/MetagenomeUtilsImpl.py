@@ -24,7 +24,7 @@ class MetagenomeUtils:
     ######################################### noqa
     VERSION = "1.0.0"
     GIT_URL = "https://github.com/Tianhao-Gu/MetagenomeUtils.git"
-    GIT_COMMIT_HASH = "8b137416dc158a565a77fc2ece72c7d6d4e8a191"
+    GIT_COMMIT_HASH = "ccfbb8d6def1fba3277cb234ad83895d1318d968"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
