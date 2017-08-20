@@ -1,6 +1,6 @@
 {
   "ver": "1.0.0",
-  "authors": [ ],
+  "authors": ["tgu2"],
   "contact": "help@kbase.us",
   "visible": true,
   "categories": ["active","assembly","communities"],
@@ -22,12 +22,23 @@
       }
     },
     {
-      "id": "bins_to_remove",
-      "optional": true,
-      "advanced": false,
-      "allow_multiple": true,
-      "default_values": [""],
-      "field_type": "text"
+      "id" : "bins_to_remove",
+      "optional" : true,
+      "advanced" : false,
+      "allow_multiple" : false,
+      "default_values" : [ "" ],
+      "field_type" : "textsubdata",
+      "textsubdata_options" : {
+        "subdata_selection": {
+          "parameter_id" : "old_binned_contig_ref",
+          "subdata_included" : ["bins/[*]/bid"],
+          "path_to_subdata": ["bins"],
+          "selection_id": "bid"
+        },
+        "multiselection":true,
+        "show_src_obj":false,
+        "allow_custom":false
+      }
     },
     {
       "id": "new_bin_id",
@@ -38,12 +49,23 @@
       "field_type": "text"
     },
     {
-      "id": "bin_to_merge",
-      "optional": false,
-      "advanced": false,
-      "allow_multiple": true,
-      "default_values": [""],
-      "field_type": "text"
+      "id" : "bin_to_merge",
+      "optional" : false,
+      "advanced" : false,
+      "allow_multiple" : false,
+      "default_values" : [ "" ],
+      "field_type" : "textsubdata",
+      "textsubdata_options" : {
+        "subdata_selection": {
+          "parameter_id" : "old_binned_contig_ref",
+          "subdata_included" : ["bins/[*]/bid"],
+          "path_to_subdata": ["bins"],
+          "selection_id": "bid"
+        },
+        "multiselection":true,
+        "show_src_obj":false,
+        "allow_custom":false
+      }
     },
     {
       "id": "output_binned_contig_name",

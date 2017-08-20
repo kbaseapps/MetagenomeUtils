@@ -6,6 +6,7 @@ import time
 import requests  # noqa: F401
 import shutil
 import zipfile
+from Bio import SeqIO
 
 from os import environ
 try:
@@ -99,7 +100,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         large_assembly_params = {
             'file': {'path': large_assembly_fasta_file_path},
             'workspace_name': cls.ws_info[1],
-            'assembly_name': 'MyAssembly'
+            'assembly_name': 'MyAssembly_Large'
         }
         cls.large_assembly_ref = cls.au.save_assembly_from_fasta(large_assembly_params)
 
@@ -275,7 +276,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'missing_binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': [{
                 'bin_id': 'bin_id',
-                'output_assembly_name': 'output_assembly_name'
+                'assembly_suffix': '_assembly'
             }],
             'workspace_name': 'workspace_name'
         }
@@ -288,7 +289,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'missing_extracted_assemblies': [{
                 'bin_id': 'bin_id',
-                'output_assembly_name': 'output_assembly_name'
+                'assembly_suffix': '_assembly'
             }],
             'workspace_name': 'workspace_name'
         }
@@ -300,7 +301,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': [{
                 'bin_id': 'bin_id',
-                'output_assembly_name': 'output_assembly_name'
+                'assembly_suffix': '_assembly'
             }],
             'missing_workspace_name': 'workspace_name'
         }
@@ -331,7 +332,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': [{
                 'missing_bin_id': 'bin_id',
-                'output_assembly_name': 'output_assembly_name'
+                'assembly_suffix': '_assembly'
             }],
             'workspace_name': 'workspace_name'
         }
@@ -344,12 +345,12 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': [{
                 'bin_id': 'bin_id',
-                'missing_output_assembly_name': 'output_assembly_name'
+                'missing_assembly_suffix': '_assembly'
             }],
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"output_assembly_name" key is required, but missing'):
+                    ValueError, '"assembly_suffix" key is required, but missing'):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
 
@@ -517,8 +518,10 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
     def test_MetagenomeFileUtil_get_contig_string(self):
         target_contig_id = 'NODE_1_length_28553_cov_19.031240'
+        parsed_assembly = SeqIO.to_dict(SeqIO.parse(self.assembly_fasta_file_path, "fasta"))
         contig_string = self.binned_contig_builder._get_contig_string(target_contig_id,
-                                                                      self.assembly_fasta_file_path)
+                                                                      self.assembly_fasta_file_path,
+                                                                      parsed_assembly)
 
         expect_contig_string = '>NODE_1_length_28553_cov_19.031240\n'
         expect_contig_string += 'TCGGCGTCACAAAACTCGGAATCGTCGGACAGGAACAGTTCGCTGACGGTAAGTTATAAGGGAGAC'
@@ -529,7 +532,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
         target_contig_id = 'NODE_9_length_4254_cov_19.036436'
         contig_string = self.binned_contig_builder._get_contig_string(target_contig_id,
-                                                                      self.assembly_fasta_file_path)
+                                                                      self.assembly_fasta_file_path,
+                                                                      parsed_assembly)
 
         expect_contig_string = '>NODE_9_length_4254_cov_19.036436\n'
         expect_contig_string += 'ACAAAGTACAACCCTCACGTGCCACTCTCAGGGCTTAACTGACGACACGCCGTAATAGTATTTATT'
@@ -543,7 +547,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
                 'Cannot find contig \[fake_id\] from file \[{}\].'.format(
                                                             self.assembly_fasta_file_path)):
             self.binned_contig_builder._get_contig_string(target_contig_id,
-                                                          self.assembly_fasta_file_path)
+                                                          self.assembly_fasta_file_path,
+                                                          parsed_assembly)
 
     def test_MetagenomeFileUtil_pack_file_to_shock(self):
         result_files = [self.assembly_fasta_file_path, self.assembly_fasta_file_path]
@@ -744,12 +749,12 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'binned_contig_obj_ref': binned_contig_obj_ref,
             'extracted_assemblies': [
                 {
-                    'bin_id': 'out_header.001.fasta',
-                    'output_assembly_name': 'MyAssembly_1'
+                    'bin_id': ['out_header.001.fasta'],
+                    'assembly_suffix': '_assembly'
                 },
                 {
-                    'bin_id': 'out_header.002.fasta',
-                    'output_assembly_name': 'MyAssembl_2'
+                    'bin_id': ['out_header.002.fasta'],
+                    'assembly_suffix': '_assembly'
                 }],
             'workspace_name': self.getWsName()
         }
@@ -763,8 +768,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
         invalidate_input_params = {
             'binned_contig_obj_ref': binned_contig_obj_ref,
             'extracted_assemblies': [{
-                'bin_id': 'nonexisting_bin_id',
-                'output_assembly_name': 'MyAssembly'
+                'bin_id': ['nonexisting_bin_id'],
+                'assembly_suffix': '_assembly'
             }],
             'workspace_name': self.getWsName()
         }

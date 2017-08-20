@@ -1,11 +1,11 @@
 #
 # define display information
 #
-name: Modify Bins in BinnedContigs
+name: Modify Bins in BinnedContigs - v1.0.0
 tooltip: Add or remove specific bins by name in BinnedContigs data
 screenshots: []
 
-icon: null
+icon: binutil-green.png
 
 #
 # define a set of similar methods that might be useful to the user

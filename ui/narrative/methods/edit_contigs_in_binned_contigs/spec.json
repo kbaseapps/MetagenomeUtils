@@ -1,6 +1,6 @@
 {
   "ver": "1.0.0",
-  "authors": [ ],
+  "authors": ["tgu2"],
   "contact": "help@kbase.us",
   "visible": true,
   "categories": ["inactive","assembly","communities"],
@@ -77,7 +77,7 @@
     "service-mapping": {
       "url": "",
       "name": "MetagenomeUtils",
-      "method": "edit",
+      "method": "edit_bins_from_binned_contig",
       "input_mapping": [
         {
           "narrative_system_variable": "workspace",
