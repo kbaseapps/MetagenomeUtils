@@ -11,8 +11,10 @@ from six import string_types
 
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
-from KBaseReport.KBaseReportClient import KBaseReport
-
+from KBaseReport.KBaseReportClient  import KBaseReport
+from SetAPI.SetAPIClient            import SetAPI
+from biokbase.workspace.client      import Workspace as workspaceService
+from pprint import pprint, pformat
 
 def log(message, prefix_newline=False):
     """Logging function, provides a hook to suppress or redirect log messages."""
@@ -498,6 +500,9 @@ class MetagenomeFileUtils:
         self.shock_url = config['shock-url']
         self.dfu = DataFileUtil(self.callback_url)
         self.au = AssemblyUtil(self.callback_url)
+        self.setapi = SetAPI( self.callback_url )
+        self.wss = workspaceService( config['workspace-url'] )
+        
 
     def file_to_binned_contigs(self, params):
         """
@@ -619,6 +624,10 @@ class MetagenomeFileUtils:
 
         return returnVal
 
+    def _get_assembly_set_base_name( self, obj_ref ):
+        """given the object reference, return the object_name as a string"""
+        return( self.wss.get_object_info_new({"objects": [{'ref': obj_ref}]})[0][1] )
+        
     def extract_binned_contigs_as_assembly(self, params):
         """
         extract_binned_contigs_as_assembly: extract one/multiple Bins from BinnedContigs as 
@@ -678,6 +687,24 @@ class MetagenomeFileUtils:
                         assembly_ref = self.au.save_assembly_from_fasta(assembly_params)
                         log('finished generating assembly from {}'.format(bin_id))
                         generated_assembly_ref_list.append(assembly_ref)
+        if ( len( generated_assembly_ref_list ) > 1 ):
+            # Make and save an AssemblySet object.  For name, use as a base name that of binned_contig_object
+            binned_contig_object_name = self._get_assembly_set_base_name( binned_contig_obj_ref )
+            # and then add a suffix to that...
+            assembly_set_name = binned_contig_object_name + "_assembly_set"
+            log( "saving assembly set {0}".format( assembly_set_name ) )
+            setref = self.setapi.save_assembly_set_v1( {
+                                                        'workspace'         : params.get( 'workspace_name' ),
+                                                        'output_object_name': assembly_set_name,
+                                                        'data':    {
+                                                                    'description': 'binned assemblies from {0}'
+                                                                          . format( binned_contig_object_name ),
+                                                                    'items'      :  [ { 'ref': r } for r in
+                                                                                   generated_assembly_ref_list ]
+                                                                   }
+                                                        }
+                                                      )
+            log( "save assembly set_ref is {0}".format( setref.get( 'set_ref' ) ) )
 
         report_message = 'Generated Assembly Reference: {}'.format(', '.join(generated_assembly_ref_list))
 
