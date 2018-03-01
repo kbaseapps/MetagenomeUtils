@@ -652,19 +652,31 @@ class MetagenomeFileUtils:
         self._validate_extract_binned_contigs_as_assembly_params(params)
 
         extracted_assemblies = params.get('extracted_assemblies')
-        bin_id_list = []
-        for extracted_assembly in extracted_assemblies:
-            bin_id = extracted_assembly.get('bin_id')[0].strip()
-            bin_id_list.append(bin_id)
+
+        # check for empty list here, if so create one based on all bins from
+        # binned_contig_obj_ref
+        if ( len( extracted_assemblies ) < 1 ):
+            log( "extracted_assemblies is empty, creating a full list from binned_contig" )
+            bin_id_list = None
+        else:
+            bin_id_list = []
+            for extracted_assembly in extracted_assemblies:
+                bin_id = extracted_assembly.get('bin_id')[0].strip()
+                bin_id_list.append(bin_id)
 
         binned_contig_obj_ref = params.get('binned_contig_obj_ref')
         contigs_to_file_ret = self.binned_contigs_to_file({'input_ref': binned_contig_obj_ref,
                                                            'save_to_shock': False,
                                                            'bin_id_list': bin_id_list})
+        
         bin_file_directory = contigs_to_file_ret.get('bin_file_directory')
         bin_files = os.listdir(bin_file_directory)
 
-        extracted_assemblies = params.get('extracted_assemblies')
+        # if extracted_assemblies is empty list, create a full one here
+        if ( len( extracted_assemblies ) < 1 ):
+            extracted_assemblies = [ { 'bin_id': [ b ], 'assembly_suffix': '_assembly' } for b in bin_files ]
+            log( "extracted_assemblies is now " + pformat( extracted_assemblies ) )
+            
         generated_assembly_ref_list = []
         for extracted_assembly in extracted_assemblies:
             bin_id = extracted_assembly.get('bin_id')[0].strip()
@@ -687,6 +699,7 @@ class MetagenomeFileUtils:
                         assembly_ref = self.au.save_assembly_from_fasta(assembly_params)
                         log('finished generating assembly from {}'.format(bin_id))
                         generated_assembly_ref_list.append(assembly_ref)
+        setref = None
         if ( len( generated_assembly_ref_list ) > 1 ):
             # Make and save an AssemblySet object.  For name, use as a base name that of binned_contig_object
             binned_contig_object_name = self._get_assembly_set_base_name( binned_contig_obj_ref )
@@ -712,6 +725,9 @@ class MetagenomeFileUtils:
 
         returnVal = {'assembly_ref_list': generated_assembly_ref_list}
         returnVal.update(reportVal)
+
+        if ( setref != None ):
+            returnVal.update( { 'assembly_set_ref': setref } )
 
         return returnVal
 
