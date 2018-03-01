@@ -104,6 +104,7 @@ module MetagenomeUtils {
       list <obj_ref> assembly_ref_list;
       string report_name;
       string report_ref;
+      string assembly_set_ref;
     } ExtractBinAsAssemblyResult;
 
     /*
