@@ -702,9 +702,10 @@ class MetagenomeFileUtils:
         setref = None
         if ( len( generated_assembly_ref_list ) > 1 ):
             # Make and save an AssemblySet object.  For name, use as a base name that of binned_contig_object
-            binned_contig_object_name = self._get_assembly_set_base_name( binned_contig_obj_ref )
+            #binned_contig_object_name = self._get_assembly_set_base_name( binned_contig_obj_ref )
             # and then add a suffix to that...
-            assembly_set_name = binned_contig_object_name + "_assembly_set"
+            #assembly_set_name = binned_contig_object_name + "_assembly_set"
+            assembly_set_name = params.get('assembly_set_name')
             log( "saving assembly set {0}".format( assembly_set_name ) )
             setref = self.setapi.save_assembly_set_v1( {
                                                         'workspace'         : params.get( 'workspace_name' ),

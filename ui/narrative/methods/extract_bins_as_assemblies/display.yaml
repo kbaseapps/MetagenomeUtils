@@ -35,6 +35,9 @@ parameters :
     assembly_suffix:
         ui-name : Assembly Name Suffix
         short-hint : provide a suffix append to Bin name for new Assembly name
+    assembly_set_name:
+        ui-name : Assembly Set Name
+        short-hint : multiple assemblies will be collected in a set with this name
 
 
 parameter-groups :

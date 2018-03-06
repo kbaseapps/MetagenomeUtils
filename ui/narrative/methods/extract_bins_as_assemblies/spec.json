@@ -48,6 +48,15 @@
       "default_values": ["_assembly"],
       "field_type": "text",
       "text_options": {}
+    },
+    {
+      "id": "assembly_set_name",
+      "optional": true,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [""],
+      "field_type": "text",
+      "text_options": {}
     }
   ],
   "parameter-groups": [
@@ -80,6 +89,10 @@
         {
           "input_parameter": "extracted_assemblies",
           "target_property": "extracted_assemblies"
+        },
+        {
+          "input_parameter": "assembly_set_name",
+          "target_property": "assembly_set_name"
         }
       ],
       "output_mapping": [

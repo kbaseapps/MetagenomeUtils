@@ -87,11 +87,13 @@ module MetagenomeUtils {
       extracted_assemblies: a list of:
             bin_id: target bin id to be extracted
             assembly_suffix: suffix appended to assembly object name
+      assembly_set_name:  name for created assembly set
       workspace_name: the name of the workspace it gets saved to
     */
     typedef structure {
       obj_ref binned_contig_obj_ref;
       list<mapping<string, string>> extracted_assemblies;
+      string assembly_set_name;
       string workspace_name;
     } ExtractBinAsAssemblyParams;
 
