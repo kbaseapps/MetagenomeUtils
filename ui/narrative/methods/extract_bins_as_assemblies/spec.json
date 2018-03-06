@@ -31,7 +31,7 @@
       "textsubdata_options" : {
         "subdata_selection": {
           "parameter_id" : "binned_contig_obj_ref",
-          "subdata_included" : ["bins/[*]/bid"],
+            "subdata_included" : ["bins/[*]/bid", "bins/[*]/n_contigs"],
           "path_to_subdata": ["bins"],
           "selection_id": "bid"
         },
