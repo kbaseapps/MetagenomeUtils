@@ -271,27 +271,30 @@ class MetagenomeUtilsTest(unittest.TestCase):
             self.getImpl().remove_bins_from_binned_contig(self.getContext(),
                                                           invalidate_input_params)
     
-        
+    
+
     def test_bad_extract_binned_contigs_as_assembly_params(self):
+
         invalidate_input_params = {
             'missing_binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': [{
                 'bin_id': 'bin_id',
                 'assembly_suffix': '_assembly'
             }],
+            'assembly_set_name': 'this_is_a_test',
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
                     ValueError, '"binned_contig_obj_ref" parameter is required, but missing'):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
-    
         invalidate_input_params = {
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'missing_extracted_assemblies': [{
                 'bin_id': 'bin_id',
                 'assembly_suffix': '_assembly'
             }],
+            'assembly_set_name': 'invalid_assembly_set',
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
@@ -304,15 +307,18 @@ class MetagenomeUtilsTest(unittest.TestCase):
                 'bin_id': 'bin_id',
                 'assembly_suffix': '_assembly'
             }],
+            'assembly_set_name': 'invalid_assembly_set',
             'missing_workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
                     ValueError, '"workspace_name" parameter is required, but missing'):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
+
         invalidate_input_params = {
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': 'not a list',
+            'assembly_set_name': 'invalid_assembly_set',
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
@@ -322,38 +328,58 @@ class MetagenomeUtilsTest(unittest.TestCase):
         invalidate_input_params = {
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': ['not a dict'],
+            'assembly_set_name': 'invalid_assembly_set',
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
                     ValueError, 'item \[not a dict\] is not type dict as required'):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
-    
         invalidate_input_params = {
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': [{
                 'missing_bin_id': 'bin_id',
                 'assembly_suffix': '_assembly'
             }],
+            'assembly_set_name': 'invalid_assembly_set',
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
                     ValueError, '"bin_id" key is required, but missing'):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
-    
         invalidate_input_params = {
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': [{
                 'bin_id': 'bin_id',
-                'missing_assembly_suffix': '_assembly'
+                'missing_assembly_suffix': 'invalid_assembly_suffix',
             }],
+            'assembly_set_name': 'invalid_assembly_set_name',
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
                     ValueError, '"assembly_suffix" key is required, but missing'):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
+        invalidate_input_params = {
+            'binned_contig_obj_ref': 'binned_contig_obj_ref',
+            'extracted_assemblies': [{
+                                     'bin_id': 'bin_id',
+                                     'assembly_suffix': '_assembly'
+                                    },
+                                    {
+                                     'bin_id': 'bin_idw',
+                                     'assembly_suffix': '_assembly'
+                                    }
+            ],
+            'missing_assembly_set_name': 'invalid_assembly_set',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                    ValueError, '"assembly_set_names" parameter is required for more than one extracted assembly'):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
+
 
     def test_bad_binned_contigs_to_file_params(self):
         invalidate_input_params = {
@@ -442,7 +468,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         self.assertEquals(gc, 0.529)
         self.assertEquals(sum_contig_len, 2674902)
         self.assertEquals(cov, 1)
-
+    
     def test_MetagenomeFileUtil_generate_contigs(self):
     
         # testing contigs can be found in assembly object
@@ -757,6 +783,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
                     'bin_id': ['out_header.002.fasta'],
                     'assembly_suffix': '_assembly'
                 }],
+            'assembly_set_name': 'test2_assembly_set',
             'workspace_name': self.getWsName()
         }
     
@@ -773,6 +800,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
                 'bin_id': ['nonexisting_bin_id'],
                 'assembly_suffix': '_assembly'
             }],
+            'assembly_set_name': 'test3_assembly_set',
             'workspace_name': self.getWsName()
         }
         with self.assertRaisesRegexp(
@@ -789,6 +817,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'assembly_ref': self.large_assembly_ref,
             'file_directory': self.test_directory_path,
             'binned_contig_name': binned_contig_name,
+            'assembly_set_name': 'empty_assembly_set',
             'workspace_name': self.getWsName()
         }
     
@@ -798,6 +827,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         params = {
             'binned_contig_obj_ref': binned_contig_obj_ref,
             'extracted_assemblies': [],
+            'assembly_set_name': 'another_empty_assembly_set',
             'workspace_name': self.getWsName()
         }
     

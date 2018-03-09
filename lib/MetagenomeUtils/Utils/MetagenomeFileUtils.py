@@ -130,6 +130,14 @@ class MetagenomeFileUtils:
                 if p not in item:
                     raise ValueError('"{}" key is required, but missing'.format(p))
 
+        # parameter assembly_set_name is required if extracted_assemblies list has more
+        # than one element
+
+        if ( len( extracted_assemblies ) > 1 ):
+            if ( 'assembly_set_name' not in params ):
+                raise ValueError( '"assembly_set_names" parameter is required for more than one extracted assembly' )
+
+
     def _mkdir_p(self, path):
         """
         _mkdir_p: make directory for given path
@@ -701,8 +709,8 @@ class MetagenomeFileUtils:
                         generated_assembly_ref_list.append(assembly_ref)
         setref = None
         if ( len( generated_assembly_ref_list ) > 1 ):
+            binned_contig_object_name = self._get_assembly_set_base_name( binned_contig_obj_ref )
             # Make and save an AssemblySet object.  For name, use as a base name that of binned_contig_object
-            #binned_contig_object_name = self._get_assembly_set_base_name( binned_contig_obj_ref )
             # and then add a suffix to that...
             #assembly_set_name = binned_contig_object_name + "_assembly_set"
             assembly_set_name = params.get('assembly_set_name')
