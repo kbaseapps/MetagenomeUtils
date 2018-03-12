@@ -114,7 +114,7 @@ class MetagenomeFileUtils:
         log('Start validating extract_binned_contigs_as_assembly params')
 
         # check for required parameters
-        for p in ['binned_contig_obj_ref', 'extracted_assemblies', 'workspace_name']:
+        for p in ['binned_contig_obj_ref', 'extracted_assemblies', 'assembly_suffix', 'workspace_name']:
             if p not in params:
                 raise ValueError('"{}" parameter is required, but missing'.format(p))
 
@@ -126,7 +126,7 @@ class MetagenomeFileUtils:
         for item in extracted_assemblies:
             if not isinstance(item, dict):
                 raise ValueError('item [{}] is not type dict as required'.format(item))
-            for p in ['bin_id', 'assembly_suffix']:
+            for p in ['bin_id']:
                 if p not in item:
                     raise ValueError('"{}" key is required, but missing'.format(p))
 
@@ -632,7 +632,7 @@ class MetagenomeFileUtils:
 
         return returnVal
 
-    def _get_assembly_set_base_name( self, obj_ref ):
+    def _get_object_name_from_ref( self, obj_ref ):
         """given the object reference, return the object_name as a string"""
         return( self.wss.get_object_info_new({"objects": [{'ref': obj_ref}]})[0][1] )
         
@@ -682,10 +682,12 @@ class MetagenomeFileUtils:
 
         # if extracted_assemblies is empty list, create a full one here
         if ( len( extracted_assemblies ) < 1 ):
-            extracted_assemblies = [ { 'bin_id': [ b ], 'assembly_suffix': '_assembly' } for b in bin_files ]
+            #extracted_assemblies = [ { 'bin_id': [ b ], 'assembly_suffix': '_assembly' } for b in bin_files ]
+            extracted_assemblies = [ { 'bin_id': [ b ] } for b in bin_files ]
             log( "extracted_assemblies is now " + pformat( extracted_assemblies ) )
             
         generated_assembly_ref_list = []
+        assembly_suffix = params.get('assembly_suffix').strip()
         for extracted_assembly in extracted_assemblies:
             bin_id = extracted_assembly.get('bin_id')[0].strip()
             if bin_id not in map(os.path.basename, bin_files):
@@ -693,7 +695,7 @@ class MetagenomeFileUtils:
                 error_msg += '[{}]'.format(binned_contig_obj_ref)
                 raise ValueError(error_msg)
             else:
-                assembly_suffix = extracted_assembly.get('assembly_suffix').strip()
+                #assembly_suffix = extracted_assembly.get('assembly_suffix').strip()
                 output_assembly_name = bin_id + assembly_suffix
                 log('saving assembly: {}'.format(output_assembly_name))
                 for bin_file in bin_files:
@@ -709,10 +711,7 @@ class MetagenomeFileUtils:
                         generated_assembly_ref_list.append(assembly_ref)
         setref = None
         if ( len( generated_assembly_ref_list ) > 1 ):
-            binned_contig_object_name = self._get_assembly_set_base_name( binned_contig_obj_ref )
-            # Make and save an AssemblySet object.  For name, use as a base name that of binned_contig_object
-            # and then add a suffix to that...
-            #assembly_set_name = binned_contig_object_name + "_assembly_set"
+            binned_contig_object_name = self._get_object_name_from_ref( binned_contig_obj_ref )
             assembly_set_name = params.get('assembly_set_name')
             log( "saving assembly set {0}".format( assembly_set_name ) )
             setref = self.setapi.save_assembly_set_v1( {

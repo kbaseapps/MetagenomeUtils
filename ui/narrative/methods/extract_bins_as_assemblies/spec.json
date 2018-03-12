@@ -22,7 +22,7 @@
       }
     },
     {
-      "id" : "bin_id",
+      "id" : "extracted_assemblies",
       "optional" : false,
       "advanced" : false,
       "allow_multiple" : false,
@@ -31,11 +31,13 @@
       "textsubdata_options" : {
         "subdata_selection": {
           "parameter_id" : "binned_contig_obj_ref",
-            "subdata_included" : ["bins/[*]/bid", "bins/[*]/cov", "bins/[*]/gc"],
+          "subdata_included" : ["bins/[*]/bid", "bins/[*]/n_contigs", "bins/[*]/sum_contig_len", "bins/[*]/cov", "bins/[*]/gc"],
           "path_to_subdata": ["bins"],
-          "selection_id": "bid"
+          "selection_id": "bid",
+          "selection_description": ["n_contigs", "sum_contig_len", "cov", "gc"],
+          "description_template": "{{n_contigs}} contigs;  summed contig length: {{sum_contig_len}}  cov: {{cov}}  gc: {{gc}}"
         },
-        "multiselection":false,
+        "multiselection":true,
         "show_src_obj":false,
         "allow_custom":false
       }
@@ -59,18 +61,7 @@
       "text_options": {}
     }
   ],
-  "parameter-groups": [
-    {
-      "id": "extracted_assemblies",
-      "parameters": [
-        "bin_id",
-        "assembly_suffix"
-      ],
-      "optional": true,
-      "allow_multiple": true,
-      "with_border": false
-    }
-  ],
+
   "behavior": {
     "service-mapping": {
       "url": "",
@@ -91,9 +82,14 @@
           "target_property": "extracted_assemblies"
         },
         {
+          "input_parameter": "assembly_suffix",
+          "target_property": "assembly_suffix"
+        },
+        {
           "input_parameter": "assembly_set_name",
           "target_property": "assembly_set_name"
         }
+
       ],
       "output_mapping": [
         {
