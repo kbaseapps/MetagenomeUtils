@@ -11,10 +11,11 @@ from six import string_types
 
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
-from KBaseReport.KBaseReportClient  import KBaseReport
-from SetAPI.SetAPIClient            import SetAPI
-from biokbase.workspace.client      import Workspace as workspaceService
-from pprint import pprint, pformat
+from KBaseReport.KBaseReportClient import KBaseReport
+from SetAPI.SetAPIClient import SetAPI
+from biokbase.workspace.client import Workspace as workspaceService
+from pprint import pformat
+
 
 def log(message, prefix_newline=False):
     """Logging function, provides a hook to suppress or redirect log messages."""
@@ -114,7 +115,8 @@ class MetagenomeFileUtils:
         log('Start validating extract_binned_contigs_as_assembly params')
 
         # check for required parameters
-        for p in ['binned_contig_obj_ref', 'extracted_assemblies', 'assembly_suffix', 'workspace_name']:
+        for p in ['binned_contig_obj_ref', 'extracted_assemblies',
+                  'assembly_suffix', 'workspace_name']:
             if p not in params:
                 raise ValueError('"{}" parameter is required, but missing'.format(p))
 
@@ -126,17 +128,15 @@ class MetagenomeFileUtils:
         for item in extracted_assemblies:
             if not isinstance(item, dict):
                 raise ValueError('item [{}] is not type dict as required'.format(item))
-            for p in ['bin_id']:
-                if p not in item:
-                    raise ValueError('"{}" key is required, but missing'.format(p))
+            if 'bin_id' not in item:
+                raise ValueError('"bin_id" key is required, but missing')
 
         # parameter assembly_set_name is required if extracted_assemblies list has more
         # than one element
 
-        if ( len( extracted_assemblies ) > 1 ):
-            if ( 'assembly_set_name' not in params ):
-                raise ValueError( '"assembly_set_names" parameter is required for more than one extracted assembly' )
-
+        if extracted_assemblies and 'assembly_set_name' not in params:
+            raise ValueError(
+                '"assembly_set_names" parameter is required for more than one extracted assembly')
 
     def _mkdir_p(self, path):
         """
@@ -508,9 +508,8 @@ class MetagenomeFileUtils:
         self.shock_url = config['shock-url']
         self.dfu = DataFileUtil(self.callback_url)
         self.au = AssemblyUtil(self.callback_url)
-        self.setapi = SetAPI( self.callback_url )
-        self.wss = workspaceService( config['workspace-url'] )
-        
+        self.setapi = SetAPI(self.callback_url)
+        self.wss = workspaceService(config['workspace-url'])
 
     def file_to_binned_contigs(self, params):
         """
@@ -582,7 +581,7 @@ class MetagenomeFileUtils:
 
         self._validate_binned_contigs_to_file_params(params)
 
-        binned_contig_object = self.dfu.get_objects({'object_refs': 
+        binned_contig_object = self.dfu.get_objects({'object_refs':
                                                     [params.get('input_ref')]})['data'][0]
 
         assembly_ref = binned_contig_object.get('data').get('assembly_ref')
@@ -606,7 +605,7 @@ class MetagenomeFileUtils:
                         contigs = bin.get('contigs')
                         for contig_id in contigs.keys():
                             contig_string = self._get_contig_string(contig_id,
-                                                                    assembly_contig_file, 
+                                                                    assembly_contig_file,
                                                                     parsed_assembly)
                             file.write(contig_string)
                     result_files.append(os.path.join(result_directory, bin_id))
@@ -616,7 +615,7 @@ class MetagenomeFileUtils:
                 with open(os.path.join(result_directory, bin_id), 'w') as file:
                     contigs = bin.get('contigs')
                     for contig_id in contigs.keys():
-                        contig_string = self._get_contig_string(contig_id, 
+                        contig_string = self._get_contig_string(contig_id,
                                                                 assembly_contig_file,
                                                                 parsed_assembly)
                         file.write(contig_string)
@@ -632,13 +631,13 @@ class MetagenomeFileUtils:
 
         return returnVal
 
-    def _get_object_name_from_ref( self, obj_ref ):
+    def _get_object_name_from_ref(self, obj_ref):
         """given the object reference, return the object_name as a string"""
-        return( self.wss.get_object_info_new({"objects": [{'ref': obj_ref}]})[0][1] )
-        
+        return(self.wss.get_object_info_new({"objects": [{'ref': obj_ref}]})[0][1])
+
     def extract_binned_contigs_as_assembly(self, params):
         """
-        extract_binned_contigs_as_assembly: extract one/multiple Bins from BinnedContigs as 
+        extract_binned_contigs_as_assembly: extract one/multiple Bins from BinnedContigs as
                                             Assembly
 
         input params:
@@ -661,31 +660,24 @@ class MetagenomeFileUtils:
 
         extracted_assemblies = params.get('extracted_assemblies')
 
-        # check for empty list here, if so create one based on all bins from
-        # binned_contig_obj_ref
-        if ( len( extracted_assemblies ) < 1 ):
-            log( "extracted_assemblies is empty, creating a full list from binned_contig" )
-            bin_id_list = None
-        else:
-            bin_id_list = []
-            for extracted_assembly in extracted_assemblies:
-                bin_id = extracted_assembly.get('bin_id')[0].strip()
-                bin_id_list.append(bin_id)
+        bin_id_list = []
+        for extracted_assembly in extracted_assemblies:
+            bin_id = extracted_assembly.get('bin_id')[0].strip()
+            bin_id_list.append(bin_id)
 
         binned_contig_obj_ref = params.get('binned_contig_obj_ref')
         contigs_to_file_ret = self.binned_contigs_to_file({'input_ref': binned_contig_obj_ref,
                                                            'save_to_shock': False,
                                                            'bin_id_list': bin_id_list})
-        
+
         bin_file_directory = contigs_to_file_ret.get('bin_file_directory')
         bin_files = os.listdir(bin_file_directory)
 
         # if extracted_assemblies is empty list, create a full one here
-        if ( len( extracted_assemblies ) < 1 ):
-            #extracted_assemblies = [ { 'bin_id': [ b ], 'assembly_suffix': '_assembly' } for b in bin_files ]
-            extracted_assemblies = [ { 'bin_id': [ b ] } for b in bin_files ]
-            log( "extracted_assemblies is now " + pformat( extracted_assemblies ) )
-            
+        if not extracted_assemblies:
+            extracted_assemblies = [{'bin_id': [b]} for b in bin_files]
+            log("extracted_assemblies was empty, is now " + pformat(extracted_assemblies))
+
         generated_assembly_ref_list = []
         assembly_suffix = params.get('assembly_suffix').strip()
         for extracted_assembly in extracted_assemblies:
@@ -695,7 +687,7 @@ class MetagenomeFileUtils:
                 error_msg += '[{}]'.format(binned_contig_obj_ref)
                 raise ValueError(error_msg)
             else:
-                #assembly_suffix = extracted_assembly.get('assembly_suffix').strip()
+                # assembly_suffix = extracted_assembly.get('assembly_suffix').strip()
                 output_assembly_name = bin_id + assembly_suffix
                 log('saving assembly: {}'.format(output_assembly_name))
                 for bin_file in bin_files:
@@ -710,32 +702,31 @@ class MetagenomeFileUtils:
                         log('finished generating assembly from {}'.format(bin_id))
                         generated_assembly_ref_list.append(assembly_ref)
         setref = None
-        if ( len( generated_assembly_ref_list ) > 1 ):
-            binned_contig_object_name = self._get_object_name_from_ref( binned_contig_obj_ref )
+        if (len(generated_assembly_ref_list) > 1):
+            binned_contig_object_name = self._get_object_name_from_ref(binned_contig_obj_ref)
             assembly_set_name = params.get('assembly_set_name')
-            log( "saving assembly set {0}".format( assembly_set_name ) )
-            setref = self.setapi.save_assembly_set_v1( {
-                                                        'workspace'         : params.get( 'workspace_name' ),
-                                                        'output_object_name': assembly_set_name,
-                                                        'data':    {
-                                                                    'description': 'binned assemblies from {0}'
-                                                                          . format( binned_contig_object_name ),
-                                                                    'items'      :  [ { 'ref': r } for r in
-                                                                                   generated_assembly_ref_list ]
-                                                                   }
-                                                        }
-                                                      )
-            log( "save assembly set_ref is {0}".format( setref.get( 'set_ref' ) ) )
+            log("saving assembly set {0}".format(assembly_set_name))
+            setref = self.setapi.save_assembly_set_v1({
+                'workspace': params.get('workspace_name'),
+                'output_object_name': assembly_set_name,
+                'data': {
+                          'description': 'binned assemblies from {0}'
+                                         . format(binned_contig_object_name),
+                          'items':  [{'ref': r} for r in generated_assembly_ref_list]
+                        }
+               })
+            log("save assembly set_ref is {0}".format(setref.get('set_ref')))
 
-        report_message = 'Generated Assembly Reference: {}'.format(', '.join(generated_assembly_ref_list))
+        report_message = 'Generated Assembly Reference: {}'.format(
+            ', '.join(generated_assembly_ref_list))
 
         reportVal = self._generate_report(report_message, params)
 
         returnVal = {'assembly_ref_list': generated_assembly_ref_list}
         returnVal.update(reportVal)
 
-        if ( setref != None ):
-            returnVal.update( { 'assembly_set_ref': setref } )
+        if setref:
+            returnVal.update({'assembly_set_ref': setref})
 
         return returnVal
 
@@ -758,7 +749,7 @@ class MetagenomeFileUtils:
 
         self._validate_remove_bins_from_binned_contig_params(params)
 
-        binned_contig_object = self.dfu.get_objects({'object_refs': 
+        binned_contig_object = self.dfu.get_objects({'object_refs':
                                                      [params.get('old_binned_contig_ref')]}
                                                     )['data'][0]
 
@@ -815,7 +806,7 @@ class MetagenomeFileUtils:
         bin_merges = params.get('bin_merges')
         self._check_bin_merges(bin_merges)
 
-        binned_contig_object = self.dfu.get_objects({'object_refs': 
+        binned_contig_object = self.dfu.get_objects({'object_refs':
                                                      [params.get('old_binned_contig_ref')]}
                                                     )['data'][0]
 
@@ -896,12 +887,12 @@ class MetagenomeFileUtils:
             if isinstance(bins_to_remove, string_types):
                 input_params['bins_to_remove'] = bins_to_remove.split(',')
             new_binned_contig_ref = self.remove_bins_from_binned_contig(input_params).get(
-                                                                        'new_binned_contig_ref')
+                'new_binned_contig_ref')
             input_params['old_binned_contig_ref'] = new_binned_contig_ref
 
         if params.get('bin_merges'):
             new_binned_contig_ref = self.merge_bins_from_binned_contig(input_params).get(
-                                                                        'new_binned_contig_ref')
+                'new_binned_contig_ref')
 
         returnVal = {'new_binned_contig_ref': new_binned_contig_ref}
 
