@@ -337,12 +337,15 @@ $returnVal is a MetagenomeUtils.ExtractBinAsAssemblyResult
 ExtractBinAsAssemblyParams is a reference to a hash where the following keys are defined:
 	binned_contig_obj_ref has a value which is a MetagenomeUtils.obj_ref
 	extracted_assemblies has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
+	assembly_suffix has a value which is a string
+	assembly_set_name has a value which is a string
 	workspace_name has a value which is a string
 obj_ref is a string
 ExtractBinAsAssemblyResult is a reference to a hash where the following keys are defined:
 	assembly_ref_list has a value which is a reference to a list where each element is a MetagenomeUtils.obj_ref
 	report_name has a value which is a string
 	report_ref has a value which is a string
+	assembly_set_ref has a value which is a string
 
 </pre>
 
@@ -355,12 +358,15 @@ $returnVal is a MetagenomeUtils.ExtractBinAsAssemblyResult
 ExtractBinAsAssemblyParams is a reference to a hash where the following keys are defined:
 	binned_contig_obj_ref has a value which is a MetagenomeUtils.obj_ref
 	extracted_assemblies has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
+	assembly_suffix has a value which is a string
+	assembly_set_name has a value which is a string
 	workspace_name has a value which is a string
 obj_ref is a string
 ExtractBinAsAssemblyResult is a reference to a hash where the following keys are defined:
 	assembly_ref_list has a value which is a reference to a list where each element is a MetagenomeUtils.obj_ref
 	report_name has a value which is a string
 	report_ref has a value which is a string
+	assembly_set_ref has a value which is a string
 
 
 =end text
@@ -1082,9 +1088,10 @@ bin_file_directory has a value which is a string
 =item Description
 
 binned_contig_obj_ref: BinnedContig object reference
-extracted_assemblies: a list of:
+extracted_assemblies: a list of dictionaries:
       bin_id: target bin id to be extracted
-      assembly_suffix: suffix appended to assembly object name
+assembly_suffix: suffix appended to assembly object name
+assembly_set_name:  name for created assembly set
 workspace_name: the name of the workspace it gets saved to
 
 
@@ -1096,6 +1103,8 @@ workspace_name: the name of the workspace it gets saved to
 a reference to a hash where the following keys are defined:
 binned_contig_obj_ref has a value which is a MetagenomeUtils.obj_ref
 extracted_assemblies has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
+assembly_suffix has a value which is a string
+assembly_set_name has a value which is a string
 workspace_name has a value which is a string
 
 </pre>
@@ -1107,6 +1116,8 @@ workspace_name has a value which is a string
 a reference to a hash where the following keys are defined:
 binned_contig_obj_ref has a value which is a MetagenomeUtils.obj_ref
 extracted_assemblies has a value which is a reference to a list where each element is a reference to a hash where the key is a string and the value is a string
+assembly_suffix has a value which is a string
+assembly_set_name has a value which is a string
 workspace_name has a value which is a string
 
 
@@ -1138,6 +1149,7 @@ a reference to a hash where the following keys are defined:
 assembly_ref_list has a value which is a reference to a list where each element is a MetagenomeUtils.obj_ref
 report_name has a value which is a string
 report_ref has a value which is a string
+assembly_set_ref has a value which is a string
 
 </pre>
 
@@ -1149,6 +1161,7 @@ a reference to a hash where the following keys are defined:
 assembly_ref_list has a value which is a reference to a list where each element is a MetagenomeUtils.obj_ref
 report_name has a value which is a string
 report_ref has a value which is a string
+assembly_set_ref has a value which is a string
 
 
 =end text

@@ -26,7 +26,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "assembly_ref_list",
     "report_name",
-    "report_ref"
+    "report_ref",
+    "assembly_set_ref"
 })
 public class ExtractBinAsAssemblyResult {
 
@@ -36,6 +37,8 @@ public class ExtractBinAsAssemblyResult {
     private java.lang.String reportName;
     @JsonProperty("report_ref")
     private java.lang.String reportRef;
+    @JsonProperty("assembly_set_ref")
+    private java.lang.String assemblySetRef;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("assembly_ref_list")
@@ -83,6 +86,21 @@ public class ExtractBinAsAssemblyResult {
         return this;
     }
 
+    @JsonProperty("assembly_set_ref")
+    public java.lang.String getAssemblySetRef() {
+        return assemblySetRef;
+    }
+
+    @JsonProperty("assembly_set_ref")
+    public void setAssemblySetRef(java.lang.String assemblySetRef) {
+        this.assemblySetRef = assemblySetRef;
+    }
+
+    public ExtractBinAsAssemblyResult withAssemblySetRef(java.lang.String assemblySetRef) {
+        this.assemblySetRef = assemblySetRef;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -95,7 +113,7 @@ public class ExtractBinAsAssemblyResult {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((("ExtractBinAsAssemblyResult"+" [assemblyRefList=")+ assemblyRefList)+", reportName=")+ reportName)+", reportRef=")+ reportRef)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("ExtractBinAsAssemblyResult"+" [assemblyRefList=")+ assemblyRefList)+", reportName=")+ reportName)+", reportRef=")+ reportRef)+", assemblySetRef=")+ assemblySetRef)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
