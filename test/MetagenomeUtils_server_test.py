@@ -125,7 +125,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"old_binned_contig_ref" parameter is required, but missing'):
+                ValueError, '"old_binned_contig_ref" parameter is required, but missing'):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          invalidate_input_params)
 
@@ -137,7 +137,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"bin_merges" parameter is required, but missing'):
+                ValueError, '"bin_merges" parameter is required, but missing'):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          invalidate_input_params)
 
@@ -149,7 +149,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"output_binned_contig_name" parameter is required, but missing'):
+                ValueError, '"output_binned_contig_name" parameter is required, but missing'):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          invalidate_input_params)
 
@@ -161,7 +161,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'missing_workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"workspace_name" parameter is required, but missing'):
+                ValueError, '"workspace_name" parameter is required, but missing'):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          invalidate_input_params)
 
@@ -172,8 +172,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError,
-                    "expecting a list for bin_merges param, but getting a \[\<type 'str'\>\]"):
+               ValueError,
+               "expecting a list for bin_merges param, but getting a \[\<type 'str'\>\]"):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          invalidate_input_params)
 
@@ -185,7 +185,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"new_bin_id" key is required in bin_merges, but missing'):
+                ValueError, '"new_bin_id" key is required in bin_merges, but missing'):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          invalidate_input_params)
 
@@ -197,7 +197,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"bin_to_merge" key is required in bin_merges, but missing'):
+                ValueError, '"bin_to_merge" key is required in bin_merges, but missing'):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          invalidate_input_params)
 
@@ -209,8 +209,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError,
-                    "expecting a list for bin_to_merge, but getting a \[\<type 'str'\>\]"):
+               ValueError,
+               "expecting a list for bin_to_merge, but getting a \[\<type 'str'\>\]"):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          invalidate_input_params)
 
@@ -222,7 +222,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"old_binned_contig_ref" parameter is required, but missing'):
+                ValueError, '"old_binned_contig_ref" parameter is required, but missing'):
             self.getImpl().remove_bins_from_binned_contig(self.getContext(),
                                                           invalidate_input_params)
 
@@ -233,7 +233,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"bins_to_remove" parameter is required, but missing'):
+                ValueError, '"bins_to_remove" parameter is required, but missing'):
             self.getImpl().remove_bins_from_binned_contig(self.getContext(),
                                                           invalidate_input_params)
 
@@ -244,7 +244,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"output_binned_contig_name" parameter is required, but missing'):
+                ValueError, '"output_binned_contig_name" parameter is required, but missing'):
             self.getImpl().remove_bins_from_binned_contig(self.getContext(),
                                                           invalidate_input_params)
 
@@ -255,7 +255,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'missing_workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"workspace_name" parameter is required, but missing'):
+                ValueError, '"workspace_name" parameter is required, but missing'):
             self.getImpl().remove_bins_from_binned_contig(self.getContext(),
                                                           invalidate_input_params)
 
@@ -266,91 +266,113 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError,
-                    "expecting a list for bins_to_remove param, but getting a \[\<type 'str'\>\]"):
+               ValueError,
+               "expecting a list for bins_to_remove param, but getting a \[\<type 'str'\>\]"):
             self.getImpl().remove_bins_from_binned_contig(self.getContext(),
                                                           invalidate_input_params)
 
     def test_bad_extract_binned_contigs_as_assembly_params(self):
+
         invalidate_input_params = {
             'missing_binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': [{
-                'bin_id': 'bin_id',
-                'assembly_suffix': '_assembly'
+                'bin_id': 'bin_id'
             }],
+            'assembly_suffix': '_assembly',
+            'assembly_set_name': 'this_is_a_test',
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"binned_contig_obj_ref" parameter is required, but missing'):
+                ValueError, '"binned_contig_obj_ref" parameter is required, but missing'):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
+        invalidate_input_params = {
+            'binned_contig_obj_ref': 'binned_contig_obj_ref',
+            'missing_extracted_assemblies': [{
+                'bin_id': 'bin_id'
+            }],
+            'assembly_suffix': '_assembly',
+            'assembly_set_name': 'invalid_assembly_set',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                ValueError, '"extracted_assemblies" parameter is required, but missing'):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
+        invalidate_input_params = {
+            'binned_contig_obj_ref': 'binned_contig_obj_ref',
+            'extracted_assemblies': [{
+                'bin_id': 'bin_id'
+            }],
+            'assembly_suffix': '_assembly',
+            'assembly_set_name': 'invalid_assembly_set',
+            'missing_workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                ValueError, '"workspace_name" parameter is required, but missing'):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
 
         invalidate_input_params = {
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
-            'missing_extracted_assemblies': [{
-                'bin_id': 'bin_id',
-                'assembly_suffix': '_assembly'
-            }],
-            'workspace_name': 'workspace_name'
-        }
-        with self.assertRaisesRegexp(
-                    ValueError, '"extracted_assemblies" parameter is required, but missing'):
-            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
-                                                              invalidate_input_params)
-        invalidate_input_params = {
-            'binned_contig_obj_ref': 'binned_contig_obj_ref',
-            'extracted_assemblies': [{
-                'bin_id': 'bin_id',
-                'assembly_suffix': '_assembly'
-            }],
-            'missing_workspace_name': 'workspace_name'
-        }
-        with self.assertRaisesRegexp(
-                    ValueError, '"workspace_name" parameter is required, but missing'):
-            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
-                                                              invalidate_input_params)
-        invalidate_input_params = {
-            'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': 'not a list',
+            'assembly_suffix': '_assembly',
+            'assembly_set_name': 'invalid_assembly_set',
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, 'extracted_assemblies is not type list as required'):
+                ValueError, 'extracted_assemblies is not type list as required'):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
         invalidate_input_params = {
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': ['not a dict'],
+            'assembly_suffix': '_assembly',
+            'assembly_set_name': 'invalid_assembly_set',
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, 'item \[not a dict\] is not type dict as required'):
+                ValueError, 'item \[not a dict\] is not type dict as required'):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
-
         invalidate_input_params = {
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': [{
-                'missing_bin_id': 'bin_id',
-                'assembly_suffix': '_assembly'
+                'missing_bin_id': 'bin_id'
             }],
+            'assembly_suffix': '_assembly',
+            'assembly_set_name': 'invalid_assembly_set',
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"bin_id" key is required, but missing'):
+                ValueError, '"bin_id" key is required, but missing'):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
-
         invalidate_input_params = {
             'binned_contig_obj_ref': 'binned_contig_obj_ref',
             'extracted_assemblies': [{
-                'bin_id': 'bin_id',
-                'missing_assembly_suffix': '_assembly'
+                'bin_id': 'bin_id'
             }],
+            'missing_assembly_suffix': 'invalid_assembly_suffix',
+            'assembly_set_name': 'invalid_assembly_set_name',
             'workspace_name': 'workspace_name'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"assembly_suffix" key is required, but missing'):
+                ValueError, '"assembly_suffix" parameter is required, but missing'):
+            self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                              invalidate_input_params)
+        invalidate_input_params = {
+            'binned_contig_obj_ref': 'binned_contig_obj_ref',
+            'extracted_assemblies': [{'bin_id': 'bin_id'},
+                                     {'bin_id': 'bin_idw'},
+                                     ],
+            'assembly_suffix': '_assembly',
+            'missing_assembly_set_name': 'invalid_assembly_set',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                ValueError,
+                '"assembly_set_names" parameter is required for more than one extracted assembly'):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
 
@@ -359,7 +381,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'missing_input_ref': 'input_ref'
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"input_ref" parameter is required, but missing'):
+                ValueError, '"input_ref" parameter is required, but missing'):
             self.getImpl().binned_contigs_to_file(self.getContext(), invalidate_input_params)
 
     def test_bad_file_to_binned_contigs_params(self):
@@ -371,7 +393,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"assembly_ref" parameter is required, but missing'):
+                ValueError, '"assembly_ref" parameter is required, but missing'):
             self.getImpl().file_to_binned_contigs(self.getContext(), invalidate_input_params)
 
         invalidate_input_params = {
@@ -382,7 +404,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"file_directory" parameter is required, but missing'):
+                ValueError, '"file_directory" parameter is required, but missing'):
             self.getImpl().file_to_binned_contigs(self.getContext(), invalidate_input_params)
 
         invalidate_input_params = {
@@ -393,7 +415,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"binned_contig_name" parameter is required, but missing'):
+                ValueError, '"binned_contig_name" parameter is required, but missing'):
             self.getImpl().file_to_binned_contigs(self.getContext(), invalidate_input_params)
 
         invalidate_input_params = {
@@ -404,7 +426,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
         }
         with self.assertRaisesRegexp(
-                    ValueError, '"workspace_name" parameter is required, but missing'):
+                ValueError, '"workspace_name" parameter is required, but missing'):
             self.getImpl().file_to_binned_contigs(self.getContext(), invalidate_input_params)
 
     def test_MetagenomeFileUtils_get_bin_ids(self):
@@ -424,8 +446,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
         file_directory = self.test_directory_path
 
         gc, sum_contig_len, cov = self.binned_contig_builder._generate_contig_bin_summary(
-                                                                                    bin_id,
-                                                                                    file_directory)
+            bin_id,
+            file_directory)
 
         self.assertEquals(gc, 0.548)
         self.assertEquals(sum_contig_len, 2452188)
@@ -435,8 +457,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
         file_directory = self.test_directory_path
 
         gc, sum_contig_len, cov = self.binned_contig_builder._generate_contig_bin_summary(
-                                                                                    bin_id,
-                                                                                    file_directory)
+            bin_id,
+            file_directory)
 
         self.assertEquals(gc, 0.529)
         self.assertEquals(sum_contig_len, 2674902)
@@ -446,9 +468,9 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
         # testing contigs can be found in assembly object
         contigs = self.binned_contig_builder._generate_contigs(
-                                                    self.assembly_filename,
-                                                    os.path.dirname(self.assembly_fasta_file_path),
-                                                    self.assembly_ref)
+            self.assembly_filename,
+            os.path.dirname(self.assembly_fasta_file_path),
+            self.assembly_ref)
 
         self.assertEquals(len(contigs), 8)
 
@@ -473,9 +495,9 @@ class MetagenomeUtilsTest(unittest.TestCase):
             file.write(contig_string)
 
         contigs = self.binned_contig_builder._generate_contigs(
-                                                    'fake_' + assembly_filename,
-                                                    os.path.dirname(assembly_fasta_file_path),
-                                                    self.assembly_ref)
+            'fake_' + assembly_filename,
+            os.path.dirname(assembly_fasta_file_path),
+            self.assembly_ref)
 
         self.assertEquals(len(contigs), 9)
 
@@ -545,7 +567,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         with self.assertRaisesRegexp(
                 ValueError,
                 'Cannot find contig \[fake_id\] from file \[{}\].'.format(
-                                                            self.assembly_fasta_file_path)):
+                    self.assembly_fasta_file_path)):
             self.binned_contig_builder._get_contig_string(target_contig_id,
                                                           self.assembly_fasta_file_path,
                                                           parsed_assembly)
@@ -646,7 +668,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         self.assertTrue('binned_contig_obj_ref' in resultVal)
 
         binned_contig_object = self.dfu.get_objects(
-                        {'object_refs': [self.getWsName() + '/MyBinnedContig']})['data'][0]
+            {'object_refs': [self.getWsName() + '/MyBinnedContig']})['data'][0]
 
         binned_contig_info = binned_contig_object.get('info')
 
@@ -748,14 +770,11 @@ class MetagenomeUtilsTest(unittest.TestCase):
         params = {
             'binned_contig_obj_ref': binned_contig_obj_ref,
             'extracted_assemblies': [
-                {
-                    'bin_id': ['out_header.001.fasta'],
-                    'assembly_suffix': '_assembly'
-                },
-                {
-                    'bin_id': ['out_header.002.fasta'],
-                    'assembly_suffix': '_assembly'
-                }],
+                {'bin_id': ['out_header.001.fasta']},
+                {'bin_id': ['out_header.002.fasta']}
+            ],
+            'assembly_suffix': '_assembly',
+            'assembly_set_name': 'test2_assembly_set',
             'workspace_name': self.getWsName()
         }
 
@@ -764,21 +783,50 @@ class MetagenomeUtilsTest(unittest.TestCase):
         self.assertTrue('assembly_ref_list' in resultVal)
         self.assertTrue('report_name' in resultVal)
         self.assertTrue('report_ref' in resultVal)
+        self.assertTrue('assembly_set_ref' in resultVal)
 
         invalidate_input_params = {
             'binned_contig_obj_ref': binned_contig_obj_ref,
-            'extracted_assemblies': [{
-                'bin_id': ['nonexisting_bin_id'],
-                'assembly_suffix': '_assembly'
-            }],
+            'extracted_assemblies': [{'bin_id': ['nonexisting_bin_id']}],
+            'assembly_suffix': '_assembly',
+            'assembly_set_name': 'test3_assembly_set',
             'workspace_name': self.getWsName()
         }
         with self.assertRaisesRegexp(
-                    ValueError,
-                    'bin_id \[nonexisting_bin_id\] cannot be found in BinnedContig \[{}\]'.format(
-                                                                            binned_contig_obj_ref)):
+               ValueError,
+               'bin_id \[nonexisting_bin_id\] cannot be found in BinnedContig \[{}\]'.format(
+                  binned_contig_obj_ref)):
             self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
                                                               invalidate_input_params)
+
+    def test_empty_extract_binned_contigs_as_assembly(self):
+
+        binned_contig_name = 'MyBinnedContig'
+        params = {
+            'assembly_ref': self.large_assembly_ref,
+            'file_directory': self.test_directory_path,
+            'binned_contig_name': binned_contig_name,
+            'assembly_set_name': 'empty_assembly_set',
+            'workspace_name': self.getWsName()
+        }
+
+        resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
+        binned_contig_obj_ref = resultVal.get('binned_contig_obj_ref')
+
+        params = {
+            'binned_contig_obj_ref': binned_contig_obj_ref,
+            'extracted_assemblies':  [],
+            'assembly_suffix':       '_assembly',
+            'assembly_set_name':     'another_empty_assembly_set',
+            'workspace_name':         self.getWsName()
+        }
+
+        resultVal = self.getImpl().extract_binned_contigs_as_assembly(self.getContext(), params)[0]
+
+        self.assertTrue('assembly_ref_list' in resultVal)
+        self.assertTrue('report_name' in resultVal)
+        self.assertTrue('report_ref' in resultVal)
+        self.assertTrue('assembly_set_ref' in resultVal)  # assumes my binned contig has >1 bins
 
     def test_remove_bins_from_binned_contig_single_bin(self):
 
@@ -807,7 +855,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         self.assertTrue('new_binned_contig_ref' in resultVal)
 
         binned_contig_object = self.dfu.get_objects(
-                {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
+            {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
 
         binned_contig_info = binned_contig_object.get('info')
 
@@ -856,7 +904,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         self.assertTrue('new_binned_contig_ref' in resultVal)
 
         binned_contig_object = self.dfu.get_objects(
-                {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
+            {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
 
         binned_contig_info = binned_contig_object.get('info')
 
@@ -903,8 +951,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': self.getWsName()
         }
         with self.assertRaisesRegexp(
-                    ValueError,
-                    "bin_id: \[nonexisting_bin_id\] is not listed in BinnedContig object"):
+                ValueError,
+                "bin_id: \[nonexisting_bin_id\] is not listed in BinnedContig object"):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          merge_bins_params)
 
@@ -918,8 +966,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': self.getWsName()
         }
         with self.assertRaisesRegexp(
-                    ValueError,
-                    "Please provide at least two bin_ids to merge"):
+               ValueError,
+               "Please provide at least two bin_ids to merge"):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          merge_bins_params)
 
@@ -937,8 +985,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': self.getWsName()
         }
         with self.assertRaisesRegexp(
-                    ValueError,
-                    "Same bin \[out_header.003.fasta\] appears in muliple merges"):
+               ValueError,
+               "Same bin \[out_header.003.fasta\] appears in muliple merges"):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          merge_bins_params)
 
@@ -956,8 +1004,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': self.getWsName()
         }
         with self.assertRaisesRegexp(
-                    ValueError,
-                    "Same new Bin ID \[out_header.004.fasta\] appears in muliple merges"):
+                ValueError,
+                "Same new Bin ID \[out_header.004.fasta\] appears in muliple merges"):
             self.getImpl().merge_bins_from_binned_contig(self.getContext(),
                                                          merge_bins_params)
 
@@ -977,7 +1025,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         self.assertTrue('new_binned_contig_ref' in resultVal)
 
         binned_contig_object = self.dfu.get_objects(
-                {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
+            {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
 
         binned_contig_info = binned_contig_object.get('info')
 
@@ -1033,7 +1081,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         self.assertTrue('report_ref' in resultVal)
 
         binned_contig_object = self.dfu.get_objects(
-                {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
+            {'object_refs': [self.getWsName() + '/' + output_binned_contig_name]})['data'][0]
 
         binned_contig_info = binned_contig_object.get('info')
 

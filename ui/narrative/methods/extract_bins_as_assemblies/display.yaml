@@ -1,8 +1,8 @@
 #
 # define display information
 #
-name: Extract Bins as Assemblies from BinnedContigs - v1.0.0
-tooltip: Extract a bin as an Assembly from a BinnedContig dataset
+name: Extract Bins as Assemblies from BinnedContigs - UI EXPERIMENTATION
+tooltip: testing test testing
 screenshots: []
 
 icon: binutil-green.png
@@ -29,18 +29,18 @@ parameters :
     binned_contig_obj_ref :
         ui-name : Binned Contigs
         short-hint : the binned contig data to edit
-    bin_id:
-        ui-name : Bin Name
-        short-hint : Enter the name of the bin to extract
+    extracted_assemblies:
+        ui-name : Bin Names For Extraction
+        short-hint : Select the bins you want extracted as assemblies, one bin per assembly.
     assembly_suffix:
         ui-name : Assembly Name Suffix
         short-hint : provide a suffix append to Bin name for new Assembly name
+        long-hint : provide a suffix append to Bin name for new Assembly name
+    assembly_set_name:
+        ui-name : Assembly Set Name
+        short-hint : multiple assemblies will be collected in a set with this name (required if more than one assembly is selected)
+        long-hint :  multiple assemblies will be collected in a set with this name (required if more than one assembly is selected)
 
-
-parameter-groups :
-    extracted_assemblies :
-        ui-name : Assemblies to Extract
-        short-hint : Specify the bins and assembly names to extract
             
 
 description : |
