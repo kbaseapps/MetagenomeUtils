@@ -92,7 +92,7 @@ module MetagenomeUtils {
     */
     typedef structure {
       obj_ref binned_contig_obj_ref;
-      list<mapping<string, string>> extracted_assemblies;
+      string extracted_assemblies;   /* comma-separated list of bin ids */
       string assembly_suffix;
       string assembly_set_name;
       string workspace_name;

@@ -120,21 +120,16 @@ class MetagenomeFileUtils:
             if p not in params:
                 raise ValueError('"{}" parameter is required, but missing'.format(p))
 
-        extracted_assemblies = params.get('extracted_assemblies')
+        # convert comma-separated list of bins into a list of individual ids (the python
+        # comprehension construction deals with the fact that split(',') returns a list of
+        # length one, [''], for an empty string input
 
-        if not isinstance(extracted_assemblies, list):
-            raise ValueError('extracted_assemblies is not type list as required')
-
-        for item in extracted_assemblies:
-            if not isinstance(item, dict):
-                raise ValueError('item [{}] is not type dict as required'.format(item))
-            if 'bin_id' not in item:
-                raise ValueError('"bin_id" key is required, but missing')
+        extracted_assemblies = [x for x in params.get('extracted_assemblies').split(',') if x]
 
         # parameter assembly_set_name is required if extracted_assemblies list has more
         # than one element
 
-        if extracted_assemblies and 'assembly_set_name' not in params:
+        if len(extracted_assemblies) > 1 and 'assembly_set_name' not in params:
             raise ValueError(
                 '"assembly_set_names" parameter is required for more than one extracted assembly')
 
@@ -642,9 +637,7 @@ class MetagenomeFileUtils:
 
         input params:
         binned_contig_obj_ref: BinnedContig object reference
-        extracted_assemblies: a list of:
-            bin_id: target bin id to be extracted
-            assembly_suffix: suffix appended to assembly object name
+        extracted_assemblies: a string, a comma-separated list of bin_ids to be extracted
         workspace_name: the name of the workspace it gets saved to
 
         return params:
@@ -658,36 +651,35 @@ class MetagenomeFileUtils:
 
         self._validate_extract_binned_contigs_as_assembly_params(params)
 
-        extracted_assemblies = params.get('extracted_assemblies')
+        # convert comma-separated list of bins into a list of individual ids (the python
+        # comprehension construction deals with the fact that split(',') returns a list of
+        # length one, [''], for an empty string input
 
-        bin_id_list = []
-        for extracted_assembly in extracted_assemblies:
-            bin_id = extracted_assembly.get('bin_id')[0].strip()
-            bin_id_list.append(bin_id)
+        extracted_assemblies = [x for x in params.get('extracted_assemblies').split(',') if x]
 
         binned_contig_obj_ref = params.get('binned_contig_obj_ref')
         contigs_to_file_ret = self.binned_contigs_to_file({'input_ref': binned_contig_obj_ref,
                                                            'save_to_shock': False,
-                                                           'bin_id_list': bin_id_list})
+                                                           'bin_id_list': extracted_assemblies})
 
         bin_file_directory = contigs_to_file_ret.get('bin_file_directory')
+        # bin_files will be either a list of the bin contig files corresponding to the
+        # target bin ids, or a list of all bin contig files if extracted_assemblies is empty
         bin_files = os.listdir(bin_file_directory)
 
         # if extracted_assemblies is empty list, create a full one here
         if not extracted_assemblies:
-            extracted_assemblies = [{'bin_id': [b]} for b in bin_files]
+            extracted_assemblies = bin_files
             log("extracted_assemblies was empty, is now " + pformat(extracted_assemblies))
 
         generated_assembly_ref_list = []
         assembly_suffix = params.get('assembly_suffix').strip()
-        for extracted_assembly in extracted_assemblies:
-            bin_id = extracted_assembly.get('bin_id')[0].strip()
+        for bin_id in extracted_assemblies:
             if bin_id not in map(os.path.basename, bin_files):
                 error_msg = 'bin_id [{}] cannot be found in BinnedContig '.format(bin_id)
                 error_msg += '[{}]'.format(binned_contig_obj_ref)
                 raise ValueError(error_msg)
             else:
-                # assembly_suffix = extracted_assembly.get('assembly_suffix').strip()
                 output_assembly_name = bin_id + assembly_suffix
                 log('saving assembly: {}'.format(output_assembly_name))
                 for bin_file in bin_files:
