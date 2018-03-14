@@ -16,9 +16,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: ExtractBinAsAssemblyParams</p>
  * <pre>
  * binned_contig_obj_ref: BinnedContig object reference
- * extracted_assemblies: a list of:
+ * extracted_assemblies: a list of dictionaries:
  *       bin_id: target bin id to be extracted
- *       assembly_suffix: suffix appended to assembly object name
+ * assembly_suffix: suffix appended to assembly object name
+ * assembly_set_name:  name for created assembly set
  * workspace_name: the name of the workspace it gets saved to
  * </pre>
  * 
@@ -28,6 +29,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "binned_contig_obj_ref",
     "extracted_assemblies",
+    "assembly_suffix",
+    "assembly_set_name",
     "workspace_name"
 })
 public class ExtractBinAsAssemblyParams {
@@ -36,6 +39,10 @@ public class ExtractBinAsAssemblyParams {
     private java.lang.String binnedContigObjRef;
     @JsonProperty("extracted_assemblies")
     private List<Map<String, String>> extractedAssemblies;
+    @JsonProperty("assembly_suffix")
+    private java.lang.String assemblySuffix;
+    @JsonProperty("assembly_set_name")
+    private java.lang.String assemblySetName;
     @JsonProperty("workspace_name")
     private java.lang.String workspaceName;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
@@ -70,6 +77,36 @@ public class ExtractBinAsAssemblyParams {
         return this;
     }
 
+    @JsonProperty("assembly_suffix")
+    public java.lang.String getAssemblySuffix() {
+        return assemblySuffix;
+    }
+
+    @JsonProperty("assembly_suffix")
+    public void setAssemblySuffix(java.lang.String assemblySuffix) {
+        this.assemblySuffix = assemblySuffix;
+    }
+
+    public ExtractBinAsAssemblyParams withAssemblySuffix(java.lang.String assemblySuffix) {
+        this.assemblySuffix = assemblySuffix;
+        return this;
+    }
+
+    @JsonProperty("assembly_set_name")
+    public java.lang.String getAssemblySetName() {
+        return assemblySetName;
+    }
+
+    @JsonProperty("assembly_set_name")
+    public void setAssemblySetName(java.lang.String assemblySetName) {
+        this.assemblySetName = assemblySetName;
+    }
+
+    public ExtractBinAsAssemblyParams withAssemblySetName(java.lang.String assemblySetName) {
+        this.assemblySetName = assemblySetName;
+        return this;
+    }
+
     @JsonProperty("workspace_name")
     public java.lang.String getWorkspaceName() {
         return workspaceName;
@@ -97,7 +134,7 @@ public class ExtractBinAsAssemblyParams {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((("ExtractBinAsAssemblyParams"+" [binnedContigObjRef=")+ binnedContigObjRef)+", extractedAssemblies=")+ extractedAssemblies)+", workspaceName=")+ workspaceName)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((("ExtractBinAsAssemblyParams"+" [binnedContigObjRef=")+ binnedContigObjRef)+", extractedAssemblies=")+ extractedAssemblies)+", assemblySuffix=")+ assemblySuffix)+", assemblySetName=")+ assemblySetName)+", workspaceName=")+ workspaceName)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
