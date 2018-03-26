@@ -737,6 +737,12 @@ class MetagenomeUtilsTest(unittest.TestCase):
         self.assertTrue('report_ref' in resultVal)
         self.assertTrue('assembly_set_ref' in resultVal)
 
+        # check report object for presence of created_objects
+
+        report_object = self.dfu.get_objects(
+                           {'object_refs': [resultVal.get('report_ref')]})['data'][0]['data']
+        self.assertTrue('objects_created' in report_object)
+
         invalidate_input_params = {
             'binned_contig_obj_ref': binned_contig_obj_ref,
             'extracted_assemblies': 'nonexisting_bin_id',

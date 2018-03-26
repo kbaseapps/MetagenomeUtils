@@ -373,7 +373,7 @@ class MetagenomeFileUtils:
 
         return shock_id
 
-    def _generate_report(self, report_message, params):
+    def _generate_report(self, report_message, params, created_objects=None):
         """
         generate_report: generate summary report
 
@@ -388,8 +388,11 @@ class MetagenomeFileUtils:
 
         report_params = {'message': upload_message,
                          'workspace_name': params.get('workspace_name'),
-                         'report_object_name': 'MetagenomeUtils_report_' + uuid_string}
-
+                         'report_object_name': 'MetagenomeUtils_report_' + uuid_string
+                         }
+        if created_objects:
+            report_params['objects_created'] = created_objects
+        log('### _generate_report: ' + pformat(report_params))
         kbase_report_client = KBaseReport(self.callback_url)
         output = kbase_report_client.create_extended_report(report_params)
 
@@ -712,7 +715,22 @@ class MetagenomeFileUtils:
         report_message = 'Generated Assembly Reference: {}'.format(
             ', '.join(generated_assembly_ref_list))
 
-        reportVal = self._generate_report(report_message, params)
+        # Request from Dylan to add "objects_created" li st to report object
+        if setref:
+            report_message = report_message+'\nGenerated Assembly Set: {}'.format(
+                                                                              setref.get('set_ref'))
+
+        created_objects = []
+        if setref:    # if assembly set created put that first
+            created_objects.append({"ref": setref.get('set_ref'),
+                                    "description": "Assembly set of extracted assemblies"
+                                    })
+        for assembly_ref in generated_assembly_ref_list:
+            created_objects.append({"ref": assembly_ref,
+                                    "description": "Assembly object of extracted contigs"
+                                    })
+
+        reportVal = self._generate_report(report_message, params, created_objects)
 
         returnVal = {'assembly_ref_list': generated_assembly_ref_list}
         returnVal.update(reportVal)

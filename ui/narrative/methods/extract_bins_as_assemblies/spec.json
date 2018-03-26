@@ -56,7 +56,7 @@
       "optional": true,
       "advanced": false,
       "allow_multiple": false,
-      "default_values": [""],
+      "default_values": ["extracted_bins.AssemblySet"],
       "field_type": "text",
       "text_options": {}
     }
