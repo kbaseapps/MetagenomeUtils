@@ -30,14 +30,14 @@ parameters :
         ui-name : Binned Contigs
         short-hint : the binned contig data to edit
     extracted_assemblies:
-        ui-name : Bin Names For Extraction
+        ui-name : Bin Names For Extraction <font color=red><b>(default is to extract all bins)</b></font>
         short-hint : Select the bins you want extracted as assemblies, one bin per assembly.
     assembly_suffix:
         ui-name : Assembly Name Suffix
         short-hint : provide a suffix append to Bin name for new Assembly name
         long-hint : provide a suffix append to Bin name for new Assembly name
     assembly_set_name:
-        ui-name : Assembly Set Name
+        ui-name : Assembly Set Name (if more than one bin)
         short-hint : multiple assemblies will be collected in a set with this name (required if more than one assembly is selected)
         long-hint :  multiple assemblies will be collected in a set with this name (required if more than one assembly is selected)
 
