@@ -392,7 +392,7 @@ class MetagenomeFileUtils:
                          }
         if created_objects:
             report_params['objects_created'] = created_objects
-        log('### _generate_report: ' + pformat(report_params))
+
         kbase_report_client = KBaseReport(self.callback_url)
         output = kbase_report_client.create_extended_report(report_params)
 
@@ -640,7 +640,6 @@ class MetagenomeFileUtils:
 
         input params:
         binned_contig_obj_ref: BinnedContig object reference
-        add_all_bins: boolean specifying to extract all bins
         extracted_assemblies: a string, a comma-separated list of bin_ids to be extracted
         workspace_name: the name of the workspace it gets saved to
 
