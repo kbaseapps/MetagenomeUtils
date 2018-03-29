@@ -373,7 +373,7 @@ class MetagenomeFileUtils:
 
         return shock_id
 
-    def _generate_report(self, report_message, params):
+    def _generate_report(self, report_message, params, created_objects=None):
         """
         generate_report: generate summary report
 
@@ -388,7 +388,10 @@ class MetagenomeFileUtils:
 
         report_params = {'message': upload_message,
                          'workspace_name': params.get('workspace_name'),
-                         'report_object_name': 'MetagenomeUtils_report_' + uuid_string}
+                         'report_object_name': 'MetagenomeUtils_report_' + uuid_string
+                         }
+        if created_objects:
+            report_params['objects_created'] = created_objects
 
         kbase_report_client = KBaseReport(self.callback_url)
         output = kbase_report_client.create_extended_report(report_params)
@@ -693,12 +696,14 @@ class MetagenomeFileUtils:
                         assembly_ref = self.au.save_assembly_from_fasta(assembly_params)
                         log('finished generating assembly from {}'.format(bin_id))
                         generated_assembly_ref_list.append(assembly_ref)
-        setref = None
+        setret = None
         if (len(generated_assembly_ref_list) > 1):
             binned_contig_object_name = self._get_object_name_from_ref(binned_contig_obj_ref)
             assembly_set_name = params.get('assembly_set_name')
+            if not assembly_set_name:
+                assembly_set_name = "extracted_bins.AssemblySet"
             log("saving assembly set {0}".format(assembly_set_name))
-            setref = self.setapi.save_assembly_set_v1({
+            setret = self.setapi.save_assembly_set_v1({
                 'workspace': params.get('workspace_name'),
                 'output_object_name': assembly_set_name,
                 'data': {
@@ -707,18 +712,33 @@ class MetagenomeFileUtils:
                           'items':  [{'ref': r} for r in generated_assembly_ref_list]
                         }
                })
-            log("save assembly set_ref is {0}".format(setref.get('set_ref')))
+            log("save assembly set_ref is {0}".format(setret.get('set_ref')))
 
         report_message = 'Generated Assembly Reference: {}'.format(
             ', '.join(generated_assembly_ref_list))
 
-        reportVal = self._generate_report(report_message, params)
+        # Request from Dylan to add "objects_created" li st to report object
+        if setret:
+            report_message = report_message+'\nGenerated Assembly Set: {}'.format(
+                                                                              setret.get('set_ref'))
+
+        created_objects = []
+        if setret:    # if assembly set created put that first
+            created_objects.append({"ref": setret.get('set_ref'),
+                                    "description": "Assembly set of extracted assemblies"
+                                    })
+        for assembly_ref in generated_assembly_ref_list:
+            created_objects.append({"ref": assembly_ref,
+                                    "description": "Assembly object of extracted contigs"
+                                    })
+
+        reportVal = self._generate_report(report_message, params, created_objects)
 
         returnVal = {'assembly_ref_list': generated_assembly_ref_list}
         returnVal.update(reportVal)
 
-        if setref:
-            returnVal.update({'assembly_set_ref': setref})
+        if setret:
+            returnVal.update({'assembly_set_ref': setret.get('set_ref')})
 
         return returnVal
 

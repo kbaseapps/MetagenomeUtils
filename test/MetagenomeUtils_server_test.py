@@ -737,6 +737,11 @@ class MetagenomeUtilsTest(unittest.TestCase):
         self.assertTrue('report_ref' in resultVal)
         self.assertTrue('assembly_set_ref' in resultVal)
 
+        # check report object for presence of created_objects
+        report_object = self.dfu.get_objects(
+                           {'object_refs': [resultVal.get('report_ref')]})['data'][0]['data']
+        self.assertTrue('objects_created' in report_object)
+
         invalidate_input_params = {
             'binned_contig_obj_ref': binned_contig_obj_ref,
             'extracted_assemblies': 'nonexisting_bin_id',
@@ -779,6 +784,27 @@ class MetagenomeUtilsTest(unittest.TestCase):
         self.assertTrue('report_name' in resultVal)
         self.assertTrue('report_ref' in resultVal)
         self.assertTrue('assembly_set_ref' in resultVal)  # assumes my binned contig has >1 bins
+
+        # also test for replacement with default name if assembly_set_name is ''
+        params = {
+            'binned_contig_obj_ref': binned_contig_obj_ref,
+            'extracted_assemblies':  "",
+            'assembly_suffix':       '_assembly',
+            'assembly_set_name':     '',
+            'workspace_name':         self.getWsName()
+        }
+
+        resultVal = self.getImpl().extract_binned_contigs_as_assembly(self.getContext(), params)[0]
+
+        self.assertTrue('assembly_ref_list' in resultVal)
+        self.assertTrue('report_name' in resultVal)
+        self.assertTrue('report_ref' in resultVal)
+        self.assertTrue('assembly_set_ref' in resultVal)  # assumes my binned contig has >1 bins
+
+        pprint( resultVal.get('assembly_set_ref') )
+        aso = self.dfu.get_objects({'object_refs': [resultVal.get('assembly_set_ref')]})['data'][0]
+        aso_name = aso.get('info')[1]
+        self.assertEquals(aso_name, 'extracted_bins.AssemblySet')
 
     def test_remove_bins_from_binned_contig_single_bin(self):
 
