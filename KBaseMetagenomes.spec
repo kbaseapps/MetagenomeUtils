@@ -31,7 +31,12 @@ module KBaseMetagenomes {
         sum_contig_len (int) - cumulative length in bp of all the contigs in this bin
         cov (float)          - total coverage over all contigs(ie, the avg coverage
                                weighted by contig length
-        @optional cov
+        qual - summary qual scores
+               e.g.: {'CheckM': {'version': '1.0.8', 'completeness': 60}}
+        taxonomic_name - taxonomic name
+        taxonomic_lineage - taxonomic lineage vector
+        related_genomes - list of related KBase Genome ref 
+        @optional cov taxonomic_name taxonomic_lineage qual related_genomes
     */
     typedef structure {
         bin_id bid;
@@ -40,6 +45,11 @@ module KBaseMetagenomes {
         float gc;
         int sum_contig_len;
         float cov;
+        mapping<string, mapping<string, string>> qual;
+        string taxonomic_name;
+        list<string> taxonomic_lineage;
+        list<string> related_genomes;
+        
     } ContigBin;
 
     /*
