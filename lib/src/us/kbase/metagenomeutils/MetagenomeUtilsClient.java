@@ -213,6 +213,31 @@ public class MetagenomeUtilsClient {
     }
 
     /**
+     * <p>Original spec-file function name: export_binned_contigs_as_excel</p>
+     * <pre>
+     * export_binned_contigs_as_excel: Convert BinnedContig object to an excel file and pack it to shock
+     * required params:
+     * input_ref: BinnedContig object reference
+     * optional params:
+     * save_to_shock: saving result bin files to shock. default to True
+     * return params:
+     * shock_id: saved packed file shock id (None if save_to_shock is set to False)
+     * bin_file_directory: directory that contains all bin files
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.metagenomeutils.ExportParams ExportParams}
+     * @return   parameter "returnVal" of type {@link us.kbase.metagenomeutils.ExportOutput ExportOutput}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public ExportOutput exportBinnedContigsAsExcel(ExportParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<ExportOutput>> retType = new TypeReference<List<ExportOutput>>() {};
+        List<ExportOutput> res = caller.jsonrpcCall("MetagenomeUtils.export_binned_contigs_as_excel", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: extract_binned_contigs_as_assembly</p>
      * <pre>
      * extract_binned_contigs_as_assembly: extract one/multiple Bins from BinnedContigs as Assembly object

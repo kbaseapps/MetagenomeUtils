@@ -83,6 +83,22 @@ module MetagenomeUtils {
         returns (ExportOutput returnVal) authentication required;
 
     /*
+      export_binned_contigs_as_excel: Convert BinnedContig object to an excel file and pack it to shock
+
+      required params:
+      input_ref: BinnedContig object reference
+
+      optional params:
+      save_to_shock: saving result bin files to shock. default to True
+
+      return params:
+      shock_id: saved packed file shock id (None if save_to_shock is set to False)
+      bin_file_directory: directory that contains all bin files
+    */
+    funcdef export_binned_contigs_as_excel(ExportParams params)
+        returns (ExportOutput returnVal) authentication required;
+
+    /*
       binned_contig_obj_ref: BinnedContig object reference
       extracted_assemblies: a list of dictionaries:
             bin_id: target bin id to be extracted
