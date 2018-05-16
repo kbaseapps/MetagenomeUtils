@@ -341,6 +341,10 @@ class Application(object):
                              name='MetagenomeUtils.binned_contigs_to_file',
                              types=[dict])
         self.method_authentication['MetagenomeUtils.binned_contigs_to_file'] = 'required'  # noqa
+        self.rpc_service.add(impl_MetagenomeUtils.export_binned_contigs_as_excel,
+                             name='MetagenomeUtils.export_binned_contigs_as_excel',
+                             types=[dict])
+        self.method_authentication['MetagenomeUtils.export_binned_contigs_as_excel'] = 'required'  # noqa
         self.rpc_service.add(impl_MetagenomeUtils.extract_binned_contigs_as_assembly,
                              name='MetagenomeUtils.extract_binned_contigs_as_assembly',
                              types=[dict])

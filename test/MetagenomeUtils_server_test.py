@@ -7,6 +7,7 @@ import requests  # noqa: F401
 import shutil
 import zipfile
 from Bio import SeqIO
+from openpyxl import load_workbook
 
 from os import environ
 try:
@@ -338,6 +339,15 @@ class MetagenomeUtilsTest(unittest.TestCase):
         with self.assertRaisesRegexp(
                 ValueError, '"input_ref" parameter is required, but missing'):
             self.getImpl().binned_contigs_to_file(self.getContext(), invalidate_input_params)
+
+    def test_bad_export_binned_contigs_as_excel_params(self):
+        invalidate_input_params = {
+            'missing_input_ref': 'input_ref'
+        }
+        with self.assertRaisesRegexp(
+                ValueError, '"input_ref" parameter is required, but missing'):
+            self.getImpl().export_binned_contigs_as_excel(self.getContext(),
+                                                          invalidate_input_params)
 
     def test_bad_file_to_binned_contigs_params(self):
         invalidate_input_params = {
@@ -708,6 +718,41 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
         expect_files = ['out_header.001.fasta', 'out_header.002.fasta', 'out_header.003.fasta']
         self.assertItemsEqual(map(os.path.basename, bin_files), expect_files)
+
+    def test_export_binned_contigs_as_excel(self):
+
+        binned_contig_name = 'MyBinnedContig'
+        params = {
+            'assembly_ref': self.large_assembly_ref,
+            'file_directory': self.test_directory_path,
+            'binned_contig_name': binned_contig_name,
+            'workspace_name': self.dfu.ws_name_to_id(self.getWsName())
+        }
+
+        resultVal = self.getImpl().file_to_binned_contigs(self.getContext(), params)[0]
+        binned_contig_obj_ref = resultVal.get('binned_contig_obj_ref')
+
+        params = {
+            'input_ref': binned_contig_obj_ref
+        }
+        resultVal = self.getImpl().export_binned_contigs_as_excel(self.getContext(), params)[0]
+        self.assertTrue('shock_id' in resultVal)
+
+        output_directory = os.path.join(self.scratch, 'test_export_binned_contigs_as_excel')
+        os.makedirs(output_directory)
+        shock_to_file_params = {
+            'shock_id': resultVal.get('shock_id'),
+            'file_path': output_directory
+        }
+        result_file = self.dfu.shock_to_file(shock_to_file_params).get('file_path')
+
+        print('original_result_file: ' + resultVal.get('bin_file_directory'))
+        print('shock_result_file: ' + result_file)
+
+        expect_sheets = ['out_header.001.fasta', 'out_header.002.fasta', 'out_header.003.fasta']
+        sheets = load_workbook(result_file).get_sheet_names()
+
+        self.assertItemsEqual(expect_sheets, sheets)
 
     def test_extract_binned_contigs_as_assembly(self):
 

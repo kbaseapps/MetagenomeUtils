@@ -8,6 +8,7 @@ import uuid
 import zipfile
 from Bio import SeqIO
 from six import string_types
+import xlsxwriter
 
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
@@ -622,6 +623,83 @@ class MetagenomeFileUtils:
 
         if params.get('save_to_shock') or params.get('save_to_shock') is None:
             shock_id = self._pack_file_to_shock(result_files)
+        else:
+            shock_id = None
+
+        returnVal = {'shock_id': shock_id, 'bin_file_directory': result_directory}
+
+        return returnVal
+
+    def export_binned_contigs_as_excel(self, params):
+        """
+        export_binned_contigs_as_excel: Convert BinnedContig object to an excel file and pack it
+                                        to shock
+
+        input params:
+        input_ref: BinnedContig object reference
+
+        optional params:
+        save_to_shock: saving result bin files to shock. default to True
+
+        return params:
+        shock_id: saved packed file shock id
+        bin_file_directory: directory that contains all bin files
+        """
+
+        log('--->\nrunning MetagenomeFileUtils.export_binned_contigs_as_excel\n' +
+            'params:\n{}'.format(json.dumps(params, indent=1)))
+
+        self._validate_binned_contigs_to_file_params(params)
+
+        binned_contig = self.dfu.get_objects({'object_refs':
+                                             [params.get('input_ref')]})['data'][0]
+        binned_contig_name = binned_contig.get('info')[1]
+        binned_contig_data = binned_contig.get('data')
+
+        assembly_ref = binned_contig_data.get('assembly_ref')
+        bins = binned_contig_data.get('bins')
+
+        result_directory = os.path.join(self.scratch, 'binned_contig_excel_' + str(uuid.uuid4()))
+        self._mkdir_p(result_directory)
+        output_excel = os.path.join(result_directory, binned_contig_name + '.xlsx')
+        workbook = xlsxwriter.Workbook(output_excel)
+        bold = workbook.add_format({'bold': True})
+
+        for bin in bins:
+            bin_id = bin.get('bid')
+            total_coverage = bin.get('cov', 'NULL')
+
+            log('processing bin: {}'.format(bin_id))
+            worksheet = workbook.add_worksheet(bin_id)
+
+            worksheet.write(0, 0, 'bin_id', bold)
+            worksheet.write(0, 1, bin_id)
+
+            worksheet.write(1, 0, 'total_coverage', bold)
+            worksheet.write(1, 1, total_coverage)
+
+            worksheet.write(2, 0, 'assembly_ref', bold)
+            worksheet.write(2, 1, assembly_ref)
+
+            contigs = bin.get('contigs')
+            worksheet.write(4, 0, 'contigs', bold)
+            worksheet.write(5, 0, 'contig_id', bold)
+            worksheet.write(6, 0, 'gc', bold)
+            worksheet.write(7, 0, 'len', bold)
+            worksheet.write(8, 0, 'contig_coverage', bold)
+
+            i = 1
+            for contig_id, contig_value in contigs.items():
+                worksheet.write(5, i, contig_id)
+                worksheet.write(6, i, contig_value.get('gc'))
+                worksheet.write(7, i, contig_value.get('len'))
+                worksheet.write(8, i, contig_value.get('cov', 'NULL'))
+                i += 1
+
+        workbook.close()
+
+        if params.get('save_to_shock') or params.get('save_to_shock') is None:
+            shock_id = self.dfu.file_to_shock({'file_path': output_excel}).get('shock_id')
         else:
             shock_id = None
 
