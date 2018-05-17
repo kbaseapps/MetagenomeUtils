@@ -427,8 +427,8 @@ class MetagenomeFileUtils:
         binned_contig = self.dfu.get_objects({'object_refs': [new_binned_contig_ref]})['data'][0]
         binned_contig_info = binned_contig.get('info')
         binned_contig_name = binned_contig_info[1]
-        report_message += 'Generated BinnedContig: {} [{}]\n'.format(binned_contig_name,
-                                                                     new_binned_contig_ref)
+        report_message += 'Generated BinnedContigs: {} [{}]\n'.format(binned_contig_name,
+                                                                      new_binned_contig_ref)
 
         binned_contig_count = 0
         total_bins = binned_contig.get('data').get('bins')
