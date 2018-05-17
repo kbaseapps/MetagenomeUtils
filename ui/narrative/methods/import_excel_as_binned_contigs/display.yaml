@@ -1,0 +1,41 @@
+#
+# define display information
+#
+name: Import Excel File As BinnedContigs - v1.0.2
+tooltip: Import Excel File As BinnedContigs
+screenshots: []
+
+icon: binutil-green.png
+
+#
+# define a set of similar methods that might be useful to the user
+#
+suggestions:
+    apps:
+        related:
+            []
+        next:
+            []
+    methods:
+        related:
+            []
+        next:
+            []
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    binned_contigs_file :
+        ui-name : Excel File
+        short-hint : Excel file to import
+        long-hint : Excel file to import
+    binned_contigs_name :
+        ui-name : Output BinnedContigs Name
+        short-hint : select a name for the output contigs object
+        long-hint : select a name for the output contigs object
+            
+
+description : |
+    <p>Basic tool for import Excel as BinnedContigs.</p>
+

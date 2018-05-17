@@ -98,6 +98,31 @@ module MetagenomeUtils {
     funcdef export_binned_contigs_as_excel(ExportParams params)
         returns (ExportOutput returnVal) authentication required;
 
+    typedef structure {
+      string shock_id;
+      string workspace_name;
+      string binned_contigs_name;
+    } ImportExcelParams;
+
+    typedef structure {
+      string report_name;
+      string report_ref;
+      string binned_contigs_ref;
+    } ImportExcelOutput;
+    /*
+    import_excel_as_binned_contigs: Import an excel file as BinnedContigs
+
+    required params:
+    shock_id: Excel file stored in shock
+    workspace_name: the name of the workspace object gets saved to
+
+    optional params:
+    binned_contigs_name: saved BinnedContig name. 
+                         Auto append timestamp from excel if not given.
+    */
+    funcdef import_excel_as_binned_contigs(ImportExcelParams params)
+        returns (ImportExcelOutput returnVal) authentication required;
+
     /*
       binned_contig_obj_ref: BinnedContig object reference
       extracted_assemblies: a list of dictionaries:

@@ -22,9 +22,9 @@ class MetagenomeUtils:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.0.1"
+    VERSION = "1.0.2"
     GIT_URL = "https://github.com/Tianhao-Gu/MetagenomeUtils.git"
-    GIT_COMMIT_HASH = "2a66d6411c939c708623130cf60a6457a3d52754"
+    GIT_COMMIT_HASH = "eae661df685d85b94e074948e8797276b4bcb89e"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -163,6 +163,43 @@ class MetagenomeUtils:
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
             raise ValueError('Method export_binned_contigs_as_excel return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
+    def import_excel_as_binned_contigs(self, ctx, params):
+        """
+        import_excel_as_binned_contigs: Import an excel file as BinnedContigs
+        required params:
+        shock_id: Excel file stored in shock
+        workspace_name: the name of the workspace object gets saved to
+        optional params:
+        binned_contigs_name: saved BinnedContig name. 
+                             Auto append timestamp from excel if not given.
+        :param params: instance of type "ImportExcelParams" -> structure:
+           parameter "shock_id" of String, parameter "workspace_name" of
+           String, parameter "binned_contigs_name" of String
+        :returns: instance of type "ImportExcelOutput" -> structure:
+           parameter "report_name" of String, parameter "report_ref" of
+           String, parameter "binned_contigs_ref" of String
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN import_excel_as_binned_contigs
+        print '--->\nRunning MetagenomeUtils.import_excel_as_binned_contigs\nparams:'
+        print json.dumps(params, indent=1)
+
+        for key, value in params.iteritems():
+            if isinstance(value, basestring):
+                params[key] = value.strip()
+
+        binned_contig_importer = MetagenomeFileUtils(self.config)
+        returnVal = binned_contig_importer.import_excel_as_binned_contigs(params)
+        #END import_excel_as_binned_contigs
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method import_excel_as_binned_contigs return value ' +
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]

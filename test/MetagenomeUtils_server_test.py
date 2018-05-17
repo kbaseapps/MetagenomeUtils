@@ -349,6 +349,25 @@ class MetagenomeUtilsTest(unittest.TestCase):
             self.getImpl().export_binned_contigs_as_excel(self.getContext(),
                                                           invalidate_input_params)
 
+    def test_bad_import_excel_as_binned_contigs_params(self):
+        invalidate_input_params = {
+            'missing_shock_id': 'shock_id',
+            'workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                ValueError, '"shock_id" parameter is required, but missing'):
+            self.getImpl().import_excel_as_binned_contigs(self.getContext(),
+                                                          invalidate_input_params)
+
+        invalidate_input_params = {
+            'shock_id': 'shock_id',
+            'missing_workspace_name': 'workspace_name'
+        }
+        with self.assertRaisesRegexp(
+                ValueError, '"workspace_name" parameter is required, but missing'):
+            self.getImpl().import_excel_as_binned_contigs(self.getContext(),
+                                                          invalidate_input_params)
+
     def test_bad_file_to_binned_contigs_params(self):
         invalidate_input_params = {
             'missing_assembly_ref': 'assembly_ref',
@@ -554,6 +573,19 @@ class MetagenomeUtilsTest(unittest.TestCase):
         with zipfile.ZipFile(result_file) as z:
             self.assertEqual(set(z.namelist()), set(expect_files))
 
+    def test_MetagenomeFileUtil_download_file_from_shock(self):
+
+        binned_contigs_file_name = 'MyBinnedContig.xlsx'
+        binned_contigs_file_path = os.path.join(self.scratch, binned_contigs_file_name)
+        shutil.copy(os.path.join("Data", binned_contigs_file_name), binned_contigs_file_path)
+
+        shock_id = self.dfu.file_to_shock({'file_path': binned_contigs_file_path}).get('shock_id')
+
+        file_path, file_name = self.binned_contig_builder._download_file_from_shock(shock_id)
+
+        self.assertEquals(binned_contigs_file_name, file_name)
+        self.assertEquals(binned_contigs_file_name, os.path.basename(file_path))
+
     def test_MetagenomeFileUtil_merge_bins(self):
         new_bin_id = 'MyNewBin_ID'
         bin_objects_to_merge = []
@@ -753,6 +785,29 @@ class MetagenomeUtilsTest(unittest.TestCase):
         sheets = load_workbook(result_file).get_sheet_names()
 
         self.assertItemsEqual(expect_sheets, sheets)
+
+    def test_import_excel_as_binned_contigs(self):
+        binned_contigs_file_name = 'MyBinnedContig.xlsx'
+        binned_contigs_file_path = os.path.join(self.scratch, binned_contigs_file_name)
+        shutil.copy(os.path.join("Data", binned_contigs_file_name), binned_contigs_file_path)
+
+        shock_id = self.dfu.file_to_shock({'file_path': binned_contigs_file_path}).get('shock_id')
+
+        params = {
+            'shock_id': shock_id,
+            'workspace_name': self.getWsName()
+        }
+
+        resultVal = self.getImpl().import_excel_as_binned_contigs(self.getContext(), params)[0]
+        self.assertTrue('binned_contigs_ref' in resultVal)
+        binned_contigs_ref = resultVal['binned_contigs_ref']
+
+        binned_contig_data = self.dfu.get_objects({'object_refs':
+                                                  [binned_contigs_ref]})['data'][0]['data']
+
+        self.assertEquals(binned_contig_data.get('assembly_ref'), '16106/2/1')
+        self.assertEquals(len(binned_contig_data.get('bins')), 3)
+        self.assertEquals(binned_contig_data.get('total_contig_len'), 8397583)
 
     def test_extract_binned_contigs_as_assembly(self):
 

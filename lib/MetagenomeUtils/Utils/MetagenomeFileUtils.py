@@ -1,4 +1,5 @@
 import time
+import datetime
 import json
 import os
 import re
@@ -9,6 +10,7 @@ import zipfile
 from Bio import SeqIO
 from six import string_types
 import xlsxwriter
+from openpyxl import load_workbook
 
 from DataFileUtil.DataFileUtilClient import DataFileUtil
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
@@ -103,6 +105,20 @@ class MetagenomeFileUtils:
 
         # check for required parameters
         for p in ['input_ref']:
+            if p not in params:
+                raise ValueError('"{}" parameter is required, but missing'.format(p))
+
+    def _validate_import_excel_as_binned_contigs_params(self, params):
+        """
+        _validate_import_excel_as_binned_contigs_params:
+                validates params passed to import_excel_as_binned_contigs method
+
+        """
+
+        log('Start validating import_excel_as_binned_contigs params')
+
+        # check for required parameters
+        for p in ['shock_id', 'workspace_name']:
             if p not in params:
                 raise ValueError('"{}" parameter is required, but missing'.format(p))
 
@@ -501,6 +517,121 @@ class MetagenomeFileUtils:
             if new_bin_id_list.count(new_bin_id) > 1:
                 raise ValueError("Same new Bin ID [{}] appears in muliple merges".format(id))
 
+    def _download_file_from_shock(self, shock_id):
+        """
+        _download_file_from_shock: download file from shock_id
+        """
+        log('start downloading file from shock_id: {}'.format(shock_id))
+
+        output_directory = os.path.join(self.scratch, 'binned_contig_file_' + str(uuid.uuid4()))
+        self._mkdir_p(output_directory)
+
+        shock_to_file_input = [{'shock_id': shock_id,
+                                'file_path': output_directory}]
+
+        shock_to_file_output = self.dfu.shock_to_file_mass(shock_to_file_input)
+
+        file_path = shock_to_file_output[0]["file_path"]
+        file_name = shock_to_file_output[0]["node_file_name"]
+
+        return file_path, file_name
+
+    def _process_binned_contig_data(self, binned_contig_data):
+        """
+        _process_binned_contig_data: construc binned_contig data
+        """
+
+        bin_id = binned_contig_data.get('bin_id')[0]
+
+        try:
+            sheet_assembly_ref = binned_contig_data.get('assembly_ref')[0]
+        except:
+            raise ValueError('Unexcepted assembly_ref in Excel sheet: {}'.format(bin_id))
+        else:
+            if not sheet_assembly_ref:
+                raise ValueError('assembly_ref is None in Excel sheet: {}'.format(bin_id))
+
+        cov = binned_contig_data.get('total_coverage')[0]
+
+        contig_ids = binned_contig_data.get('contig_id')
+        contig_gcs = binned_contig_data.get('gc')
+        contig_lens = binned_contig_data.get('len')
+        contig_covs = binned_contig_data.get('contig_coverage')
+
+        contigs = {}
+
+        sum_contig_len = 0
+        sum_gc_count = 0
+        for index, contig_id in enumerate(contig_ids):
+            contig_len = int(contig_lens[index])
+            contig_gc = contig_gcs[index]
+            # contig_cov = contig_covs[index]
+            try:
+                contig_cov = float(contig_covs[index])
+            except:
+                contig_cov = None
+            if contig_cov:
+                contigs.update({contig_id: {'gc': contig_gc,
+                                            'len': contig_len,
+                                            'cov': contig_cov}})
+            else:
+                contigs.update({contig_id: {'gc': contig_gc,
+                                            'len': contig_len}})
+            sum_gc_count += round(contig_len * contig_gc, 5)
+            sum_contig_len += int(contig_len)
+
+        contig_bin = {
+            'bid': bin_id,
+            'contigs': contigs,
+            'n_contigs': len(contigs),
+            'gc': round(float(sum_gc_count) / sum_contig_len, 5),
+            'sum_contig_len': sum_contig_len,
+            'cov': cov
+        }
+
+        return sheet_assembly_ref, contig_bin
+
+    def _process_binned_contig_excel(self, file_path):
+        """
+        _process_binned_contig_excel: fetch and construct BinnedContig info from file
+        """
+        try:
+            workbook = load_workbook(filename=file_path, read_only=True)
+        except:
+            raise ValueError('Unexpected excel file')
+
+        sheets = workbook.get_sheet_names()
+
+        bins = []
+        assembly_ref = None
+        total_contig_len = 0
+
+        for sheet in sheets:
+            worksheet = workbook[sheet]
+
+            binned_contig_data = {}
+            for row in worksheet.rows:
+                key_entry = True
+                key = ''
+                for cell in row:
+                    if key_entry:
+                        key = cell.value
+                        binned_contig_data[key] = []
+                        key_entry = False
+                    else:
+                        binned_contig_data[key].append(cell.value)
+
+            sheet_assembly_ref, contig_bin = self._process_binned_contig_data(binned_contig_data)
+            if not assembly_ref:
+                assembly_ref = sheet_assembly_ref
+            else:
+                if assembly_ref != sheet_assembly_ref:
+                    raise ValueError('Excel sheets have different assembly_ref')
+            bins.append(contig_bin)
+            total_contig_len += contig_bin.get('sum_contig_len')
+
+        return assembly_ref, bins, total_contig_len
+
     def __init__(self, config):
         self.callback_url = config['SDK_CALLBACK_URL']
         self.scratch = config['scratch']
@@ -704,6 +835,55 @@ class MetagenomeFileUtils:
             shock_id = None
 
         returnVal = {'shock_id': shock_id, 'bin_file_directory': result_directory}
+
+        return returnVal
+
+    def import_excel_as_binned_contigs(self, params):
+        """
+        import_excel_as_binned_contigs: Import an excel file as BinnedContigs
+
+        required params:
+        shock_id: Excel file stored in shock
+        workspace_name: the name of the workspace object gets saved to
+
+        optional params:
+        binned_contigs_name: saved BinnedContig name.
+                             Auto append timestamp from excel if not given.
+        """
+
+        log('--->\nrunning MetagenomeFileUtils.import_excel_as_binned_contigs\n' +
+            'params:\n{}'.format(json.dumps(params, indent=1)))
+
+        self._validate_import_excel_as_binned_contigs_params(params)
+
+        bc_file_path,  bc_file_name = self._download_file_from_shock(params.get('shock_id'))
+
+        binned_contigs_name = params.get('binned_contigs_name')
+        if not binned_contigs_name:
+            time_stamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d_%H%M%S')
+            binned_contigs_name = os.path.splitext(bc_file_name)[0] + '_' + time_stamp
+
+        assembly_ref, bins, total_contig_len = self._process_binned_contig_excel(bc_file_path)
+
+        binned_contigs = {
+            'assembly_ref': assembly_ref,
+            'bins': bins,
+            'total_contig_len': total_contig_len
+        }
+
+        binned_contigs_ref = self._save_binned_contig(binned_contigs,
+                                                      params.get('workspace_name'),
+                                                      binned_contigs_name)
+
+        created_objects = []
+        created_objects.append({"ref": binned_contigs_ref,
+                                "description": "BinnedContigs from Excel"})
+
+        returnVal = {'binned_contigs_ref': binned_contigs_ref}
+
+        report_message = self._generate_report_message(binned_contigs_ref)
+        reportVal = self._generate_report(report_message, params, created_objects)
+        returnVal.update(reportVal)
 
         return returnVal
 
