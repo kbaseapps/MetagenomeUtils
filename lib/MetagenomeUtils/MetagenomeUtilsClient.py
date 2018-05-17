@@ -109,6 +109,26 @@ class MetagenomeUtils(object):
             'MetagenomeUtils.export_binned_contigs_as_excel',
             [params], self._service_ver, context)
 
+    def import_excel_as_binned_contigs(self, params, context=None):
+        """
+        import_excel_as_binned_contigs: Import an excel file as BinnedContigs
+        required params:
+        shock_id: Excel file stored in shock
+        workspace_name: the name of the workspace object gets saved to
+        optional params:
+        binned_contigs_name: saved BinnedContig name. 
+                             Auto append timestamp from excel if not given.
+        :param params: instance of type "ImportExcelParams" -> structure:
+           parameter "shock_id" of String, parameter "workspace_name" of
+           String, parameter "binned_contigs_name" of String
+        :returns: instance of type "ImportExcelOutput" -> structure:
+           parameter "report_name" of String, parameter "report_ref" of
+           String, parameter "binned_contigs_ref" of String
+        """
+        return self._client.call_method(
+            'MetagenomeUtils.import_excel_as_binned_contigs',
+            [params], self._service_ver, context)
+
     def extract_binned_contigs_as_assembly(self, params, context=None):
         """
         extract_binned_contigs_as_assembly: extract one/multiple Bins from BinnedContigs as Assembly object

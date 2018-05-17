@@ -238,6 +238,30 @@ public class MetagenomeUtilsClient {
     }
 
     /**
+     * <p>Original spec-file function name: import_excel_as_binned_contigs</p>
+     * <pre>
+     * import_excel_as_binned_contigs: Import an excel file as BinnedContigs
+     * required params:
+     * shock_id: Excel file stored in shock
+     * workspace_name: the name of the workspace object gets saved to
+     * optional params:
+     * binned_contigs_name: saved BinnedContig name. 
+     *                      Auto append timestamp from excel if not given.
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.metagenomeutils.ImportExcelParams ImportExcelParams}
+     * @return   parameter "returnVal" of type {@link us.kbase.metagenomeutils.ImportExcelOutput ImportExcelOutput}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public ImportExcelOutput importExcelAsBinnedContigs(ImportExcelParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<ImportExcelOutput>> retType = new TypeReference<List<ImportExcelOutput>>() {};
+        List<ImportExcelOutput> res = caller.jsonrpcCall("MetagenomeUtils.import_excel_as_binned_contigs", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: extract_binned_contigs_as_assembly</p>
      * <pre>
      * extract_binned_contigs_as_assembly: extract one/multiple Bins from BinnedContigs as Assembly object
