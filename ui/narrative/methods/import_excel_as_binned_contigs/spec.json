@@ -51,7 +51,11 @@
       "output_mapping": [
         {
             "narrative_system_variable": "workspace",
-            "target_property": "ws"
+            "target_property": "wsName"
+        },
+        {
+            "service_method_output_path": [0,"binned_contigs_ref"],
+            "target_property": "binned_contigs_ref"
         },
         {
             "service_method_output_path": [0,"binned_contigs_ref"],
