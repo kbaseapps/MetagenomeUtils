@@ -881,9 +881,16 @@ class MetagenomeFileUtils:
 
         returnVal = {'binned_contigs_ref': binned_contigs_ref}
 
-        report_message = self._generate_report_message(binned_contigs_ref)
-        reportVal = self._generate_report(report_message, params, created_objects)
-        returnVal.update(reportVal)
+        report_params = {'message': '',
+                         'objects_created': created_objects,
+                         'workspace_name': params.get('workspace_name'),
+                         'report_object_name': 'MetagenomeUtils_report_' + str(uuid.uuid4())
+                         }
+
+        kbase_report_client = KBaseReport(self.callback_url)
+        output = kbase_report_client.create_extended_report(report_params)
+
+        returnVal.update({'report_name': output['name'], 'report_ref': output['ref']})
 
         return returnVal
 
