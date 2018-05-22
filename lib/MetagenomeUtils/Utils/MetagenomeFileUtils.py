@@ -830,7 +830,11 @@ class MetagenomeFileUtils:
         workbook.close()
 
         if params.get('save_to_shock') or params.get('save_to_shock') is None:
-            shock_id = self.dfu.file_to_shock({'file_path': output_excel}).get('shock_id')
+            shock_id = self.dfu.file_to_shock({'file_path': result_directory,
+                                               'pack': 'zip'}).get('shock_id')
+            # shock_id = self.dfu.package_for_download(
+            #                                 {'file_path': result_directory,
+            #                                  'ws_refs': [params.get('input_ref')]})['shock_id']
         else:
             shock_id = None
 
