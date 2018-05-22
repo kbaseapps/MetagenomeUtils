@@ -7,7 +7,6 @@ import requests  # noqa: F401
 import shutil
 import zipfile
 from Bio import SeqIO
-from openpyxl import load_workbook
 
 from os import environ
 try:
@@ -525,25 +524,27 @@ class MetagenomeUtilsTest(unittest.TestCase):
     def test_MetagenomeFileUtil_get_contig_string(self):
         target_contig_id = 'NODE_1_length_28553_cov_19.031240'
         parsed_assembly = SeqIO.to_dict(SeqIO.parse(self.assembly_fasta_file_path, "fasta"))
-        contig_string = self.binned_contig_builder._get_contig_string(target_contig_id,
-                                                                      self.assembly_fasta_file_path,
-                                                                      parsed_assembly)
+        contig_string = self.binned_contig_builder._get_contig_string(
+                                                                target_contig_id,
+                                                                self.assembly_fasta_file_path,
+                                                                parsed_assembly)
 
         expect_contig_string = '>NODE_1_length_28553_cov_19.031240\n'
-        expect_contig_string += 'TCGGCGTCACAAAACTCGGAATCGTCGGACAGGAACAGTTCGCTGACGGTAAGTTATAAGGGAGAC'
-        expect_contig_string += 'TCTCTCTTTAGGAATATTTGCTTAAAGAGAGAGCCACCTTGAGGGCAGGTTAAAGAAAAGCATATT'
-        expect_contig_string += 'TATTTTGT\n'
+        expect_contig_string += 'TCGGCGTCACAAAACTCGGAATCGTCGGACAGGAACAGTTCGCTGACGGTAAGTTATAAGGG'
+        expect_contig_string += 'AGACTCTCTCTTTAGGAATATTTGCTTAAAGAGAGAGCCACCTTGAGGGCAGGTTAAAGAAA'
+        expect_contig_string += 'AGCATATTTATTTTGT\n'
 
         self.assertEquals(contig_string, expect_contig_string)
 
         target_contig_id = 'NODE_9_length_4254_cov_19.036436'
-        contig_string = self.binned_contig_builder._get_contig_string(target_contig_id,
-                                                                      self.assembly_fasta_file_path,
-                                                                      parsed_assembly)
+        contig_string = self.binned_contig_builder._get_contig_string(
+                                                                target_contig_id,
+                                                                self.assembly_fasta_file_path,
+                                                                parsed_assembly)
 
         expect_contig_string = '>NODE_9_length_4254_cov_19.036436\n'
-        expect_contig_string += 'ACAAAGTACAACCCTCACGTGCCACTCTCAGGGCTTAACTGACGACACGCCGTAATAGTATTTATT'
-        expect_contig_string += 'GGTTCACAGAAGGGTTGTACATCGGGTTAGATTATGAAAAAG\n'
+        expect_contig_string += 'ACAAAGTACAACCCTCACGTGCCACTCTCAGGGCTTAACTGACGACACGCCGTAATAGTA'
+        expect_contig_string += 'TTTATTGGTTCACAGAAGGGTTGTACATCGGGTTAGATTATGAAAAAG\n'
 
         self.assertEquals(contig_string, expect_contig_string)
 
@@ -781,10 +782,9 @@ class MetagenomeUtilsTest(unittest.TestCase):
         print('original_result_file: ' + resultVal.get('bin_file_directory'))
         print('shock_result_file: ' + result_file)
 
-        expect_sheets = ['out_header.001.fasta', 'out_header.002.fasta', 'out_header.003.fasta']
-        sheets = load_workbook(result_file).get_sheet_names()
-
-        self.assertItemsEqual(expect_sheets, sheets)
+        expect_files = [binned_contig_name + '.xlsx']
+        with zipfile.ZipFile(result_file) as z:
+            self.assertEqual(set(z.namelist()), set(expect_files))
 
     def test_import_excel_as_binned_contigs(self):
         binned_contigs_file_name = 'MyBinnedContig.xlsx'
@@ -830,7 +830,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name': self.getWsName()
         }
 
-        resultVal = self.getImpl().extract_binned_contigs_as_assembly(self.getContext(), params)[0]
+        resultVal = self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                                      params)[0]
 
         self.assertTrue('assembly_ref_list' in resultVal)
         self.assertTrue('report_name' in resultVal)
@@ -878,7 +879,8 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name':         self.getWsName()
         }
 
-        resultVal = self.getImpl().extract_binned_contigs_as_assembly(self.getContext(), params)[0]
+        resultVal = self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                                      params)[0]
 
         self.assertTrue('assembly_ref_list' in resultVal)
         self.assertTrue('report_name' in resultVal)
@@ -894,15 +896,17 @@ class MetagenomeUtilsTest(unittest.TestCase):
             'workspace_name':         self.getWsName()
         }
 
-        resultVal = self.getImpl().extract_binned_contigs_as_assembly(self.getContext(), params)[0]
+        resultVal = self.getImpl().extract_binned_contigs_as_assembly(self.getContext(),
+                                                                      params)[0]
 
         self.assertTrue('assembly_ref_list' in resultVal)
         self.assertTrue('report_name' in resultVal)
         self.assertTrue('report_ref' in resultVal)
         self.assertTrue('assembly_set_ref' in resultVal)  # assumes my binned contig has >1 bins
 
-        pprint( resultVal.get('assembly_set_ref') )
-        aso = self.dfu.get_objects({'object_refs': [resultVal.get('assembly_set_ref')]})['data'][0]
+        pprint(resultVal.get('assembly_set_ref'))
+        aso = self.dfu.get_objects(
+                            {'object_refs': [resultVal.get('assembly_set_ref')]})['data'][0]
         aso_name = aso.get('info')[1]
         self.assertEquals(aso_name, 'extracted_bins.AssemblySet')
 
