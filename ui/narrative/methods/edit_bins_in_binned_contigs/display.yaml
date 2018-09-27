@@ -49,8 +49,13 @@ parameter-groups :
     bin_merges :
         ui-name : Select Bins to merge
         short-hint : Select sets of bins to merge into one
-            
+
 
 description : |
     <p>Basic tool for editing the bins in BinnedContig data.</p>
 
+publications :
+    -
+        display-text: |
+            Arkin AP, Cottingham RW, Henry CS, Harris NL, Stevens RL, Maslov S, et al. KBase: The United States Department of Energy Systems Biology Knowledgebase. Nature Biotechnology. 2018;36: 566. doi: 10.1038/nbt.4163
+        link: https://www.nature.com/articles/nbt.4163
