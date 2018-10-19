@@ -41,8 +41,13 @@ parameters :
         short-hint : multiple assemblies will be collected in a set with this name (required if more than one assembly is selected)
         long-hint :  multiple assemblies will be collected in a set with this name (required if more than one assembly is selected)
 
-            
+
 
 description : |
     <p>Basic tool for extracting bins from BinnedContig data.</p>
 
+publications :
+    -
+        display-text: |
+            Arkin AP, Cottingham RW, Henry CS, Harris NL, Stevens RL, Maslov S, et al. KBase: The United States Department of Energy Systems Biology Knowledgebase. Nature Biotechnology. 2018;36: 566. doi: 10.1038/nbt.4163
+        link: https://www.nature.com/articles/nbt.4163
