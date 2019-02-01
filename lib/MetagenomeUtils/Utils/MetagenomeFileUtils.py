@@ -1,28 +1,30 @@
-import time
 import datetime
+import errno
 import json
 import os
 import re
 import sys
-import errno
+import time
 import uuid
 import zipfile
-from Bio import SeqIO
-from six import string_types
-import xlsxwriter
-from openpyxl import load_workbook
-
-from DataFileUtil.DataFileUtilClient import DataFileUtil
-from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
-from KBaseReport.KBaseReportClient import KBaseReport
-from SetAPI.SetAPIClient import SetAPI
-from biokbase.workspace.client import Workspace as workspaceService
 from pprint import pformat
+import logging
+
+import xlsxwriter
+from Bio import SeqIO
+from openpyxl import load_workbook
+from six import string_types
+
+from installed_clients.AssemblyUtilClient import AssemblyUtil
+from installed_clients.DataFileUtilClient import DataFileUtil
+from installed_clients.KBaseReportClient import KBaseReport
+from installed_clients.SetAPIClient import SetAPI
+from installed_clients.WorkspaceClient import Workspace as workspaceService
 
 
 def log(message, prefix_newline=False):
     """Logging function, provides a hook to suppress or redirect log messages."""
-    print(('\n' if prefix_newline else '') + '{0:.2f}'.format(time.time()) + ': ' + str(message))
+    logging.info(('\n' if prefix_newline else '') + str(message))
 
 
 class MetagenomeFileUtils:
@@ -39,25 +41,25 @@ class MetagenomeFileUtils:
         for p in ['old_binned_contig_ref', 'bin_merges',
                   'output_binned_contig_name', 'workspace_name']:
             if p not in params:
-                raise ValueError('"{}" parameter is required, but missing'.format(p))
+                raise ValueError(f'"{p}" parameter is required, but missing')
 
         bin_merges = params.get('bin_merges')
 
         if not isinstance(bin_merges, list):
             error_msg = 'expecting a list for bin_merges param, '
-            error_msg += 'but getting a [{}]'.format(type(bin_merges))
+            error_msg += f'but getting a [{type(bin_merges)}]'
             raise ValueError(error_msg)
 
         for bin_merge in bin_merges:
             for p in ['new_bin_id', 'bin_to_merge']:
                 if p not in bin_merge:
-                    raise ValueError('"{}" key is required in bin_merges, but missing'.format(p))
+                    raise ValueError(f'"{p}" key is required in bin_merges, but missing')
 
             bin_to_merge = bin_merge.get('bin_to_merge')
 
             if not isinstance(bin_to_merge, list):
                 error_msg = 'expecting a list for bin_to_merge, '
-                error_msg += 'but getting a [{}]'.format(type(bin_to_merge))
+                error_msg += f'but getting a [{type(bin_to_merge)}]'
                 raise ValueError(error_msg)
 
     def _validate_remove_bins_from_binned_contig_params(self, params):
@@ -72,13 +74,13 @@ class MetagenomeFileUtils:
         for p in ['old_binned_contig_ref', 'bins_to_remove',
                   'output_binned_contig_name', 'workspace_name']:
             if p not in params:
-                raise ValueError('"{}" parameter is required, but missing'.format(p))
+                raise ValueError(f'"{p}" parameter is required, but missing')
 
         bins_to_remove = params.get('bins_to_remove')
 
         if not isinstance(bins_to_remove, list):
             error_msg = 'expecting a list for bins_to_remove param, '
-            error_msg += 'but getting a [{}]'.format(type(bins_to_remove))
+            error_msg += f'but getting a [{type(bins_to_remove)}]'
             raise ValueError(error_msg)
 
     def _validate_file_to_binned_contigs_params(self, params):
@@ -92,7 +94,7 @@ class MetagenomeFileUtils:
         # check for required parameters
         for p in ['assembly_ref', 'file_directory', 'binned_contig_name', 'workspace_name']:
             if p not in params:
-                raise ValueError('"{}" parameter is required, but missing'.format(p))
+                raise ValueError(f'"{p}" parameter is required, but missing')
 
     def _validate_binned_contigs_to_file_params(self, params):
         """
@@ -106,7 +108,7 @@ class MetagenomeFileUtils:
         # check for required parameters
         for p in ['input_ref']:
             if p not in params:
-                raise ValueError('"{}" parameter is required, but missing'.format(p))
+                raise ValueError(f'"{p}" parameter is required, but missing')
 
     def _validate_import_excel_as_binned_contigs_params(self, params):
         """
@@ -120,7 +122,7 @@ class MetagenomeFileUtils:
         # check for required parameters
         for p in ['shock_id', 'workspace_name']:
             if p not in params:
-                raise ValueError('"{}" parameter is required, but missing'.format(p))
+                raise ValueError(f'"{p}" parameter is required, but missing')
 
     def _validate_extract_binned_contigs_as_assembly_params(self, params):
         """
@@ -135,7 +137,7 @@ class MetagenomeFileUtils:
         for p in ['binned_contig_obj_ref', 'extracted_assemblies',
                   'assembly_suffix', 'workspace_name']:
             if p not in params:
-                raise ValueError('"{}" parameter is required, but missing'.format(p))
+                raise ValueError(f'"{p}" parameter is required, but missing')
 
         # convert comma-separated list of bins into a list of individual ids (the python
         # comprehension construction deals with the fact that split(',') returns a list of
@@ -237,7 +239,7 @@ class MetagenomeFileUtils:
                         elif len(line_list) == 4:
                             total_contig_len += int(line_list[2])
 
-        log('generated total contig length: {}'.format(total_contig_len))
+        log(f'generated total contig length: {total_contig_len}')
         return total_contig_len
 
     def _generate_contig_bin_summary(self, bin_id, file_directory):
@@ -246,7 +248,7 @@ class MetagenomeFileUtils:
 
         NOTE: This method is very specific to MaxBin2 app result.
         """
-        log('generating summary for bin_id: {}'.format(bin_id))
+        log(f'generating summary for bin_id: {bin_id}')
 
         file_list = os.listdir(file_directory)
 
@@ -256,8 +258,8 @@ class MetagenomeFileUtils:
                     lines = summary_file.readlines()
                     gc, sum_contig_len, cov = self._process_summary_file(bin_id, lines)
 
-        log('generated GC content: {}, Genome size: {} '.format(gc, sum_contig_len))
-        log('and Completeness: {} for bin_id: {}'.format(cov, bin_id))
+        log(f'generated GC content: {gc}, Genome size: {sum_contig_len} ')
+        log(f'and Completeness: {cov} for bin_id: {bin_id}')
         return gc, sum_contig_len, cov
 
     def _generate_contigs(self, file_name, file_directory, assembly_ref):
@@ -269,7 +271,7 @@ class MetagenomeFileUtils:
         assembly_ref: associated assembly object reference
         """
 
-        log('start generating contig objects for file: {}'.format(file_name))
+        log(f'start generating contig objects for file: {file_name}')
 
         assembly = self.dfu.get_objects({'object_refs': [assembly_ref]})['data'][0]
         assembly_contigs = assembly.get('data').get('contigs')
@@ -285,7 +287,7 @@ class MetagenomeFileUtils:
                 contig_gc = contig.get('gc_content')
                 sequence_length = contig.get('length')
             else:
-                log('cannot find contig [{}] from assembly.'.format(contig_id))
+                log(f'cannot find contig [{contig_id}] from assembly.')
                 log('computing contig info')
 
                 sequence = str(record.seq).upper()
@@ -303,7 +305,7 @@ class MetagenomeFileUtils:
             }
             contigs[contig_id] = contig
 
-        log('complete generating contig objects for file: {}'.format(file_name))
+        log(f'complete generating contig objects for file: {file_name}')
 
         return contigs
 
@@ -311,7 +313,7 @@ class MetagenomeFileUtils:
         """
         _generate_contig_bin: gerneate ContigBin structure
         """
-        log('start generating BinnedContig info for bin: {}'.format(bin_id))
+        log(f'start generating BinnedContig info for bin: {bin_id}')
 
         # generate ContigBin summery info
         gc, sum_contig_len, cov = self._generate_contig_bin_summary(bin_id, file_directory)
@@ -328,7 +330,7 @@ class MetagenomeFileUtils:
             'cov': cov
         }
 
-        log('complete generating BinnedContig info for bin: {}'.format(bin_id))
+        log(f'complete generating BinnedContig info for bin: {bin_id}')
 
         return contig_bin
 
@@ -337,13 +339,13 @@ class MetagenomeFileUtils:
         _get_contig_file: get contif file from GenomeAssembly object
         """
 
-        log('retrieving contig file from assembly: {}'.format(assembly_ref))
+        log(f'retrieving contig file from assembly: {assembly_ref}')
         contig_file = self.au.get_assembly_as_fasta({'ref': assembly_ref}).get('path')
 
         sys.stdout.flush()
         contig_file = self.dfu.unpack_file({'file_path': contig_file})['file_path']
 
-        log('saved contig file to: {}'.format(contig_file))
+        log(f'saved contig file to: {contig_file}')
 
         return contig_file
 
@@ -358,12 +360,11 @@ class MetagenomeFileUtils:
 
         if contig_record:
             string_contig = ''
-            string_contig += '>{}\n'.format(contig_id)
+            string_contig += f'>{contig_id}\n'
             string_contig += str(contig_record.seq).upper()
             string_contig += '\n'
         else:
-            error_msg = 'Cannot find contig [{}] from file [{}].'.format(contig_id,
-                                                                         assembly_contig_file)
+            error_msg = f'Cannot find contig [{contig_id}] from file [{assembly_contig_file}].'
             raise ValueError(error_msg)
 
         return string_contig
@@ -378,7 +379,7 @@ class MetagenomeFileUtils:
         output_directory = os.path.join(self.scratch, 'packed_binned_contig_' + str(uuid.uuid4()))
         self._mkdir_p(output_directory)
         result_file = os.path.join(output_directory,
-                                   'packed_binned_contig_' + str(uuid.uuid4()) + '.zip')
+                                   f'packed_binned_contig_{uuid.uuid4()}.zip')
 
         with zipfile.ZipFile(result_file, 'w', zipfile.ZIP_DEFLATED, allowZip64=True) as zip_file:
             for file in result_files:
@@ -386,7 +387,7 @@ class MetagenomeFileUtils:
 
         shock_id = self.dfu.file_to_shock({'file_path': result_file}).get('shock_id')
 
-        log('saved file to shock: {}'.format(shock_id))
+        log(f'saved file to shock: {shock_id}')
 
         return shock_id
 
@@ -401,7 +402,7 @@ class MetagenomeFileUtils:
         upload_message = 'Job Finished\n\n'
         upload_message += report_message
 
-        log('Report message:\n{}'.format(upload_message))
+        log(f'Report message:\n{upload_message}')
 
         report_params = {'message': upload_message,
                          'workspace_name': params.get('workspace_name'),
@@ -427,8 +428,8 @@ class MetagenomeFileUtils:
         binned_contig = self.dfu.get_objects({'object_refs': [new_binned_contig_ref]})['data'][0]
         binned_contig_info = binned_contig.get('info')
         binned_contig_name = binned_contig_info[1]
-        report_message += 'Generated BinnedContigs: {} [{}]\n'.format(binned_contig_name,
-                                                                      new_binned_contig_ref)
+        report_message += f'Generated BinnedContigs: {binned_contig_name}' \
+                          f' [{new_binned_contig_ref}]\n'
 
         binned_contig_count = 0
         total_bins = binned_contig.get('data').get('bins')
@@ -439,9 +440,9 @@ class MetagenomeFileUtils:
             bin_ids.append(bin.get('bid'))
 
         report_message += '--------------------------\nSummary:\n\n'
-        report_message += 'Binned contigs: {}\n'.format(binned_contig_count)
-        report_message += 'Total size of bins: {}\n'.format(total_bins_count)
-        report_message += 'Bin IDs:\n{}\n'.format('\n'.join(bin_ids))
+        report_message += f'Binned contigs: {binned_contig_count}\n'
+        report_message += f'Total size of bins: {total_bins_count}\n'
+        report_message += 'Bin IDs:\n{}\n'.format("\n".join(bin_ids))
 
         return report_message
 
@@ -501,29 +502,31 @@ class MetagenomeFileUtils:
         """
         _check_bin_merges: checking bin_merges
         """
-        bin_id_list = map(lambda item: item.get('bin_to_merge'), bin_merges)
-        bin_ids = []
-        map(lambda item: map(lambda bin_id: bin_ids.append(bin_id), item), bin_id_list)
+        bin_id_list = [item.get('bin_to_merge') for item in bin_merges]
+        new_bin_id_set = set()
+        bin_id_set = set()
 
         for bin_id in bin_id_list:
             if len(bin_id) <= 1:
                 raise ValueError("Please provide at least two bin_ids to merge")
-            for id in bin_id:
-                if bin_ids.count(id) > 1:
-                    raise ValueError("Same bin [{}] appears in muliple merges".format(id))
+            for _id in bin_id:
+                if _id in bin_id_set:
+                    raise ValueError(f"Same bin [{_id}] appears in multiple merges")
+                bin_id_set.add(_id)
 
-        new_bin_id_list = map(lambda item: item.get('new_bin_id'), bin_merges)
-        for new_bin_id in new_bin_id_list:
-            if new_bin_id_list.count(new_bin_id) > 1:
-                raise ValueError("Same new Bin ID [{}] appears in muliple merges".format(id))
+        new_bin_ids = (item.get('new_bin_id') for item in bin_merges)
+        for new_bin_id in new_bin_ids:
+            if new_bin_id in new_bin_id_set:
+                raise ValueError(f"Same new Bin ID [{new_bin_id}] appears in multiple merges")
+            new_bin_id_set.add(new_bin_id)
 
     def _download_file_from_shock(self, shock_id):
         """
         _download_file_from_shock: download file from shock_id
         """
-        log('start downloading file from shock_id: {}'.format(shock_id))
+        log(f'start downloading file from shock_id: {shock_id}')
 
-        output_directory = os.path.join(self.scratch, 'binned_contig_file_' + str(uuid.uuid4()))
+        output_directory = os.path.join(self.scratch, f'binned_contig_file_{uuid.uuid4()}')
         self._mkdir_p(output_directory)
 
         shock_to_file_input = [{'shock_id': shock_id,
@@ -546,10 +549,10 @@ class MetagenomeFileUtils:
         try:
             sheet_assembly_ref = binned_contig_data.get('assembly_ref')[0]
         except:
-            raise ValueError('Unexcepted assembly_ref in Excel sheet: {}'.format(bin_id))
+            raise ValueError(f'Unexcepted assembly_ref in Excel sheet: {bin_id}')
         else:
             if not sheet_assembly_ref:
-                raise ValueError('assembly_ref is None in Excel sheet: {}'.format(bin_id))
+                raise ValueError(f'assembly_ref is None in Excel sheet: {bin_id}')
 
         cov = binned_contig_data.get('total_coverage')[0]
 
@@ -657,7 +660,7 @@ class MetagenomeFileUtils:
         """
 
         log('--->\nrunning MetagenomeFileUtils.file_to_binned_contigs\n' +
-            'params:\n{}'.format(json.dumps(params, indent=1)))
+            f'params:\n{json.dumps(params, indent=1)}')
 
         self._validate_file_to_binned_contigs_params(params)
 
@@ -707,7 +710,7 @@ class MetagenomeFileUtils:
         """
 
         log('--->\nrunning MetagenomeFileUtils.binned_contigs_to_file\n' +
-            'params:\n{}'.format(json.dumps(params, indent=1)))
+            f'params:\n{json.dumps(params, indent=1)}')
 
         self._validate_binned_contigs_to_file_params(params)
 
@@ -716,7 +719,7 @@ class MetagenomeFileUtils:
 
         assembly_ref = binned_contig_object.get('data').get('assembly_ref')
         assembly_contig_file = self._get_contig_file(assembly_ref)
-        log('parsing assembly file [{}] to dictionary'.format(assembly_contig_file))
+        log(f'parsing assembly file [{assembly_contig_file}] to dictionary')
         parsed_assembly = SeqIO.to_dict(SeqIO.parse(assembly_contig_file, "fasta"))
 
         bins = binned_contig_object.get('data').get('bins')
@@ -730,27 +733,27 @@ class MetagenomeFileUtils:
             bin_id = bin.get('bid')
             if bin_id_list:
                 if bin_id in bin_id_list:
-                    log('processing bin: {}'.format(bin_id))
+                    log(f'processing bin: {bin_id}')
                     with open(os.path.join(result_directory, bin_id), 'w') as file:
                         contigs = bin.get('contigs')
-                        for contig_id in contigs.keys():
+                        for contig_id in list(contigs.keys()):
                             contig_string = self._get_contig_string(contig_id,
                                                                     assembly_contig_file,
                                                                     parsed_assembly)
                             file.write(contig_string)
                     result_files.append(os.path.join(result_directory, bin_id))
-                    log('saved contig file to: {}'.format(result_files[-1]))
+                    log(f'saved contig file to: {result_files[-1]}')
             else:
-                log('processing bin: {}'.format(bin_id))
+                log(f'processing bin: {bin_id}')
                 with open(os.path.join(result_directory, bin_id), 'w') as file:
                     contigs = bin.get('contigs')
-                    for contig_id in contigs.keys():
+                    for contig_id in list(contigs.keys()):
                         contig_string = self._get_contig_string(contig_id,
                                                                 assembly_contig_file,
                                                                 parsed_assembly)
                         file.write(contig_string)
                 result_files.append(os.path.join(result_directory, bin_id))
-                log('saved contig file to: {}'.format(result_files[-1]))
+                log(f'saved contig file to: {result_files[-1]}')
 
         if params.get('save_to_shock') or params.get('save_to_shock') is None:
             shock_id = self._pack_file_to_shock(result_files)
@@ -778,7 +781,7 @@ class MetagenomeFileUtils:
         """
 
         log('--->\nrunning MetagenomeFileUtils.export_binned_contigs_as_excel\n' +
-            'params:\n{}'.format(json.dumps(params, indent=1)))
+            f'params:\n{json.dumps(params, indent=1)}')
 
         self._validate_binned_contigs_to_file_params(params)
 
@@ -790,9 +793,9 @@ class MetagenomeFileUtils:
         assembly_ref = binned_contig_data.get('assembly_ref')
         bins = binned_contig_data.get('bins')
 
-        result_directory = os.path.join(self.scratch, 'binned_contig_excel_' + str(uuid.uuid4()))
+        result_directory = os.path.join(self.scratch, f'binned_contig_excel_{uuid.uuid4()}')
         self._mkdir_p(result_directory)
-        output_excel = os.path.join(result_directory, binned_contig_name + '.xlsx')
+        output_excel = os.path.join(result_directory, f'{binned_contig_name}.xlsx')
         workbook = xlsxwriter.Workbook(output_excel)
         bold = workbook.add_format({'bold': True})
 
@@ -800,7 +803,7 @@ class MetagenomeFileUtils:
             bin_id = bin.get('bid')
             total_coverage = bin.get('cov', 'NULL')
 
-            log('processing bin: {}'.format(bin_id))
+            log(f'processing bin: {bin_id}')
             worksheet = workbook.add_worksheet(bin_id)
 
             worksheet.write(0, 0, 'bin_id', bold)
@@ -856,7 +859,7 @@ class MetagenomeFileUtils:
         """
 
         log('--->\nrunning MetagenomeFileUtils.import_excel_as_binned_contigs\n' +
-            'params:\n{}'.format(json.dumps(params, indent=1)))
+            f'params:\n{json.dumps(params, indent=1)}')
 
         self._validate_import_excel_as_binned_contigs_params(params)
 
@@ -919,7 +922,7 @@ class MetagenomeFileUtils:
         """
 
         log('--->\nrunning MetagenomeFileUtils.extract_binned_contigs_as_assembly\n' +
-            'params:\n{}'.format(json.dumps(params, indent=1)))
+            f'params:\n{json.dumps(params, indent=1)}')
 
         self._validate_extract_binned_contigs_as_assembly_params(params)
 
@@ -947,49 +950,46 @@ class MetagenomeFileUtils:
         generated_assembly_ref_list = []
         assembly_suffix = params.get('assembly_suffix').strip()
         for bin_id in extracted_assemblies:
-            if bin_id not in map(os.path.basename, bin_files):
-                error_msg = 'bin_id [{}] cannot be found in BinnedContig '.format(bin_id)
-                error_msg += '[{}]'.format(binned_contig_obj_ref)
+            if bin_id not in [os.path.basename(f) for f in bin_files]:
+                error_msg = f'bin_id [{bin_id}] cannot be found in BinnedContig '
+                error_msg += f'[{binned_contig_obj_ref}]'
                 raise ValueError(error_msg)
             else:
                 output_assembly_name = bin_id + assembly_suffix
-                log('saving assembly: {}'.format(output_assembly_name))
+                log(f'saving assembly: {output_assembly_name}')
                 for bin_file in bin_files:
                     if os.path.basename(bin_file) == bin_id:
-                        log('starting generating assembly from {}'.format(bin_id))
+                        log(f'starting generating assembly from {bin_id}')
                         assembly_params = {
                             'file': {'path': os.path.join(bin_file_directory, bin_file)},
                             'workspace_name': params.get('workspace_name'),
                             'assembly_name': output_assembly_name
                         }
                         assembly_ref = self.au.save_assembly_from_fasta(assembly_params)
-                        log('finished generating assembly from {}'.format(bin_id))
+                        log(f'finished generating assembly from {bin_id}')
                         generated_assembly_ref_list.append(assembly_ref)
         setret = None
-        if (len(generated_assembly_ref_list) > 1):
+        if len(generated_assembly_ref_list) > 1:
             binned_contig_object_name = self._get_object_name_from_ref(binned_contig_obj_ref)
             assembly_set_name = params.get('assembly_set_name')
             if not assembly_set_name:
                 assembly_set_name = "extracted_bins.AssemblySet"
-            log("saving assembly set {0}".format(assembly_set_name))
+            log(f"saving assembly set {assembly_set_name}")
             setret = self.setapi.save_assembly_set_v1({
                 'workspace': params.get('workspace_name'),
                 'output_object_name': assembly_set_name,
                 'data': {
-                          'description': 'binned assemblies from {0}'
-                                         . format(binned_contig_object_name),
+                          'description': f'binned assemblies from {binned_contig_object_name}',
                           'items':  [{'ref': r} for r in generated_assembly_ref_list]
                         }
                })
-            log("save assembly set_ref is {0}".format(setret.get('set_ref')))
+            log(f"save assembly set_ref is {setret.get('set_ref')}")
 
-        report_message = 'Generated Assembly Reference: {}'.format(
-            ', '.join(generated_assembly_ref_list))
+        report_message = f'Generated Assembly Reference: {", ".join(generated_assembly_ref_list)}'
 
         # Request from Dylan to add "objects_created" li st to report object
         if setret:
-            report_message = report_message+'\nGenerated Assembly Set: {}'.format(
-                                                                              setret.get('set_ref'))
+            report_message = report_message + f'\nGenerated Assembly Set: {setret.get("set_ref")}'
 
         created_objects = []
         if setret:    # if assembly set created put that first
@@ -1026,7 +1026,7 @@ class MetagenomeFileUtils:
         """
 
         log('--->\nrunning MetagenomeFileUtils.remove_bins_from_binned_contig\n' +
-            'params:\n{}'.format(json.dumps(params, indent=1)))
+            f'params:\n{json.dumps(params, indent=1)}')
 
         self._validate_remove_bins_from_binned_contig_params(params)
 
@@ -1043,10 +1043,10 @@ class MetagenomeFileUtils:
         for bin in list(old_bins):
             bin_id = bin.get('bid')
             if bin_id in bins_to_remove:
-                log('removing bin_id: {}'.format(bin_id))
+                log(f'removing bin_id: {bin_id}')
                 old_bins.remove(bin)
                 total_contig_len -= int(bin.get('sum_contig_len'))
-                log('removed bin_id: {} from BinnedContig object'.format(bin_id))
+                log(f'removed bin_id: {bin_id} from BinnedContig object')
 
         binned_contigs = {
             'assembly_ref': assembly_ref,
@@ -1080,7 +1080,7 @@ class MetagenomeFileUtils:
         """
 
         log('--->\nrunning MetagenomeFileUtils.merge_bins_from_binned_contig\n' +
-            'params:\n{}'.format(json.dumps(params, indent=1)))
+            f'params:\n{json.dumps(params, indent=1)}')
 
         self._validate_merge_bins_from_binned_contig_params(params)
 
@@ -1095,7 +1095,7 @@ class MetagenomeFileUtils:
         total_contig_len = int(binned_contig_object.get('data').get('total_contig_len'))
 
         bins = binned_contig_object.get('data').get('bins')
-        old_bin_ids = map(lambda item: item.get('bid'), bins)
+        old_bin_ids = [item.get('bid') for item in bins]
 
         for bin_merge in bin_merges:
             new_bin_id = bin_merge.get('new_bin_id')
@@ -1106,18 +1106,18 @@ class MetagenomeFileUtils:
                     bin_id = bin.get('bid')
                     if bin_id in bin_id_to_merge:
                         bin_objects_to_merge.append(bin)
-                        log('removing bin_id: {}'.format(bin_id))
+                        log(f'removing bin_id: {bin_id}')
                         bins.remove(bin)
                         total_contig_len -= int(bin.get('sum_contig_len'))
-                        log('removed bin_id: {} from BinnedContig object'.format(bin_id))
+                        log(f'removed bin_id: {bin_id} from BinnedContig object')
                 new_bin = self._merge_bins(new_bin_id, bin_objects_to_merge)
-                log('appending bin_id: {}'.format(new_bin_id))
+                log(f'appending bin_id: {new_bin_id}')
                 bins.append(new_bin)
                 total_contig_len += int(new_bin.get('sum_contig_len'))
-                log('appended bin_id: {} to BinnedContig object'.format(new_bin_id))
+                log(f'appended bin_id: {new_bin_id} to BinnedContig object')
             else:
                 bad_bin_ids = list(set(bin_id_to_merge) - set(old_bin_ids))
-                error_msg = 'bin_id: [{}] '.format(', '.join(bad_bin_ids))
+                error_msg = f'bin_id: [{", ".join(bad_bin_ids)}] '
                 error_msg += 'is not listed in BinnedContig object'
                 raise ValueError(error_msg)
 
@@ -1160,7 +1160,7 @@ class MetagenomeFileUtils:
         """
 
         log('--->\nrunning MetagenomeFileUtils.edit_bins_from_binned_contig\n' +
-            'params:\n{}'.format(json.dumps(params, indent=1)))
+            f'params:\n{json.dumps(params, indent=1)}')
 
         input_params = params.copy()
         if params.get('bins_to_remove'):
