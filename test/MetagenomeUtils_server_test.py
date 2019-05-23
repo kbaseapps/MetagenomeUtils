@@ -7,6 +7,7 @@ import zipfile
 from configparser import ConfigParser
 from os import environ
 from pprint import pprint  # noqa: F401
+import json
 
 from Bio import SeqIO
 
@@ -17,6 +18,7 @@ from MetagenomeUtils.authclient import KBaseAuth as _KBaseAuth
 from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.WorkspaceClient import Workspace as workspaceService
+from installed_clients.WsLargeDataIOClient import WsLargeDataIO
 
 
 class MetagenomeUtilsTest(unittest.TestCase):
@@ -110,7 +112,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-    '''def test_bad_merge_bins_from_binned_contig_params(self):
+    def test_bad_merge_bins_from_binned_contig_params(self):
         invalidate_input_params = {
             'missing_old_binned_contig_ref': 'old_binned_contig_ref',
             'bin_merges': [{'new_bin_id': 'new_bin_id',
@@ -442,11 +444,15 @@ class MetagenomeUtilsTest(unittest.TestCase):
 
     def test_MetagenomeFileUtil_generate_contigs(self):
 
+        ws_large_data = WsLargeDataIO(self.callback_url, service_ver="beta")
+        res = ws_large_data.get_objects({'objects': [{"ref": self.assembly_ref}]})['data'][0]
+        data = json.load(open(res['data_json_file']))
+        assembly_contigs = data.get('contigs')
         # testing contigs can be found in assembly object
         contigs = self.binned_contig_builder._generate_contigs(
             self.assembly_filename,
             os.path.dirname(self.assembly_fasta_file_path),
-            self.assembly_ref)
+            assembly_contigs)
 
         self.assertEqual(len(contigs), 8)
 
@@ -473,7 +479,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         contigs = self.binned_contig_builder._generate_contigs(
             'fake_' + assembly_filename,
             os.path.dirname(assembly_fasta_file_path),
-            self.assembly_ref)
+            assembly_contigs)
 
         self.assertEqual(len(contigs), 9)
 
@@ -491,9 +497,14 @@ class MetagenomeUtilsTest(unittest.TestCase):
         bin_id = 'out_header.003.fasta'
         file_directory = self.test_directory_path
 
+        ws_large_data = WsLargeDataIO(self.callback_url, service_ver="beta")
+        res = ws_large_data.get_objects({'objects': [{"ref": self.large_assembly_ref}]})['data'][0]
+        data = json.load(open(res['data_json_file']))
+        assembly_contigs = data.get('contigs')
+
         contig_bin = self.binned_contig_builder._generate_contig_bin(bin_id,
                                                                      file_directory,
-                                                                     self.large_assembly_ref)
+                                                                     assembly_contigs)
 
         expect_bin_keys = ['contigs', 'bid', 'gc', 'sum_contig_len', 'cov', 'n_contigs']
         self.assertCountEqual(list(contig_bin.keys()), expect_bin_keys)
@@ -677,7 +688,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         self.assertEqual(binned_contig_data.get('assembly_ref'), self.large_assembly_ref)
 
         expect_bin_keys = ['contigs', 'bid', 'gc', 'sum_contig_len', 'cov', 'n_contigs']
-        self.assertCountEqual(list(binned_contig_data.get('bins')[0].keys()), expect_bin_keys)'''
+        self.assertCountEqual(list(binned_contig_data.get('bins')[0].keys()), expect_bin_keys)
 
     def test_binned_contigs_to_file(self):
 
@@ -715,7 +726,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
                     self.assertEqual(''.join(sorted(data.decode().replace('\n', ''))),
                                      ''.join(sorted(origin_file.read().replace('\n', ''))))
 
-    '''def test_binned_contigs_to_file_save_to_shock(self):
+    def test_binned_contigs_to_file_save_to_shock(self):
 
         binned_contig_name = 'MyBinnedContig'
         params = {
@@ -999,7 +1010,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         bins = binned_contig_data.get('bins')
         bin_ids = [item.get('bid') for item in bins]
         expect_bin_ids = ['out_header.002.fasta']
-        self.assertCountEqual(bin_ids, expect_bin_ids)'''
+        self.assertCountEqual(bin_ids, expect_bin_ids)
 
     def test_merge_bins_from_binned_contig(self):
 
@@ -1122,7 +1133,7 @@ class MetagenomeUtilsTest(unittest.TestCase):
         expect_bin_ids = ['out_header.001.fasta', 'out_header.004.fasta']
         self.assertCountEqual(bin_ids, expect_bin_ids)
 
-    '''def test_edit_bins_from_binned_contig(self):
+    def test_edit_bins_from_binned_contig(self):
 
         binned_contig_name = 'MyBinnedContig'
         params = {
@@ -1176,4 +1187,4 @@ class MetagenomeUtilsTest(unittest.TestCase):
         bins = binned_contig_data.get('bins')
         bin_ids = [item.get('bid') for item in bins]
         expect_bin_ids = ['out_header.004.fasta']
-        self.assertCountEqual(bin_ids, expect_bin_ids)'''
+        self.assertCountEqual(bin_ids, expect_bin_ids)

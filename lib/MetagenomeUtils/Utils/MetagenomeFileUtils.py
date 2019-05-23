@@ -20,6 +20,7 @@ from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.SetAPIClient import SetAPI
 from installed_clients.WorkspaceClient import Workspace as workspaceService
+from installed_clients.WsLargeDataIOClient import WsLargeDataIO
 
 
 def log(message, prefix_newline=False):
@@ -262,7 +263,7 @@ class MetagenomeFileUtils:
         log(f'and Completeness: {cov} for bin_id: {bin_id}')
         return gc, sum_contig_len, cov
 
-    def _generate_contigs(self, file_name, file_directory, assembly_ref):
+    def _generate_contigs(self, file_name, file_directory, assembly_contigs):
         """
         _generate_contigs: generate contigs from assembly object
 
@@ -272,9 +273,6 @@ class MetagenomeFileUtils:
         """
 
         log(f'start generating contig objects for file: {file_name}')
-
-        assembly = self.dfu.get_objects({'object_refs': [assembly_ref]})['data'][0]
-        assembly_contigs = assembly.get('data').get('contigs')
 
         contigs = {}
         for record in SeqIO.parse(os.path.join(file_directory, file_name), "fasta"):
@@ -309,7 +307,7 @@ class MetagenomeFileUtils:
 
         return contigs
 
-    def _generate_contig_bin(self, bin_id, file_directory, assembly_ref):
+    def _generate_contig_bin(self, bin_id, file_directory, assembly_contigs):
         """
         _generate_contig_bin: gerneate ContigBin structure
         """
@@ -319,7 +317,7 @@ class MetagenomeFileUtils:
         gc, sum_contig_len, cov = self._generate_contig_bin_summary(bin_id, file_directory)
 
         # generate Contig info
-        contigs = self._generate_contigs(bin_id, file_directory, assembly_ref)
+        contigs = self._generate_contigs(bin_id, file_directory, assembly_contigs)
 
         contig_bin = {
             'bid': bin_id,
@@ -670,9 +668,17 @@ class MetagenomeFileUtils:
         log('starting generating BinnedContig object')
         bin_ids = self._get_bin_ids(file_directory)
 
+        try:
+            ws_large_data = WsLargeDataIO(self.callback_url, service_ver="beta")
+            res = ws_large_data.get_objects({'objects': [{"ref": assembly_ref}]})['data'][0]
+            data = json.load(open(res['data_json_file']))
+            assembly_contigs = data.get('contigs')
+        except Exception:
+            assembly_contigs = {}
+
         bins = []
         for bin_id in bin_ids:
-            contig_bin = self._generate_contig_bin(bin_id, file_directory, assembly_ref)
+            contig_bin = self._generate_contig_bin(bin_id, file_directory, assembly_contigs)
             bins.append(contig_bin)
         log('finished generating BinnedContig object')
 
