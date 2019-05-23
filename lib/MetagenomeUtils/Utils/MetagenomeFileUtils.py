@@ -20,6 +20,7 @@ from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.SetAPIClient import SetAPI
 from installed_clients.WorkspaceClient import Workspace as workspaceService
+from installed_clients.WsLargeDataIOClient import WsLargeDataIO
 
 
 def log(message, prefix_newline=False):
@@ -668,8 +669,10 @@ class MetagenomeFileUtils:
         bin_ids = self._get_bin_ids(file_directory)
 
         try:
-            assembly = self.dfu.get_objects({'object_refs': [assembly_ref]})['data'][0]
-            assembly_contigs = assembly.get('data').get('contigs')
+            ws_large_data = WsLargeDataIO(self.callback_url, service_ver="beta")
+            res = ws_large_data.get_objects({'objects': [{"ref": assembly_ref}]})['data'][0]
+            data = json.load(open(res['data_json_file']))
+            assembly_contigs = data.get('contigs')
         except Exception:
             assembly_contigs = {}
 
