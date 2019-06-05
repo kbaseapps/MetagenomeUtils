@@ -1,9 +1,9 @@
 #
 # define display information
 #
-name: Extract Bins as Assemblies from BinnedContigs - v1.0.2
-tooltip: Extract a bin as an Assembly from a BinnedContig dataset
-screenshots: []
+name: Extract Bins as Assemblies - v1.0.2
+tooltip: Extract a bin as an Assembly object from a BinnedContig object dataset.
+screenshots: ["extract_assemblies_from_bins.png"]
 
 icon: binutil-green.png
 
@@ -15,7 +15,7 @@ suggestions:
         related:
             []
         next:
-            []
+            [“RAST_SDK.annotate_contigset”,“RAST_SDK.annotate_contigsets”,“ProkkaAnnotation.annotate_contigs”]
     methods:
         related:
             []
@@ -27,24 +27,36 @@ suggestions:
 #
 parameters :
     binned_contig_obj_ref :
-        ui-name : Binned Contigs
-        short-hint : the binned contig data to edit
+        ui-name : BinnedContigs
+        short-hint : The name of the BinnedContig data object.
     extracted_assemblies:
-        ui-name : Bin Names For Extraction <font color=red><b>(default is to extract all bins)</b></font>
-        short-hint : Select the bins you want extracted as assemblies, one bin per assembly.
+        ui-name : Bin Names to Extract <b>(default is to extract all bins)</b>
+        short-hint : Select the bins to extract as Assembly objects (i.e., putative genomes).
     assembly_suffix:
         ui-name : Assembly Name Suffix
-        short-hint : provide a suffix append to Bin name for new Assembly name
-        long-hint : provide a suffix append to Bin name for new Assembly name
+        short-hint : The name to be appended to the extraced binned Assembly objects.
     assembly_set_name:
         ui-name : Assembly Set Name (if more than one bin)
-        short-hint : multiple assemblies will be collected in a set with this name (required if more than one assembly is selected)
-        long-hint :  multiple assemblies will be collected in a set with this name (required if more than one assembly is selected)
+        short-hint : Multiple binned assemblies will be collected in a set with this name (required if more than one assembly is selected).
 
 
 
 description : |
-    <p>Basic tool for extracting bins from BinnedContig data.</p>
+    <p>This App is a basic tool for extracting bins from BinnedContig data objects. This tool assumes that a user has already used a tool such as MetaBAT2 or MaxBin2 to produce a BinnedContig data object. Each bin generated from a particular genome binning program, of course, varies in terms of its genetic composition and overall quality, so a critical step in the analysis of genome bin data is to apply filters to reduce the non-target and noisy signals in your binned contigs. Ideally, a user will be extracting bins for further analysis based on quality assessments generated from programs such as CheckM (see the documentation for the <a href="https://narrative.kbase.us/#catalog/apps/kb_Msuite/run_checkM_lineage_wf/release">KBase CheckM App</a> for more details about genome completeness and contamination criteria, including their utility in extracting relevant binned contigs using the BinnedContig data app).</p>
+
+    <p>Additional relevant data used to identify useful genome bins includes the total number of contigs, the summed contig lengths (genome size), the average read depth coverage, and the fraction of GC nucleotides. For convenience, these genome statistics are summarized in the main table within this App.</p>
+
+    <p><h3>Configuration</h3></p>
+    <ul>
+      <li>Binned Contigs: The BinnedContig object from which to extract Assembly objects for selected bins. Until this is configured, the <i>Bin Names for Extraction</i> field will not be accessible.</li>
+      <li>Bin Names for Extraction: After configuration of the BinnedContigs field, the list of bins are presented. Only 5 bins can be selected from at a time, with navigation to the previous or next set of 5 bins accomplished with the up and down arrows in the upper right, or the beginning and end of the list with the arrows with end-bars. To add a bin to the extraction list (will appears below the selection list), press on the green &quot;+&quot; button. To remove a bin from the extraction list, press on the red &quot;-&quot; button.</li>
+      <li>Each Bin in the list includes some of its summary data. Bin summaries offer the number of contigs, the summed length of the contigs within the bin, the completeness of universal phylogenetic markers (if binning is done by MaxBin2), and the average G+C content of the contigs. At this time, quality assessment (e.g. CheckM) completeness and contamination scores are not included within this App, and adjacent examination of those values in another Narrative cell is recommended when selecting which bins to extract. The default is to select all Bins.</li>
+      <li>Assembly Name Suffix: Each extracted bin produces an Assembly object containing the contigs for that bin. Those names are automatically based on the number of the bin. The user can add a suffix of their choosing to the name of each Assembly Object, with a default value of &quot;_assembly&quot;.</li>
+      <li>Assembly Set Name: If extracting more than one bin, the resulting Assembly objects will be captured by an AssemblySet object that can be used as input into RAST or Prokka annotation Apps for batch gene annotation.</li>
+    </ul>
+    </p>
+
+    <p><strong>Team members who designed & implemented App in KBase:</strong> Dylan Chivian and Tianhao Gu. For questions, please <a href=”http://kbase.us/contact-us/”>contact us</a>.</p>
 
 publications :
     -
