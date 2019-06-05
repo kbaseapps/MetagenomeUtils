@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #BEGIN_HEADER
-import os
 import json
+import logging
+import os
 
 from MetagenomeUtils.Utils.MetagenomeFileUtils import MetagenomeFileUtils
 #END_HEADER
@@ -22,11 +23,14 @@ class MetagenomeUtils:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.0.2"
-    GIT_URL = "https://github.com/Tianhao-Gu/MetagenomeUtils.git"
-    GIT_COMMIT_HASH = "05fd6716a0f41c5b4a4c72ce36c994d9663718a9"
+    VERSION = "1.1.0"
+    GIT_URL = "https://github.com/kbaseapps/MetagenomeUtils.git"
+    GIT_COMMIT_HASH = "c119a5640e9946af801b11a2745789b83a802747"
 
     #BEGIN_CLASS_HEADER
+    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',
+                        level=logging.INFO,
+                        datefmt='%Y-%m-%d %H:%M:%S')
     #END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn't
@@ -67,11 +71,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN file_to_binned_contigs
-        print '--->\nRunning MetagenomeUtils.file_to_binned_contigs\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.file_to_binned_contigs\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_builder = MetagenomeFileUtils(self.config)
@@ -108,11 +112,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN binned_contigs_to_file
-        print '--->\nRunning MetagenomeUtils.binned_contigs_to_file\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.binned_contigs_to_file\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_downloader = MetagenomeFileUtils(self.config)
@@ -149,11 +153,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN export_binned_contigs_as_excel
-        print '--->\nRunning MetagenomeUtils.export_binned_contigs_as_excel\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.export_binned_contigs_as_excel\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_downloader = MetagenomeFileUtils(self.config)
@@ -186,11 +190,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN import_excel_as_binned_contigs
-        print '--->\nRunning MetagenomeUtils.import_excel_as_binned_contigs\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.import_excel_as_binned_contigs\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_importer = MetagenomeFileUtils(self.config)
@@ -238,11 +242,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN extract_binned_contigs_as_assembly
-        print '--->\nRunning MetagenomeUtils.extract_binned_contigs_as_assembly\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.extract_binned_contigs_as_assembly\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_extractor = MetagenomeFileUtils(self.config)
@@ -285,11 +289,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN remove_bins_from_binned_contig
-        print '--->\nRunning MetagenomeUtils.remove_bins_from_binned_contig\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.remove_bins_from_binned_contig\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_remover = MetagenomeFileUtils(self.config)
@@ -334,11 +338,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN merge_bins_from_binned_contig
-        print '--->\nRunning MetagenomeUtils.merge_bins_from_binned_contig\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.merge_bins_from_binned_contig\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_merger = MetagenomeFileUtils(self.config)
@@ -393,11 +397,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN edit_bins_from_binned_contig
-        print '--->\nRunning MetagenomeUtils.edit_bins_from_binned_contig\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.edit_bins_from_binned_contig\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_editor = MetagenomeFileUtils(self.config)
