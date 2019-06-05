@@ -2,7 +2,7 @@
 # define display information
 #
 name: Modify Bins in BinnedContigs - v1.0.2
-tooltip: Add or remove specific bins by name in BinnedContigs data
+tooltip: Add or remove specific bins by name from a BinnedContigs data object.
 screenshots: []
 
 icon: binutil-green.png
@@ -27,32 +27,32 @@ suggestions:
 #
 parameters :
     old_binned_contig_ref :
-        ui-name : Binned Contigs
-        short-hint : the binned contig data to edit
+        ui-name : BinnedContigs
+        short-hint : The BinnedContigs object that needs to be modified.
     bins_to_remove:
-        ui-name : Bin to Removes
-        short-hint : Enter the bin name of a bin to remove
+        ui-name : Remove Bin(s)
+        short-hint : Select one or more bins to remove.
 
     new_bin_id:
         ui-name : New Bin Name
-        short-hint : Enter a new name for this merged bin
+        short-hint : Enter a new name for this new merged bin.
     bin_to_merge:
-        ui-name : Bin to Merge
-        short-hint : Enter the name of a bin to add
+        ui-name : Select two or more Bins
+        short-hint : Select two or more bins to be merged.
 
     output_binned_contig_name :
-        ui-name : Output BinnedContigs Name
-        short-hint : select a name for the output contigs object
+        ui-name : Modified BinnedContigs Name
+        short-hint : Enter a name for the new modified BinnedContigs object.
 
 
 parameter-groups :
     bin_merges :
-        ui-name : Select Bins to merge
-        short-hint : Select sets of bins to merge into one
+        ui-name : Merge Bins
+        short-hint : Select two or more bins to be merged.
 
 
 description : |
-    <p>Basic tool for editing the bins in BinnedContig data.</p>
+    <p>This App supports the modification of a BinnedContigs data object by letting the user select a set of bins they want to remove or replace with a merged bin. More specifically, the user can remove one or more bins from the input BinnedContigs and similarly replace two or more bins in the input BinnedContigs with a single merged bin.</p>
 
 publications :
     -
