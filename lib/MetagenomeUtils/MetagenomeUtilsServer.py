@@ -370,6 +370,10 @@ class Application(object):
                              name='MetagenomeUtils.edit_bins_from_binned_contig',
                              types=[dict])
         self.method_authentication['MetagenomeUtils.edit_bins_from_binned_contig'] = 'required'  # noqa
+        self.rpc_service.add(impl_MetagenomeUtils.get_annotated_metagenome_assembly,
+                             name='MetagenomeUtils.get_annotated_metagenome_assembly',
+                             types=[dict])
+        self.method_authentication['MetagenomeUtils.get_annotated_metagenome_assembly'] = 'required'  # noqa
         self.rpc_service.add(impl_MetagenomeUtils.status,
                              name='MetagenomeUtils.status',
                              types=[dict])
