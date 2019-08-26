@@ -306,8 +306,6 @@ module MetagenomeUtils {
     typedef structure {
       string ref;
       list<string> included_fields;
-      list<string> included_feature_fields;
-
     } getAnnotatedMetagenomeAssemblyParams;
 
 

@@ -4,6 +4,8 @@ class AMAUtils():
         self.ws = ws
 
     def _confirm_ws_type(self, ref):
+        """confirm whether 'ref' is of type 'KBaseMetagenomes.AnnotatedMetagenomeAssembly
+        if not, throw error. """
         if ref is None:
             raise ValueError(" 'ref' argument must be specified.")
         obj_info = self.ws.get_object_info3({
@@ -21,15 +23,13 @@ class AMAUtils():
         params:
             ref - workspace reference
             included_fields - list of fields to include, defaults to list below if not specified.
-            included_feature_fields - list of fields to include in features
-
         output
+            genomes - contains the returned data fields from the workspace request.
+
         """
         ref = params.get('ref', None)
         included_fields = params.get('included_fields', None)
         self._confirm_ws_type(ref)
-
-        included_feature_fields = params.get('included_feature_fields', [])
 
         get_obj_params = {'ref': ref}
         if included_fields is not None:
