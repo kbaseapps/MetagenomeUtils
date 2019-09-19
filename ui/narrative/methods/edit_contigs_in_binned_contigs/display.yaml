@@ -1,7 +1,7 @@
 #
 # define display information
 #
-name: Modify Contigs in BinnedContigs - v1.0.0
+name: Modify Contigs in BinnedContigs - v1.0.2
 tooltip: Add or remove specific contigs by ID in bins in BinnedContigs data
 screenshots: []
 

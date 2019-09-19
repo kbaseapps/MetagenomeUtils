@@ -1,0 +1,80 @@
+{
+  "ver": "1.0.0",
+  "authors": ["tgu2"],
+  "contact": "help@kbase.us",
+  "visible": true,
+  "categories": ["active","assembly","communities"],
+  "widgets": {
+    "input": "kbaseNarrativeMethodInput",
+    "output": "kbaseBinnedContigs"
+  },
+  "parameters": [
+    {
+      "id": "binned_contigs_file",
+      "optional" : false,
+      "advanced" : false,
+      "allow_multiple" : false,
+      "default_values" : [ "" ],
+      "field_type" : "file",
+      "text_options" : {
+        "valid_ws_types" : [ ]
+      }
+    },
+    {
+      "id" : "binned_contigs_name",
+      "optional" : true,
+      "advanced" : true,
+      "allow_multiple" : false,
+      "default_values" : [ "" ],
+      "field_type" : "text"
+    }
+  ],
+  "behavior": {
+    "service-mapping": {
+      "url": "",
+      "name": "MetagenomeUtils",
+      "method": "import_excel_as_binned_contigs",
+      "input_mapping": [
+        {
+          "narrative_system_variable": "workspace",
+          "target_property": "workspace_name"
+        },
+        {
+          "input_parameter": "binned_contigs_file",
+          "target_property": "shock_id"
+        },
+        {
+          "input_parameter": "binned_contigs_name",
+          "target_property": "binned_contigs_name"
+        }
+      ],
+      "output_mapping": [
+        {
+            "narrative_system_variable": "workspace",
+            "target_property": "wsName"
+        },
+        {
+            "service_method_output_path": [0,"binned_contigs_ref"],
+            "target_property": "binned_contigs_ref"
+        },
+        {
+            "service_method_output_path": [0,"binned_contigs_ref"],
+            "target_property": "objRef"
+        },
+        {
+            "service_method_output_path": [0, "report_name"],
+            "target_property": "report_name"
+        },
+        {
+            "service_method_output_path": [0, "report_ref"],
+            "target_property": "report_ref"
+        },
+        {
+            "constant_value": "16",
+            "target_property": "report_window_line_height"
+        }
+      ]
+    }
+  },
+  "job_id_output_field": "docker"
+}

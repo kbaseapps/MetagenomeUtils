@@ -83,15 +83,59 @@ module MetagenomeUtils {
         returns (ExportOutput returnVal) authentication required;
 
     /*
+      export_binned_contigs_as_excel: Convert BinnedContig object to an excel file and pack it to shock
+
+      required params:
+      input_ref: BinnedContig object reference
+
+      optional params:
+      save_to_shock: saving result bin files to shock. default to True
+
+      return params:
+      shock_id: saved packed file shock id (None if save_to_shock is set to False)
+      bin_file_directory: directory that contains all bin files
+    */
+    funcdef export_binned_contigs_as_excel(ExportParams params)
+        returns (ExportOutput returnVal) authentication required;
+
+    typedef structure {
+      string shock_id;
+      string workspace_name;
+      string binned_contigs_name;
+    } ImportExcelParams;
+
+    typedef structure {
+      string report_name;
+      string report_ref;
+      string binned_contigs_ref;
+    } ImportExcelOutput;
+    /*
+    import_excel_as_binned_contigs: Import an excel file as BinnedContigs
+
+    required params:
+    shock_id: Excel file stored in shock
+    workspace_name: the name of the workspace object gets saved to
+
+    optional params:
+    binned_contigs_name: saved BinnedContig name. 
+                         Auto append timestamp from excel if not given.
+    */
+    funcdef import_excel_as_binned_contigs(ImportExcelParams params)
+        returns (ImportExcelOutput returnVal) authentication required;
+
+    /*
       binned_contig_obj_ref: BinnedContig object reference
-      extracted_assemblies: a list of:
+      extracted_assemblies: a list of dictionaries:
             bin_id: target bin id to be extracted
-            assembly_suffix: suffix appended to assembly object name
+      assembly_suffix: suffix appended to assembly object name
+      assembly_set_name:  name for created assembly set
       workspace_name: the name of the workspace it gets saved to
     */
     typedef structure {
       obj_ref binned_contig_obj_ref;
-      list<mapping<string, string>> extracted_assemblies;
+      string extracted_assemblies;   /* comma-separated list of bin ids */
+      string assembly_suffix;
+      string assembly_set_name;
       string workspace_name;
     } ExtractBinAsAssemblyParams;
 
@@ -104,6 +148,7 @@ module MetagenomeUtils {
       list <obj_ref> assembly_ref_list;
       string report_name;
       string report_ref;
+      string assembly_set_ref;
     } ExtractBinAsAssemblyResult;
 
     /*
@@ -251,5 +296,25 @@ module MetagenomeUtils {
     */
     funcdef edit_bins_from_binned_contig(EditBinsParams params)
         returns (EditBinsResult returnVal) authentication required;
+
+    /*
+      ref - workspace reference to AnnotatedMetagenomeAssembly Object
+      included_fields - The fields to include from the Object
+      included_feature_fields - 
+
+    */
+    typedef structure {
+      string ref;
+      list<string> included_fields;
+    } getAnnotatedMetagenomeAssemblyParams;
+
+
+
+    typedef structure {
+      list<UnspecifiedObject> genomes;
+    } getAnnotatedMetagenomeAssemblyOutput;
+
+    funcdef get_annotated_metagenome_assembly(getAnnotatedMetagenomeAssemblyParams params)
+        returns (getAnnotatedMetagenomeAssemblyOutput output) authentication required;
 
 };

@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 #BEGIN_HEADER
-import os
 import json
+import logging
+import os
 
 from MetagenomeUtils.Utils.MetagenomeFileUtils import MetagenomeFileUtils
+from installed_clients.WorkspaceClient import Workspace
+from MetagenomeUtils.Utils.AMAUtils import AMAUtils
 #END_HEADER
 
 
@@ -22,11 +25,14 @@ class MetagenomeUtils:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.0.0"
-    GIT_URL = "https://github.com/Tianhao-Gu/MetagenomeUtils.git"
-    GIT_COMMIT_HASH = "ccfbb8d6def1fba3277cb234ad83895d1318d968"
+    VERSION = "1.1.1"
+    GIT_URL = "https://github.com/kbaseapps/MetagenomeUtils.git"
+    GIT_COMMIT_HASH = "3bc50f58167ad38ad5c6323bc4ef48230306de12"
 
     #BEGIN_CLASS_HEADER
+    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',
+                        level=logging.INFO,
+                        datefmt='%Y-%m-%d %H:%M:%S')
     #END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn't
@@ -67,11 +73,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN file_to_binned_contigs
-        print '--->\nRunning MetagenomeUtils.file_to_binned_contigs\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.file_to_binned_contigs\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_builder = MetagenomeFileUtils(self.config)
@@ -108,11 +114,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN binned_contigs_to_file
-        print '--->\nRunning MetagenomeUtils.binned_contigs_to_file\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.binned_contigs_to_file\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_downloader = MetagenomeFileUtils(self.config)
@@ -122,6 +128,84 @@ class MetagenomeUtils:
         # At some point might do deeper type checking...
         if not isinstance(returnVal, dict):
             raise ValueError('Method binned_contigs_to_file return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
+    def export_binned_contigs_as_excel(self, ctx, params):
+        """
+        export_binned_contigs_as_excel: Convert BinnedContig object to an excel file and pack it to shock
+        required params:
+        input_ref: BinnedContig object reference
+        optional params:
+        save_to_shock: saving result bin files to shock. default to True
+        return params:
+        shock_id: saved packed file shock id (None if save_to_shock is set to False)
+        bin_file_directory: directory that contains all bin files
+        :param params: instance of type "ExportParams" (input_ref:
+           BinnedContig object reference optional params: save_to_shock:
+           saving result bin files to shock. default to True) -> structure:
+           parameter "input_ref" of String, parameter "save_to_shock" of type
+           "boolean" (A boolean - 0 for false, 1 for true. @range (0, 1))
+        :returns: instance of type "ExportOutput" (shock_id: saved packed
+           file shock id bin_file_directory: directory that contains all bin
+           files) -> structure: parameter "shock_id" of String, parameter
+           "bin_file_directory" of String
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN export_binned_contigs_as_excel
+        logging.info('--->\nRunning MetagenomeUtils.export_binned_contigs_as_excel\nparams:'
+                     + json.dumps(params, indent=1))
+
+        for key, value in params.items():
+            if isinstance(value, str):
+                params[key] = value.strip()
+
+        binned_contig_downloader = MetagenomeFileUtils(self.config)
+        returnVal = binned_contig_downloader.export_binned_contigs_as_excel(params)
+        #END export_binned_contigs_as_excel
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method export_binned_contigs_as_excel return value ' +
+                             'returnVal is not type dict as required.')
+        # return the results
+        return [returnVal]
+
+    def import_excel_as_binned_contigs(self, ctx, params):
+        """
+        import_excel_as_binned_contigs: Import an excel file as BinnedContigs
+        required params:
+        shock_id: Excel file stored in shock
+        workspace_name: the name of the workspace object gets saved to
+        optional params:
+        binned_contigs_name: saved BinnedContig name. 
+                             Auto append timestamp from excel if not given.
+        :param params: instance of type "ImportExcelParams" -> structure:
+           parameter "shock_id" of String, parameter "workspace_name" of
+           String, parameter "binned_contigs_name" of String
+        :returns: instance of type "ImportExcelOutput" -> structure:
+           parameter "report_name" of String, parameter "report_ref" of
+           String, parameter "binned_contigs_ref" of String
+        """
+        # ctx is the context object
+        # return variables are: returnVal
+        #BEGIN import_excel_as_binned_contigs
+        logging.info('--->\nRunning MetagenomeUtils.import_excel_as_binned_contigs\nparams:'
+                     + json.dumps(params, indent=1))
+
+        for key, value in params.items():
+            if isinstance(value, str):
+                params[key] = value.strip()
+
+        binned_contig_importer = MetagenomeFileUtils(self.config)
+        returnVal = binned_contig_importer.import_excel_as_binned_contigs(params)
+        #END import_excel_as_binned_contigs
+
+        # At some point might do deeper type checking...
+        if not isinstance(returnVal, dict):
+            raise ValueError('Method import_excel_as_binned_contigs return value ' +
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]
@@ -141,29 +225,30 @@ class MetagenomeUtils:
         report_ref: report reference generated by KBaseReport
         :param params: instance of type "ExtractBinAsAssemblyParams"
            (binned_contig_obj_ref: BinnedContig object reference
-           extracted_assemblies: a list of: bin_id: target bin id to be
-           extracted assembly_suffix: suffix appended to assembly object name
+           extracted_assemblies: a list of dictionaries: bin_id: target bin
+           id to be extracted assembly_suffix: suffix appended to assembly
+           object name assembly_set_name:  name for created assembly set
            workspace_name: the name of the workspace it gets saved to) ->
            structure: parameter "binned_contig_obj_ref" of type "obj_ref" (An
-           X/Y/Z style reference), parameter "extracted_assemblies" of list
-           of mapping from String to String, parameter "workspace_name" of
-           String
+           X/Y/Z style reference), parameter "extracted_assemblies" of
+           String, parameter "assembly_suffix" of String, parameter
+           "assembly_set_name" of String, parameter "workspace_name" of String
         :returns: instance of type "ExtractBinAsAssemblyResult"
            (assembly_ref_list: list of generated Assembly object reference
            report_name: report name generated by KBaseReport report_ref:
            report reference generated by KBaseReport) -> structure: parameter
            "assembly_ref_list" of list of type "obj_ref" (An X/Y/Z style
            reference), parameter "report_name" of String, parameter
-           "report_ref" of String
+           "report_ref" of String, parameter "assembly_set_ref" of String
         """
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN extract_binned_contigs_as_assembly
-        print '--->\nRunning MetagenomeUtils.extract_binned_contigs_as_assembly\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.extract_binned_contigs_as_assembly\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_extractor = MetagenomeFileUtils(self.config)
@@ -206,11 +291,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN remove_bins_from_binned_contig
-        print '--->\nRunning MetagenomeUtils.remove_bins_from_binned_contig\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.remove_bins_from_binned_contig\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_remover = MetagenomeFileUtils(self.config)
@@ -255,11 +340,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN merge_bins_from_binned_contig
-        print '--->\nRunning MetagenomeUtils.merge_bins_from_binned_contig\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.merge_bins_from_binned_contig\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_merger = MetagenomeFileUtils(self.config)
@@ -314,11 +399,11 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: returnVal
         #BEGIN edit_bins_from_binned_contig
-        print '--->\nRunning MetagenomeUtils.edit_bins_from_binned_contig\nparams:'
-        print json.dumps(params, indent=1)
+        logging.info('--->\nRunning MetagenomeUtils.edit_bins_from_binned_contig\nparams:'
+                     + json.dumps(params, indent=1))
 
-        for key, value in params.iteritems():
-            if isinstance(value, basestring):
+        for key, value in params.items():
+            if isinstance(value, str):
                 params[key] = value.strip()
 
         binned_contig_editor = MetagenomeFileUtils(self.config)
@@ -331,6 +416,34 @@ class MetagenomeUtils:
                              'returnVal is not type dict as required.')
         # return the results
         return [returnVal]
+
+    def get_annotated_metagenome_assembly(self, ctx, params):
+        """
+        :param params: instance of type
+           "getAnnotatedMetagenomeAssemblyParams" (ref - workspace reference
+           to AnnotatedMetagenomeAssembly Object included_fields - The fields
+           to include from the Object included_feature_fields -) ->
+           structure: parameter "ref" of String, parameter "included_fields"
+           of list of String, parameter "included_feature_fields" of list of
+           String
+        :returns: instance of type "getAnnotatedMetagenomeAssemblyOutput" ->
+           structure:
+        """
+        # ctx is the context object
+        # return variables are: output
+        #BEGIN get_annotated_metagenome_assembly
+        ws = Workspace(self.config['workspace-url'], token=ctx['token'])
+        ama_utils = AMAUtils(ws)
+        output = ama_utils.get_annotated_metagenome_assembly(params)
+
+        #END get_annotated_metagenome_assembly
+
+        # At some point might do deeper type checking...
+        if not isinstance(output, dict):
+            raise ValueError('Method get_annotated_metagenome_assembly return value ' +
+                             'output is not type dict as required.')
+        # return the results
+        return [output]
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",

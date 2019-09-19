@@ -1,0 +1,82 @@
+#
+# define display information
+#
+name: Import Edited Excel File as BinnedContigs - v1.0.2
+tooltip: Import and edited Excel file as a BinnedContigs object.
+screenshots: []
+
+icon: binutil-green.png
+
+#
+# define a set of similar methods that might be useful to the user
+#
+suggestions:
+    apps:
+        related:
+            []
+        next:
+            []
+    methods:
+        related:
+            []
+        next:
+            []
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    binned_contigs_file :
+        ui-name : Excel File
+        short-hint : The Excel file to import.
+    binned_contigs_name :
+        ui-name : Output BinnedContigs Name
+        short-hint : Select a name for the output BinnedContigs object.
+
+
+description : |
+    <p>This App is a basic tool for importing an edited Excel file as a BinnedContigs data object. It was designed to provide users with a user-friendly format, in this case, Excel, to edit BinnedContigs objects created from metagenome contig binning for re-upload into KBase. While a download of a fasta set (zip file containing individual fasta files for each bin in a BinnedContigs object) is also available for BinnedContigs, it makes edits more cumbersome and requires upload of each individual .fasta file back into KBase. This tool relies on keeping the references to the Assemblies associated with the binned contigs for downstream analysis of BinnedContig objects. Due to this design constraint, this tool <b>WILL NOT WORK</b> properly for BinnedContig Excel files originally created <i>outside</i> of KBase.</p>
+
+    <p>Order of opertions:
+      <ol>
+        <li>The user creates a BinnedContigs object through the use of either the MetaBat2 or MaxBin2 App.</li>
+        <li>The user then downloads the BinnedContigs object in the data panel in Excel format.</li>
+        <li>The user edits that downloaded Excel file in any of the following ways based on their customized needs:
+          <ul>
+            <li>Move a contig (and its contig specific information) from one bin to another.</li>
+            <li>Make a new bin, by creating a new Excel sheet (tab) in the excel file. Copying the format of the other tabs and insuring the name of the sheet and the bin_id field name are consistent.</li>
+            <li>Remove a bin by deleting an Excel sheet (tab). Note any removed contigs should be put into other bins or will become “unbinned”</li>
+            <li>Change bin names. The user needs to insure the name of the sheet and the bin_id field name are consistent.</li>
+          </ul>
+        <li>The user then uses this App for importing the binned contigs Excel file back into the system making a new BinnedContigs object with the same name as the input Excel file (minus the “.xls” extension).</li>
+      </ol>
+    </p>
+
+
+    <p><strong>App Output</strong></p>
+    <p>The first tab in the output, labeled “Contig Bin Summary,” has some top level information about the BinnedContig object (name, number of bins, total number of nucleotides in the contigs). The second output panel, labeled “Bins,” consists of the following 5 columns:
+      <ul>
+        <li>Bin Name: The name the bin was assigned. This also has the following two icon links:
+	         <ul>
+            <li>The leftmost icon that looks like a bulleted list will cause a new tab to appear in the output for that bin. This new bin tab has the following 4 columns:
+	             <ul>
+                <li>Contig ID</li>
+	              <li>Coverage</li>
+	              <li>GC Content</li>
+	              <li>Contig Length</li>
+	             </ul>
+            </li>
+            <li>The other icon that looks like bar graph will generate a new tab containing a bar plot of that bin. It shows the contig name, contig length, and GC content.</li>
+          </ul>
+        <li>Read Coverage</li>
+        <li>GC Content</li>
+        <li>Number of Contigs</li>
+        <li>Total Length of Contigs</li>
+      </ul>
+    </p>
+
+publications :
+    -
+        display-text: |
+            Arkin AP, Cottingham RW, Henry CS, Harris NL, Stevens RL, Maslov S, et al. KBase: The United States Department of Energy Systems Biology Knowledgebase. Nature Biotechnology. 2018;36: 566. doi: 10.1038/nbt.4163
+        link: https://www.nature.com/articles/nbt.4163
