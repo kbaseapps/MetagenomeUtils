@@ -308,13 +308,30 @@ module MetagenomeUtils {
       list<string> included_fields;
     } getAnnotatedMetagenomeAssemblyParams;
 
-
-
     typedef structure {
       list<UnspecifiedObject> genomes;
     } getAnnotatedMetagenomeAssemblyOutput;
 
     funcdef get_annotated_metagenome_assembly(getAnnotatedMetagenomeAssemblyParams params)
         returns (getAnnotatedMetagenomeAssemblyOutput output) authentication required;
+
+    /*
+    This function serves to abstract getting the features from an AMA object.
+
+      ref - workspace reference to AnnotatedMetagenomeAssembly object
+
+    This function returns the features as a list of dictionaries.
+    */
+
+    typedef structure {
+      string ref;
+    } getAnnotatedMetagenomeAssemblyFeaturesParams;
+
+    typedef structure {
+      list<UnspecifiedObject> features;
+    } getAnnotatedMetagenomeAssemblyFeaturesOutput;
+
+    funcdef get_annotated_metagenome_assembly_features(getAnnotatedMetagenomeAssemblyFeaturesParams params)
+        returns (getAnnotatedMetagenomeAssemblyFeaturesOutput output) authentication required;
 
 };

@@ -1,7 +1,17 @@
+from installed_clients.WorkspaceClient import Workspace
+from installed_clients.DataFileUtilClient import DataFileUtil
+import json
+import os
+# import gzip
+
+
 class AMAUtils():
 
-    def __init__(self, ws):
-        self.ws = ws
+    def __init__(self, ws_url, cb_url, token, scratch):
+        self.ws = Workspace(ws_url, token=token)
+        self.cb_url = cb_url
+        self.token = token
+        self.scratch = scratch
 
     def _confirm_ws_type(self, ref):
         """confirm whether 'ref' is of type 'KBaseMetagenomes.AnnotatedMetagenomeAssembly
@@ -40,3 +50,38 @@ class AMAUtils():
         })['data']
 
         return {'genomes': data}
+
+    def get_annotated_metagenome_assembly_features(self, params):
+        """
+        params: 
+            ref - workspace reference for KBaseMetagenomes.AnnotatedMetagenomeAssembly object
+        output:
+            features - list of features, each representing a dict.
+        """
+        ref = params['ref']
+        self._confirm_ws_type(ref)
+        ret = self.ws.get_objects2({
+            "objects": [{
+                "ref": ref,
+                "included": [
+                    "features_handle_ref"
+                ]
+            }]
+        })['data']
+        features_handle_ref = ret[0]['data']['features_handle_ref']
+        dfu = DataFileUtil(self.cb_url, token=self.token)
+        file_name = 'features.json.gz'
+        file_path = os.path.join(self.scratch, file_name)
+        shock_ret = dfu.shock_to_file({
+            'handle_id': features_handle_ref,
+            'file_path': file_path,
+            'unpack': "uncompress"
+        })
+        file_path = shock_ret['file_path']
+        # with gzip.GzipFile(file_path, 'r') as f:
+        #    json_bytes = f.read()
+
+        with open(file_path) as fd:
+            json_features = json.load(fd)
+
+        return {'features': json_features}
