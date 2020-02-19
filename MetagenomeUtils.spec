@@ -320,7 +320,7 @@ module MetagenomeUtils {
 
       ref - workspace reference to AnnotatedMetagenomeAssembly object
 
-    This function returns the features as a list of dictionaries.
+    This function returns the features of an AnnotatedMetagenomeAssembly as a list of dictionaries.
     */
 
     typedef structure {
