@@ -431,8 +431,12 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: output
         #BEGIN get_annotated_metagenome_assembly
-        # ws = Workspace(self.config['workspace-url'], token=ctx['token'])
-        ama_utils = AMAUtils(self.config['workspace-url'], self.config['SDK_CALLBACK_URL'], ctx['token'], self.config['scratch'])
+        ama_utils = AMAUtils(
+          self.config['workspace-url'],
+          self.config['SDK_CALLBACK_URL'],
+          ctx['token'],
+          self.config['scratch']
+        )
         output = ama_utils.get_annotated_metagenome_assembly(params)
 
         #END get_annotated_metagenome_assembly
@@ -456,7 +460,12 @@ class MetagenomeUtils:
         # ctx is the context object
         # return variables are: output
         #BEGIN get_annotated_metagenome_assembly_features
-        ama_utils = AMAUtils(self.config['workspace-url'], self.config['SDK_CALLBACK_URL'], ctx['token'], self.config['scratch'])
+        ama_utils = AMAUtils(
+          self.config['workspace-url'],
+          self.config['SDK_CALLBACK_URL'],
+          ctx['token'],
+          self.config['scratch']
+        )
         output = ama_utils.get_annotated_metagenome_assembly_features(params)
         #END get_annotated_metagenome_assembly_features
 

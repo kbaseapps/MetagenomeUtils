@@ -2,7 +2,6 @@ from installed_clients.WorkspaceClient import Workspace
 from installed_clients.DataFileUtilClient import DataFileUtil
 import json
 import os
-# import gzip
 
 
 class AMAUtils():
