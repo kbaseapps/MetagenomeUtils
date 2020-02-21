@@ -319,12 +319,22 @@ module MetagenomeUtils {
     This function serves to abstract getting the features from an AMA object.
 
       ref - workspace reference to AnnotatedMetagenomeAssembly object
+      feature_type - case insensitive string which filters on feature types:
+            accepted feature types include:
+                - "cds"
+                - "gene"
+                - "mrna"
+                - "trna"
+                - "repeat_region"
+                - "rrna"
+
 
     This function returns the features of an AnnotatedMetagenomeAssembly as a list of dictionaries.
     */
 
     typedef structure {
       string ref;
+      string feature_type;
     } getAnnotatedMetagenomeAssemblyFeaturesParams;
 
     typedef structure {

@@ -55,6 +55,7 @@ class AMAUtilsTest(unittest.TestCase):
         cls.ws_info = cls.wsClient.create_workspace({'workspace': wsName})
         cls.dfu = DataFileUtil(os.environ['SDK_CALLBACK_URL'], token=token)
         cls.au = AssemblyUtil(os.environ['SDK_CALLBACK_URL'], token=token)
+        cls.metagenome_ref = None
 
     @classmethod
     def tearDownClass(cls):
@@ -77,18 +78,14 @@ class AMAUtilsTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-    def _check_features(self, features):
+    def _check_features(self, features, feat_type=None):
         for item in features:
             self.assertTrue('id' in item)
             self.assertTrue('type' in item)
             self.assertTrue('location' in item)
             self.assertTrue('dna_sequence' in item)
-            self.assertTrue('aliases' in item)
-            self.assertTrue('md5' in item)
-            self.assertTrue('cdss' in item)
-            self.assertTrue('warnings' in item)
-            self.assertTrue('dna_sequence_length' in item)
-            break
+            if feat_type:
+                self.assertTrue(item['type'].lower() == feat_type.lower())
 
     def _check_ret(self, ret, incl):
         self.assertTrue('genomes' in ret)
@@ -100,6 +97,8 @@ class AMAUtilsTest(unittest.TestCase):
         self.assertFalse('features_handle_ref' in data)
 
     def _save_metagenome(self):
+        if self.metagenome_ref:
+            return self.metagenome_ref
         json_file = "Data/test_metagenome_object.json"
         with open(json_file) as f:
             data = json.load(f)
@@ -112,7 +111,8 @@ class AMAUtilsTest(unittest.TestCase):
                 'name': "test_metagenome"
             }]
         })[0]
-        return '/'.join([str(obj_info[6]), str(obj_info[0]), str(obj_info[4])])
+        self.metagenome_ref = '/'.join([str(obj_info[6]), str(obj_info[0]), str(obj_info[4])])
+        return self.metagenome_ref
 
     def test_get_ama(self):
         appdev_ref = self._save_metagenome()
@@ -143,3 +143,15 @@ class AMAUtilsTest(unittest.TestCase):
             {'ref': appdev_ref}
         )[0]
         self._check_features(ret['features'])
+
+    def test_get_ama_features_with_type(self):
+        appdev_ref = self._save_metagenome()
+        feat_type = 'cds'
+        ret = self.getImpl().get_annotated_metagenome_assembly_features(
+            self.ctx,
+            {
+                'ref': appdev_ref,
+                'feature_type': 'cds'
+            }
+        )[0]
+        self._check_features(ret['features'], feat_type=feat_type)
