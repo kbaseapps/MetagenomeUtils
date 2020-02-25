@@ -328,7 +328,6 @@ module MetagenomeUtils {
                 - "repeat_region"
                 - "rrna"
 
-
     This function returns the features of an AnnotatedMetagenomeAssembly as a list of dictionaries.
     */
 
