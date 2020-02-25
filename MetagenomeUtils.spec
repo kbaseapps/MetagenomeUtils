@@ -318,8 +318,8 @@ module MetagenomeUtils {
     /*
     This function serves to abstract getting the features from an AMA object.
 
-      ref - workspace reference to AnnotatedMetagenomeAssembly object
-      feature_type - case insensitive string which filters on feature types:
+      ref - string -  workspace reference to AnnotatedMetagenomeAssembly object
+      feature_type - string - case insensitive string which filters on feature types:
             accepted feature types include:
                 - "cds"
                 - "gene"
@@ -327,6 +327,8 @@ module MetagenomeUtils {
                 - "trna"
                 - "repeat_region"
                 - "rrna"
+      only_ids - optional boolean (1 or 0)  - whether to include only feature ids, 
+          default False (0). returns in form [{'id': 1}, {'id': 2}, .....]
 
     This function returns the features of an AnnotatedMetagenomeAssembly as a list of dictionaries.
     */
@@ -334,13 +336,14 @@ module MetagenomeUtils {
     typedef structure {
       string ref;
       string feature_type;
-    } getAnnotatedMetagenomeAssemblyFeaturesParams;
+      boolean only_ids;
+    } getAMAFeaturesParams;
 
     typedef structure {
       list<UnspecifiedObject> features;
-    } getAnnotatedMetagenomeAssemblyFeaturesOutput;
+    } getAMAFeaturesOutput;
 
-    funcdef get_annotated_metagenome_assembly_features(getAnnotatedMetagenomeAssemblyFeaturesParams params)
-        returns (getAnnotatedMetagenomeAssemblyFeaturesOutput output) authentication required;
+    funcdef get_annotated_metagenome_assembly_features(getAMAFeaturesParams params)
+        returns (getAMAFeaturesOutput output) authentication required;
 
 };

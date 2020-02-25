@@ -50,7 +50,7 @@ class AMAUtils():
 
         return {'genomes': data}
 
-    def get_annotated_metagenome_assembly_features(self, params, feat_type):
+    def get_annotated_metagenome_assembly_features(self, params):
         """
         params: 
             ref - workspace reference for KBaseMetagenomes.AnnotatedMetagenomeAssembly object
@@ -81,7 +81,6 @@ class AMAUtils():
         with open(file_path) as fd:
             json_features = json.load(fd)
 
-
         if params.get('feature_type'):
             accepted_feature_types = [
                 "cds",
@@ -96,5 +95,8 @@ class AMAUtils():
                 raise ValueError(f"{feat_type} not an accepted feature type; accepted feature"
                                  " types (in lower case) are {accepted_feature_types}")
             json_features = [feature for feature in json_features if feature['type'].lower() == feat_type.lower()]
+
+        if params.get('only_ids'):
+            json_features = [{'id': feature['id']} for feature in json_features]
 
         return {'features': json_features}

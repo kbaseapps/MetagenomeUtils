@@ -78,14 +78,19 @@ class AMAUtilsTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-    def _check_features(self, features, feat_type=None):
+    def _check_features(self, features, feat_type=None, only_ids=False):
         for item in features:
             self.assertTrue('id' in item)
-            self.assertTrue('type' in item)
-            self.assertTrue('location' in item)
-            self.assertTrue('dna_sequence' in item)
-            if feat_type:
-                self.assertTrue(item['type'].lower() == feat_type.lower())
+            if not only_ids:
+                self.assertTrue('type' in item)
+                self.assertTrue('location' in item)
+                self.assertTrue('dna_sequence' in item)
+                if feat_type:
+                    self.assertTrue(item['type'].lower() == feat_type.lower())
+            else:
+                self.assertTrue('type' not in item)
+                self.assertTrue('location' not in item)
+                self.assertTrue('dna_sequence' not in item)
 
     def _check_ret(self, ret, incl):
         self.assertTrue('genomes' in ret)
@@ -114,6 +119,7 @@ class AMAUtilsTest(unittest.TestCase):
         self.metagenome_ref = '/'.join([str(obj_info[6]), str(obj_info[0]), str(obj_info[4])])
         return self.metagenome_ref
 
+    # @unittest.skip('x')
     def test_get_ama(self):
         appdev_ref = self._save_metagenome()
 
@@ -136,6 +142,7 @@ class AMAUtilsTest(unittest.TestCase):
         ret = self.getImpl().get_annotated_metagenome_assembly(self.ctx, params)[0]
         self._check_ret(ret, incl)
 
+    # @unittest.skip('x')
     def test_get_ama_features(self):
         appdev_ref = self._save_metagenome()
         ret = self.getImpl().get_annotated_metagenome_assembly_features(
@@ -144,6 +151,7 @@ class AMAUtilsTest(unittest.TestCase):
         )[0]
         self._check_features(ret['features'])
 
+    # @unittest.skip('x')
     def test_get_ama_features_with_type(self):
         appdev_ref = self._save_metagenome()
         feat_type = 'cds'
@@ -155,3 +163,16 @@ class AMAUtilsTest(unittest.TestCase):
             }
         )[0]
         self._check_features(ret['features'], feat_type=feat_type)
+
+    # @unittest.skip('x')
+    def test_get_ama_features_only_ids(self):
+        appdev_ref = self._save_metagenome()
+        feat_type = 'cds'
+        ret = self.getImpl().get_annotated_metagenome_assembly_features(
+            self.ctx,
+            {
+                'ref': appdev_ref,
+                'only_ids': 1
+            }
+        )[0]
+        self._check_features(ret['features'], only_ids=True)
