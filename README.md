@@ -7,3 +7,4 @@ interacting with Metagenomic data in [KBase](https://kbase.us).
 
 This module also contains the KIDL definition of the KBaseMetagenomes
 workspace data types.
+
