@@ -334,7 +334,7 @@ class MetagenomeFileUtils:
 
     def _get_contig_file(self, assembly_ref):
         """
-        _get_contig_file: get contif file from GenomeAssembly object
+        _get_contig_file: get contig file from GenomeAssembly object
         """
 
         log(f'retrieving contig file from assembly: {assembly_ref}')
@@ -724,7 +724,7 @@ class MetagenomeFileUtils:
                                                     [params.get('input_ref')]})['data'][0]
 
         assembly_ref = binned_contig_object.get('data').get('assembly_ref')
-        assembly_contig_file = self._get_contig_file(assembly_ref)
+        assembly_contig_file = self._get_contig_file(params.get('input_ref') + ";" + assembly_ref)
         log(f'parsing assembly file [{assembly_contig_file}] to dictionary')
         parsed_assembly = SeqIO.to_dict(SeqIO.parse(assembly_contig_file, "fasta"))
 
