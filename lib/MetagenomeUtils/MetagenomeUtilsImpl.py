@@ -27,7 +27,7 @@ class MetagenomeUtils:
     ######################################### noqa
     VERSION = "1.1.1"
     GIT_URL = "https://github.com/kbaseapps/MetagenomeUtils.git"
-    GIT_COMMIT_HASH = "3bc50f58167ad38ad5c6323bc4ef48230306de12"
+    GIT_COMMIT_HASH = "8ee04046dc701a54d462fcdff73504b312ae0e53"
 
     #BEGIN_CLASS_HEADER
     logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',
@@ -424,16 +424,19 @@ class MetagenomeUtils:
            to AnnotatedMetagenomeAssembly Object included_fields - The fields
            to include from the Object included_feature_fields -) ->
            structure: parameter "ref" of String, parameter "included_fields"
-           of list of String, parameter "included_feature_fields" of list of
-           String
+           of list of String
         :returns: instance of type "getAnnotatedMetagenomeAssemblyOutput" ->
-           structure:
+           structure: parameter "genomes" of list of unspecified object
         """
         # ctx is the context object
         # return variables are: output
         #BEGIN get_annotated_metagenome_assembly
-        ws = Workspace(self.config['workspace-url'], token=ctx['token'])
-        ama_utils = AMAUtils(ws)
+        ama_utils = AMAUtils(
+            self.config['workspace-url'],
+            self.config['SDK_CALLBACK_URL'],
+            ctx['token'],
+            self.config['scratch']
+        )
         output = ama_utils.get_annotated_metagenome_assembly(params)
 
         #END get_annotated_metagenome_assembly
@@ -441,6 +444,34 @@ class MetagenomeUtils:
         # At some point might do deeper type checking...
         if not isinstance(output, dict):
             raise ValueError('Method get_annotated_metagenome_assembly return value ' +
+                             'output is not type dict as required.')
+        # return the results
+        return [output]
+
+    def get_annotated_metagenome_assembly_features(self, ctx, params):
+        """
+        :param params: instance of type
+           "getAnnotatedMetagenomeAssemblyFeaturesParams" -> structure:
+           parameter "ref" of String
+        :returns: instance of type
+           "getAnnotatedMetagenomeAssemblyFeaturesOutput" -> structure:
+           parameter "features" of list of unspecified object
+        """
+        # ctx is the context object
+        # return variables are: output
+        #BEGIN get_annotated_metagenome_assembly_features
+        ama_utils = AMAUtils(
+            self.config['workspace-url'],
+            self.config['SDK_CALLBACK_URL'],
+            ctx['token'],
+            self.config['scratch']
+        )
+        output = ama_utils.get_annotated_metagenome_assembly_features(params)
+        #END get_annotated_metagenome_assembly_features
+
+        # At some point might do deeper type checking...
+        if not isinstance(output, dict):
+            raise ValueError('Method get_annotated_metagenome_assembly_features return value ' +
                              'output is not type dict as required.')
         # return the results
         return [output]

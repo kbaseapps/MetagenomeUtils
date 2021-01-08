@@ -55,6 +55,7 @@ class AMAUtilsTest(unittest.TestCase):
         cls.ws_info = cls.wsClient.create_workspace({'workspace': wsName})
         cls.dfu = DataFileUtil(os.environ['SDK_CALLBACK_URL'], token=token)
         cls.au = AssemblyUtil(os.environ['SDK_CALLBACK_URL'], token=token)
+        cls.metagenome_ref = None
 
     @classmethod
     def tearDownClass(cls):
@@ -77,7 +78,21 @@ class AMAUtilsTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-    def check_ret(self, ret, incl):
+    def _check_features(self, features, feat_type=None, only_ids=False):
+        for item in features:
+            self.assertTrue('id' in item)
+            if not only_ids:
+                self.assertTrue('type' in item)
+                self.assertTrue('location' in item)
+                self.assertTrue('dna_sequence' in item)
+                if feat_type:
+                    self.assertTrue(item['type'].lower() == feat_type.lower())
+            else:
+                self.assertTrue('type' not in item)
+                self.assertTrue('location' not in item)
+                self.assertTrue('dna_sequence' not in item)
+
+    def _check_ret(self, ret, incl):
         self.assertTrue('genomes' in ret)
         data = ret.get('genomes')
         data = data[0]['data']
@@ -86,7 +101,9 @@ class AMAUtilsTest(unittest.TestCase):
         # make sure one of the standard fields is not included
         self.assertFalse('features_handle_ref' in data)
 
-    def save_metagenome(self):
+    def _save_metagenome(self):
+        if self.metagenome_ref:
+            return self.metagenome_ref
         json_file = "Data/test_metagenome_object.json"
         with open(json_file) as f:
             data = json.load(f)
@@ -99,11 +116,12 @@ class AMAUtilsTest(unittest.TestCase):
                 'name': "test_metagenome"
             }]
         })[0]
-        return '/'.join([str(obj_info[6]), str(obj_info[0]), str(obj_info[4])])
+        self.metagenome_ref = '/'.join([str(obj_info[6]), str(obj_info[0]), str(obj_info[4])])
+        return self.metagenome_ref
 
+    # @unittest.skip('x')
     def test_get_ama(self):
-        """"""
-        appdev_ref = self.save_metagenome()
+        appdev_ref = self._save_metagenome()
 
         incl = [
             'dna_size',
@@ -122,4 +140,39 @@ class AMAUtilsTest(unittest.TestCase):
         }
 
         ret = self.getImpl().get_annotated_metagenome_assembly(self.ctx, params)[0]
-        self.check_ret(ret, incl)
+        self._check_ret(ret, incl)
+
+    # @unittest.skip('x')
+    def test_get_ama_features(self):
+        appdev_ref = self._save_metagenome()
+        ret = self.getImpl().get_annotated_metagenome_assembly_features(
+            self.ctx,
+            {'ref': appdev_ref}
+        )[0]
+        self._check_features(ret['features'])
+
+    # @unittest.skip('x')
+    def test_get_ama_features_with_type(self):
+        appdev_ref = self._save_metagenome()
+        feat_type = 'cds'
+        ret = self.getImpl().get_annotated_metagenome_assembly_features(
+            self.ctx,
+            {
+                'ref': appdev_ref,
+                'feature_type': 'cds'
+            }
+        )[0]
+        self._check_features(ret['features'], feat_type=feat_type)
+
+    # @unittest.skip('x')
+    def test_get_ama_features_only_ids(self):
+        appdev_ref = self._save_metagenome()
+        feat_type = 'cds'
+        ret = self.getImpl().get_annotated_metagenome_assembly_features(
+            self.ctx,
+            {
+                'ref': appdev_ref,
+                'only_ids': 1
+            }
+        )[0]
+        self._check_features(ret['features'], only_ids=True)
