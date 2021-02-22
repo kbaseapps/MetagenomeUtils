@@ -1,3 +1,5 @@
+1.1.3: removed HTML from extract_bins_as_assemblies() param name
+
 1.1.2: Fixing copy of a copy issue
 
 1.1.0: Update to Python 3

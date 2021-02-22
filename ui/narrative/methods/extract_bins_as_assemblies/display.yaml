@@ -30,7 +30,7 @@ parameters :
         ui-name : BinnedContigs
         short-hint : The name of the BinnedContig data object.
     extracted_assemblies:
-        ui-name : Bin Names to Extract <b>(default is to extract all bins)</b>
+        ui-name : Bin Names to Extract (default is to extract all bins)
         short-hint : Select the bins to extract as Assembly objects (i.e., putative genomes).
     assembly_suffix:
         ui-name : Assembly Name Suffix
