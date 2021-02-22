@@ -1,3 +1,5 @@
+1.1.3: Fixed broken tests; removed travis and added github action
+
 1.1.2: Fixing copy of a copy issue
 
 1.1.0: Update to Python 3

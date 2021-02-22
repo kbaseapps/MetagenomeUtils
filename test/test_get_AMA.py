@@ -10,13 +10,11 @@ import json
 
 from MetagenomeUtils.MetagenomeUtilsImpl import MetagenomeUtils
 from MetagenomeUtils.MetagenomeUtilsServer import MethodContext
-from MetagenomeUtils.Utils.MetagenomeFileUtils import MetagenomeFileUtils
-from MetagenomeUtils.Utils.AMAUtils import AMAUtils
 from MetagenomeUtils.authclient import KBaseAuth as _KBaseAuth
 from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.WorkspaceClient import Workspace as workspaceService
-from installed_clients.WsLargeDataIOClient import WsLargeDataIO
+from installed_clients.AbstractHandleClient import AbstractHandle as HandleService
 
 
 class AMAUtilsTest(unittest.TestCase):
@@ -56,6 +54,8 @@ class AMAUtilsTest(unittest.TestCase):
         cls.dfu = DataFileUtil(os.environ['SDK_CALLBACK_URL'], token=token)
         cls.au = AssemblyUtil(os.environ['SDK_CALLBACK_URL'], token=token)
         cls.metagenome_ref = None
+        cls.handleURL = cls.cfg['handle-service-url']
+        cls.hs = HandleService(cls.handleURL)
 
     @classmethod
     def tearDownClass(cls):
@@ -107,7 +107,12 @@ class AMAUtilsTest(unittest.TestCase):
         json_file = "Data/test_metagenome_object.json"
         with open(json_file) as f:
             data = json.load(f)
-        data['assembly_ref'] = "22385/57/1"
+        data['assembly_ref'] = "KBaseTestData/Pseudomonas_stutzeri_RCH2.assembly/1"
+        # # update handles in object
+        prev_handle_id = data['features_handle_ref']
+        prev_shock_id = self.hs.hids_to_handles([prev_handle_id])[0]['id']
+        new_handle_id = self.dfu.own_shock_node({'shock_id': prev_shock_id, 'make_handle': 1})['handle']['hid']
+        data['features_handle_ref'] = new_handle_id
         obj_info = self.dfu.save_objects({
             'id': self.getWsID(),
             "objects": [{
@@ -120,6 +125,7 @@ class AMAUtilsTest(unittest.TestCase):
         return self.metagenome_ref
 
     # @unittest.skip('x')
+    # error
     def test_get_ama(self):
         appdev_ref = self._save_metagenome()
 
