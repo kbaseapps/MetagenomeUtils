@@ -374,6 +374,10 @@ class Application(object):
                              name='MetagenomeUtils.get_annotated_metagenome_assembly',
                              types=[dict])
         self.method_authentication['MetagenomeUtils.get_annotated_metagenome_assembly'] = 'required'  # noqa
+        self.rpc_service.add(impl_MetagenomeUtils.get_annotated_metagenome_assembly_features,
+                             name='MetagenomeUtils.get_annotated_metagenome_assembly_features',
+                             types=[dict])
+        self.method_authentication['MetagenomeUtils.get_annotated_metagenome_assembly_features'] = 'required'  # noqa
         self.rpc_service.add(impl_MetagenomeUtils.status,
                              name='MetagenomeUtils.status',
                              types=[dict])

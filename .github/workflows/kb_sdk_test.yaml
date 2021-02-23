@@ -2,9 +2,14 @@ name: KBase SDK Tests
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
+    - main
   pull_request:
-    branches: [ master ]
+    branches:
+    - master
+    - main
+    - develop
 
 jobs:
 
@@ -50,5 +55,8 @@ jobs:
     - name: Run tests
       if: "!contains(github.event.head_commit.message, 'skip ci')"
       shell: bash
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       run: |
         sh $GITHUB_WORKSPACE/kb_sdk_actions/bin/kb-sdk test
+        bash <(curl -s https://codecov.io/bash)
