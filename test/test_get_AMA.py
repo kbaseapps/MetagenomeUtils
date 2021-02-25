@@ -56,6 +56,7 @@ class AMAUtilsTest(unittest.TestCase):
         cls.metagenome_ref = None
         cls.handleURL = cls.cfg['handle-service-url']
         cls.hs = HandleService(cls.handleURL)
+        cls.object_ref = 'KBaseTestData/test_metagenome/1'
 
     @classmethod
     def tearDownClass(cls):
@@ -101,34 +102,7 @@ class AMAUtilsTest(unittest.TestCase):
         # make sure one of the standard fields is not included
         self.assertFalse('features_handle_ref' in data)
 
-    def _save_metagenome(self):
-        if self.metagenome_ref:
-            return self.metagenome_ref
-        json_file = "Data/test_metagenome_object.json"
-        with open(json_file) as f:
-            data = json.load(f)
-        data['assembly_ref'] = "KBaseTestData/Pseudomonas_stutzeri_RCH2.assembly/1"
-        # # update handles in object
-        prev_handle_id = data['features_handle_ref']
-        prev_shock_id = self.hs.hids_to_handles([prev_handle_id])[0]['id']
-        new_handle_id = self.dfu.own_shock_node({'shock_id': prev_shock_id, 'make_handle': 1})['handle']['hid']
-        data['features_handle_ref'] = new_handle_id
-        obj_info = self.dfu.save_objects({
-            'id': self.getWsID(),
-            "objects": [{
-                'type': "KBaseMetagenomes.AnnotatedMetagenomeAssembly",
-                'data': data,
-                'name': "test_metagenome"
-            }]
-        })[0]
-        self.metagenome_ref = '/'.join([str(obj_info[6]), str(obj_info[0]), str(obj_info[4])])
-        return self.metagenome_ref
-
-    # @unittest.skip('x')
-    # error
     def test_get_ama(self):
-        appdev_ref = self._save_metagenome()
-
         incl = [
             'dna_size',
             'source_id',
@@ -140,7 +114,7 @@ class AMAUtilsTest(unittest.TestCase):
             'environment'
         ]
         params = {
-            'ref': appdev_ref,
+            'ref': self.object_ref,
             'included_fields': incl,
             'included_feature_fields': []
         }
@@ -150,21 +124,19 @@ class AMAUtilsTest(unittest.TestCase):
 
     # @unittest.skip('x')
     def test_get_ama_features(self):
-        appdev_ref = self._save_metagenome()
         ret = self.getImpl().get_annotated_metagenome_assembly_features(
             self.ctx,
-            {'ref': appdev_ref}
+            {'ref': self.object_ref}
         )[0]
         self._check_features(ret['features'])
 
     # @unittest.skip('x')
     def test_get_ama_features_with_type(self):
-        appdev_ref = self._save_metagenome()
         feat_type = 'cds'
         ret = self.getImpl().get_annotated_metagenome_assembly_features(
             self.ctx,
             {
-                'ref': appdev_ref,
+                'ref': self.object_ref,
                 'feature_type': 'cds'
             }
         )[0]
@@ -172,12 +144,11 @@ class AMAUtilsTest(unittest.TestCase):
 
     # @unittest.skip('x')
     def test_get_ama_features_only_ids(self):
-        appdev_ref = self._save_metagenome()
         feat_type = 'cds'
         ret = self.getImpl().get_annotated_metagenome_assembly_features(
             self.ctx,
             {
-                'ref': appdev_ref,
+                'ref': self.object_ref,
                 'only_ids': 1
             }
         )[0]
